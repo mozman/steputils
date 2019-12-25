@@ -1,0 +1,10 @@
+.tox
+.cache
+.eggs
+build/*
+dist/*
+.idea/*
+ifc4data.egg-info/*
+docs/build/*
+__pycache__
+tox.ini
