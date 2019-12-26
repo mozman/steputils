@@ -165,7 +165,7 @@ Unknown = Logical()
 Boolean = bool
 
 
-class Binary(bytes):
+class Binary:
     """
     The binary data type has as its domain sequences of bits, each bit being represented by 0 or 1.
     Syntax:
@@ -186,27 +186,28 @@ class Binary(bytes):
     string representing a number.
     """
 
-    def __new__(self, value, width=-1, fixed=False):
-        return str.__new__(self, value)
+    def __init__(self, value, width=None, fixed=False):
+        try:
+            self._value = int(value, 2)
+        except ValueError:
+            raise ValueError("%s is not a binary" % value)
 
-    def __init__(self, value, width=-1, fixed=False):
-        """ By default, length is set to None"""
         self._specified_width = width
         self._fixed = fixed
         # Check implicit width
-        if (width != -1) and not fixed:
+        if (width is not None) and not fixed:
             raise ValueError(
                 "The 'width' parameter is passed but 'fixed' is still false. Please explicitly set 'fixed' to True to avoid implicit declaration")
         # First check the string length if 'fixed' is set to True
         if fixed:
             if len(value) != width:
-                raise ValueError(
-                    "The BINARY width %i is not consistent with the 'width' declaration(%i)" % (len(value), width))
-        # Check that the value passed is actually a binary
-        try:
-            int(value, 2)
-        except ValueError:
-            raise ValueError("%s is not a binary" % value)
+                raise ValueError("The BINARY width {}} is not consistent with the 'width' declaration({}})" .format(len(value), width))
+
+    def __str__(self):
+        return bin(self._value)[2:]
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}('{self.__str__()}')"
 
 
 if __name__ == "__main__":
@@ -224,3 +225,4 @@ if __name__ == "__main__":
     e = Integer("5")
     f = Integer("8")
     print(e * f)
+    print(repr(Binary('1001')))

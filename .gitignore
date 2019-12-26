@@ -4,6 +4,7 @@
 build/*
 dist/*
 .idea/*
+docs/stepcode/.idea/*
 ifc4data.egg-info/*
 docs/build/*
 __pycache__

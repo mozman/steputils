@@ -47,6 +47,44 @@ implementation like [lxml].
 Import/Export by the standard Python module `json` and the ability to use an faster alternative implementation 
 like [orjson]. 
 
+Internal Data Model
+-------------------
+
+### Classes
+
+1. Static: create class declarations from EXPRESS file as a Python .py file
+   - (-) requires data from EXPRESS file, need a parser
+   - (+) manually modifications are possible
+   - (-) modifications are lost at recreation process
+   - (-) big code base     
+
+2. Dynamic: use Python meta programming to create classes on the fly
+   - (-) requires data from EXPRESS file, need a parser  
+   - (-) no modifications are possible by default, maybe extensible by mixins
+   - (+) small code base
+
+### Instances
+
+Instantiation by factory! `args` is a list of positional arguments and `kwargs` are keyword arguments as a dict.
+
+```
+    def instance(cls_name: str, *args, **kwargs):
+        pass
+
+    e = ifc2data.instance('IfcRoot', IfcGloballyUniqueId=guid())
+```
+
+Ifc2data maintains an entity database by (guid, entity) relationship.
+
+Parsing
+-------
+
+Use [pyparsing] to write parsers, i have already some experience with this tool and it is Pythonic,
+big disadvantage: it is slow!
+
+But speed shouldn't be a problem, an EXPRESS parser does not have to be fast because parsing EXPRESS files is not a 
+runtime process, and STEP-files are organized as one object per line, sometimes very long lines, but mostly short 
+lines, so no deep nested parsing is necessary, for XML and JSON exist Python tools and advanced 3rd party libs.   
 
 [IFC4]: https://technical.buildingsmart.org/
 [STEP]: https://en.wikipedia.org/wiki/ISO_10303-21
@@ -58,5 +96,6 @@ like [orjson].
 [BNF]: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
 [ISO 10303-21]: https://en.wikipedia.org/wiki/ISO_10303-21
 [ISO 10303-11]: https://en.wikipedia.org/wiki/EXPRESS_(data_modeling_language)
+[pyparsing]: https://pypi.org/project/pyparsing/
 
 [1]: https://en.wikipedia.org/wiki/Industry_Foundation_Classes

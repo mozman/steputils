@@ -3,13 +3,13 @@
 # regenerate it.
 import sys
 
-from SCL.SCLBase import *
-from SCL.SimpleDataTypes import *
-from SCL.ConstructedDataTypes import *
-from SCL.AggregationDataTypes import *
-from SCL.TypeChecker import check_type
-from SCL.Builtin import *
-from SCL.Rules import *
+from scl.SCLBase import *
+from scl.SimpleDataTypes import *
+from scl.ConstructedDataTypes import *
+from scl.AggregationDataTypes import *
+from scl.TypeChecker import check_type
+from scl.Builtin import *
+from scl.Rules import *
 
 schema_name = 'ifc4x2'
 
