@@ -1,8 +1,25 @@
 # Created: 26.12.2019
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
-from pyparsing import nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore
+
+from pyparsing import (
+    nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore,
+    Combine, Suppress,
+)
 from string import ascii_lowercase, ascii_uppercase
+
+
+class ParameterList(tuple):
+    pass
+
+
+class EntityInstanceName(str):
+    pass
+
+
+class Keyword(str):
+    pass
+
 
 BACKSLASH = '\\'
 reverse_solidus = Char(BACKSLASH)
@@ -13,22 +30,22 @@ omitted_parameter = Char('*')
 apostrophe = Char("'")
 special = Char('!"*$%&.#+,-()?/:;<=>@[]{|}^`~')
 lower = Char(ascii_lowercase)
-upper = Char(ascii_uppercase)
+upper = Char(ascii_uppercase + '_')
 digit = Char(nums)
 real = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?")
 integer = Regex(r"[-+]?\d+")
-entity_instance_name = Regex(r"[#]\d+")
+entity_instance_name = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
 
 hex1 = Char(hexnums)
 hex2 = Word(hexnums, exact=2)
 hex4 = Word(hexnums, exact=4)
 hex8 = Word(hexnums, exact=8)
 
-binary = Char('"') + Char('0123') + ZeroOrMore(hex1) + Char('"')
+binary = '"' + Char('0123') + ZeroOrMore(hex1) + '"'
 alphabet = Literal(BACKSLASH + 'P') + upper + reverse_solidus
 arbitrary = Literal(BACKSLASH + 'X' + BACKSLASH) + hex2
 character = space | digit | lower | upper | special | reverse_solidus | apostrophe
-enumeration = dot + upper + ZeroOrMore(upper | digit) + dot
+enumeration = Combine(dot + upper + ZeroOrMore(upper | digit) + dot)
 page = Literal(BACKSLASH + 'S' + BACKSLASH) + character
 
 non_q_char = special | digit | space | lower | upper
@@ -36,39 +53,40 @@ end_extended = Literal(BACKSLASH + 'X0' + BACKSLASH)
 extended2 = Literal(BACKSLASH + 'X2' + BACKSLASH) + OneOrMore(hex4) + end_extended
 extended4 = Literal(BACKSLASH + 'X4' + BACKSLASH) + OneOrMore(hex8) + end_extended
 control_directive = page | alphabet | extended2 | extended4 | arbitrary
-string = apostrophe + ZeroOrMore(
-    non_q_char |
-    (apostrophe + apostrophe) |
-    (reverse_solidus + reverse_solidus) |
-    control_directive) + apostrophe
-standard_keyword = upper + ZeroOrMore(upper | digit)
-user_defined_keyword = Char('!') + upper + ZeroOrMore(upper | digit)
-keyword = user_defined_keyword | standard_keyword
+string = Combine(Suppress(apostrophe) + ZeroOrMore(
+    non_q_char | (apostrophe + apostrophe) | (reverse_solidus + reverse_solidus) | control_directive) + Suppress(
+    apostrophe))
+
+standard_keyword = Combine(upper + ZeroOrMore(upper | digit))
+user_defined_keyword = Combine('!' + upper + ZeroOrMore(upper | digit))
+keyword = Combine(user_defined_keyword | standard_keyword).setParseAction(lambda s, l, t: Keyword(t[0]))
 
 parameter = Forward()
-list_ = Char('(') + Optional(parameter + ZeroOrMore(Char(',') + parameter)) + Char(')')
-typed_parameter = keyword + Char('(') + parameter + Char(')')
-untyped_parameter = Char('$') | integer | real | string | entity_instance_name | enumeration | binary | list_
-parameter = typed_parameter | untyped_parameter | omitted_parameter
-parameter_list = parameter + ZeroOrMore(Char(',') + parameter)
+# parse a list of arguments and convert to a tuple
+list_ = (Suppress('(') + Optional(parameter + ZeroOrMore(',' + parameter)) + Suppress(')')).addParseAction(
+    lambda s, l, t: ParameterList(t[0::2]))
+typed_parameter = keyword + '(' + parameter + ')'
+untyped_parameter = '$' | integer | real | string | entity_instance_name | enumeration | binary | list_
+parameter <<= typed_parameter | untyped_parameter | omitted_parameter
+parameter_list = (parameter + ZeroOrMore(',' + parameter)).addParseAction(lambda s, l, t: ParameterList(t[0::2]))
 
-simple_record = keyword + Char('(') + Optional(parameter_list) + Char(')')
+simple_record = keyword + Suppress('(') + Optional(parameter_list) + Suppress(')')
 simple_record_list = OneOrMore(simple_record)
-simple_entity_instance = entity_instance_name + Char('=') + simple_record + Char(';')
-subsuper_record = Char('(') + simple_record_list + Char(')')
-complex_entity_instance = entity_instance_name + Char('=') + subsuper_record + Char(';')
+simple_entity_instance = entity_instance_name + Suppress('=') + simple_record + Suppress(';')
+subsuper_record = '(' + simple_record_list + ')'
+complex_entity_instance = entity_instance_name + Suppress('=') + subsuper_record + Suppress(';')
 entity_instance = simple_entity_instance | complex_entity_instance
 entity_instance_list = ZeroOrMore(entity_instance)
 
-data_section = Literal('DATA') + Optional(Char('(') + parameter_list + Char(')')) + \
-               Char(';') + entity_instance_list + Literal('ENDSEC;')
+data_section = 'DATA' + Optional(
+    Suppress('(') + parameter_list + Suppress(')')) + Suppress(';') + entity_instance_list + 'ENDSEC' + Suppress(';')
 
-header_entity = keyword + Char('(') + Optional(parameter_list) + Char(')') + Char(';')
+header_entity = keyword + Suppress('(') + Optional(parameter_list) + Suppress(')') + Suppress(';')
 header_entity_list = OneOrMore(header_entity)
-header_section = Literal('HEADER;') + header_entity + header_entity + header_entity + Optional(header_entity_list) + \
-                 Literal('ENDSEC;')
-
-step_file = Literal('ISO-10303-21;') + header_section + OneOrMore(data_section) + Literal('END-ISO-10303-21;')
+header_section = 'HEADER' + Suppress(';') + header_entity + header_entity + header_entity + Optional(
+    header_entity_list) + 'ENDSEC' + Suppress(';')
+step_file = 'ISO-10303-21' + Suppress(';') + header_section + OneOrMore(data_section) + 'END-ISO-10303-21' + Suppress(
+    ';')
 
 # Included just for documentation:
 EXTENDED_BACKUS_NAUR_FORM = r"""
