@@ -1,6 +1,7 @@
 .tox
 .cache
 .eggs
+.p21examples/*
 build/*
 dist/*
 .idea/*
