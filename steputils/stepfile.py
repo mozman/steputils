@@ -553,7 +553,7 @@ def _parse_step_file(tokens) -> 'StepFile':
 
 
 # loading and storing API similar json package
-def loads(s: str) -> 'StepFile':
+def loads(s: str) -> StepFile:
     """ Load STEP-file (ISO 10303-21) from unicode string.
 
     Decoding for special characters > 126 to unicode characters according to ISO 10303-21 standard will
@@ -595,11 +595,11 @@ def dump(data: StepFile, fp: TextIO) -> None:
         fp: text stream
 
     """
-    # todo: steapfile.dump()
+    # todo: stepfile.dump()
     pass
 
 
-def dumps(data: StepFile) -> None:
+def dumps(data: StepFile) -> str:
     """
     Serialize `data` to a STEP-file (ISO 10303-21) formatted ``str``.
 
@@ -610,5 +610,5 @@ def dumps(data: StepFile) -> None:
         data: step file data object
 
     """
-    # todo: steapfile.dumps()
-    pass
+    # todo: stepfile.dumps()
+    return ""
