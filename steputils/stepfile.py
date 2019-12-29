@@ -12,6 +12,14 @@ from pyparsing import (
 )
 from string import ascii_lowercase, ascii_uppercase
 
+""" 
+STEP physical file representation (STEP-file) specified by the ISO 10303-21 standard.
+
+Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
+
+"""
+
+
 # Data types:
 #   Source: https://en.wikipedia.org/wiki/ISO_10303-21
 #
@@ -83,24 +91,49 @@ class TypedParameter:
         self.param = param
 
 
+def is_string(e) -> bool:
+    """ Returns ``True`` if `e` is a ``str``. """
+    return type(e) is str
+
+
+def is_integer(e) -> bool:
+    """ Returns ``True`` if `e` is an ``int``. """
+    return type(e) is int
+
+
+def is_real(e) -> bool:
+    """ Returns ``True`` if `e` is a ``float``. """
+    return type(e) is float
+
+
 def is_reference(e) -> bool:
-    """ Returns ``True`` if `e` is an entity instance name. """
-    return isinstance(e, EntityInstanceName)
+    """ Returns ``True`` if `e` is an :class:`EntityInstanceName`. """
+    return type(e) is EntityInstanceName
+
+
+def is_keyword(e) -> bool:
+    """ Returns ``True`` if `e` is a :class:`Keyword`. """
+    return type(e) is Keyword
 
 
 def is_enum(e) -> bool:
-    """ Returns ``True`` if `e` is an enumeration. """
-    return isinstance(e, Enumeration)
+    """ Returns ``True`` if `e` is an :class:`Enumeration`. """
+    return type(e) is Enumeration
 
 
 def is_unset_parameter(e) -> bool:
-    """ Returns ``True`` if `e` is an unset parameter. """
-    return isinstance(e, UnsetParameter)
+    """ Returns ``True`` if `e` is an unset or omitted parameter (:class:`UnsetParameter`). """
+    return type(e) is UnsetParameter
 
 
 def is_typed_parameter(e) -> bool:
-    """ Returns ``True`` if `e` is a typed parameter. """
-    return isinstance(e, TypedParameter)
+    """ Returns ``True`` if `e` is a :class:`TypedParameter`. """
+    return type(e) is TypedParameter
+
+
+def is_parameter_list(e) -> bool:
+    """ Returns ``True`` if `e` is a :class:`ParameterList`. """
+    return type(e) is ParameterList
 
 
 def _to_unicode(s, l, t) -> str:
@@ -419,18 +452,7 @@ class DataSection:
 
 
 class StepFile:
-    """ STEP physical file representation (STEP-file)
-
-    Source of Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
-
-    STEP-File is the most widely used data exchange form of STEP. ISO 10303 can represent 3D objects in Computer-aided
-    design (CAD) and related information. Due to its ASCII structure, a STEP-file is easy to read, with typically one
-    instance per line. The format of a STEP-File is defined in ISO 10303-21 Clear Text Encoding of the Exchange Structure.
-
-    ISO 10303-21 defines the encoding mechanism for representing data conforming to a particular schema in the
-    EXPRESS data modeling language specified in ISO 10303-11. A STEP-File is also called p21-File and STEP Physical
-    File. The file extensions .stp and .step indicate that the file contains data conforming to STEP Application
-    Protocols while the extension .p21 should be used for all other purposes.
+    """ STEP physical file representation (STEP-file).
 
     A STEP-File has one :class:`HeaderSection`, and at least one :class:`DataSection`.
 

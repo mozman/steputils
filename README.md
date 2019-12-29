@@ -43,6 +43,11 @@ or from source:
 
     python setup.py install
 
+Documentation
+-------------
+
+https://steputils.readthedocs.io/
+
 Contribution
 ------------
 

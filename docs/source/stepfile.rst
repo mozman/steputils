@@ -6,6 +6,19 @@
 Stepfile
 ========
 
+STEP physical file representation (STEP-file) specified by the ISO 10303-21 standard.
+
+STEP-File is data exchange form of STEP. ISO 10303 can represent 3D objects in Computer-aided
+design (CAD) and related information. Due to its ASCII structure, a STEP-file is easy to read, with typically one
+instance per line. The format of a STEP-File is defined in ISO 10303-21 Clear Text Encoding of the Exchange Structure.
+
+ISO 10303-21 defines the encoding mechanism for representing data conforming to a particular schema in the
+EXPRESS data modeling language specified in ISO 10303-11. A STEP-File is also called p21-File and STEP Physical
+File. The file extensions .stp and .step indicate that the file contains data conforming to STEP Application
+Protocols while the extension .p21 should be used for all other purposes.
+
+Source: https://en.wikipedia.org/wiki/ISO_10303-21
+
 Functions
 ---------
 
@@ -16,6 +29,29 @@ Functions
 .. autofunction:: dump(data: StepFile, fp: TextIO) -> None
 
 .. autofunction:: dumps(data: StepFile) -> str
+
+Checking for Types
+~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: is_string
+
+.. autofunction:: is_integer
+
+.. autofunction:: is_real
+
+.. autofunction:: is_reference
+
+.. autofunction:: is_keyword
+
+.. autofunction:: is_enum
+
+.. autofunction:: is_unset_parameter
+
+.. autofunction:: is_typed_parameter
+
+.. autofunction:: is_parameter_list
+
+   Note: It is a single parameter if it's not a :class:`ParameterList`
 
 Classes
 -------
