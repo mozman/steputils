@@ -2,7 +2,7 @@
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
 import pytest
-from steputils.stepfile import load_string, is_reference, is_unset_parameter, is_typed_parameter, is_enum
+from steputils.stepfile import loads, is_reference, is_unset_parameter, is_typed_parameter, is_enum
 
 STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -25,7 +25,7 @@ END-ISO-10303-21;
 
 @pytest.fixture(scope='module')
 def stpfile():
-    return load_string(STEP_FILE)
+    return loads(STEP_FILE)
 
 
 def test_header(stpfile):
@@ -40,14 +40,14 @@ def test_header(stpfile):
 def test_data_section(stpfile):
     data = stpfile.data[0]
     instance = data['#5']
-    assert instance.id == '#5'
+    assert instance.name == '#5'
     assert instance.entity.name == 'IFCAPPLICATION'
     assert instance.entity.params == ('#10', '14.0', 'ArchiCAD 14.0', 'ArchiCAD')
 
     ref = instance.entity.params[0]
     assert is_reference(ref)
     instance2 = stpfile[ref]
-    assert instance2.id == ref
+    assert instance2.name == ref
     assert instance2.entity.name == 'IFCORGANIZATION'
     assert instance2.entity.params == ('GS', 'Graphisoft', 'Graphisoft', '$', '$')
     assert is_unset_parameter(instance2.entity.params[3]) is True
@@ -93,7 +93,7 @@ END-ISO-10303-21;
 
 @pytest.fixture(scope='module')
 def complex_file():
-    return load_string(COMPLEX_FILE)
+    return loads(COMPLEX_FILE)
 
 
 def test_typed_parameter(complex_file):

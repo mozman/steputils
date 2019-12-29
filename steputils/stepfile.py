@@ -12,49 +12,6 @@ from pyparsing import (
 )
 from string import ascii_lowercase, ascii_uppercase
 
-
-class ParameterList(tuple):
-    pass
-
-
-class EntityInstanceName(str):
-    pass
-
-
-def is_reference(e) -> bool:
-    return isinstance(e, EntityInstanceName)
-
-
-class Keyword(str):
-    pass
-
-
-class Enumeration(str):
-    pass
-
-
-def is_enum(e) -> bool:
-    return isinstance(e, Enumeration)
-
-
-class UnsetParameter(str):
-    pass
-
-
-def is_unset_parameter(e) -> bool:
-    return isinstance(e, UnsetParameter)
-
-
-class TypedParameter:
-    def __init__(self, name: str, param):
-        self.type_name = name
-        self.param = param
-
-
-def is_typed_parameter(e) -> bool:
-    return isinstance(e, TypedParameter)
-
-
 # Data types:
 #   Source: https://en.wikipedia.org/wiki/ISO_10303-21
 #
@@ -72,20 +29,79 @@ def is_typed_parameter(e) -> bool:
 #   and 10646 are supported. Note that typical 8 (e.g. west European) or 16 (Unicode) bit character sets cannot
 #   directly be taken for STEP-file strings. They have to be decoded in a very special way.
 #
-# enum: .ENUM.
-#   Enumeration, boolean and logical values are given in capital letters with a leading and trailing dot such as
-#   ".TRUE.".
-#
-# instance_name: #1234
-#   Every entity instance in the exchange structure is given a unique name in the form "#1234". The instance name must
-#   consist of a positive number (>0) and is typically smaller than 263. The instance name is only valid locally within
-#   the STEP-file (?across multiple data sections? - assume: yes!).
-#   If the same content is exported again from a system the instance names may be different for the same
-#   instances. The instance name is also used to reference other entity instances through attribute values or aggregate
-#   members. The referenced instance may be defined before or after the current instance.
-#
-# list: (arg1, list2, ...)
-#   The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ",".
+
+
+class ParameterList(tuple):
+    """ Typing helper class for parameter list. """
+    # list: (arg1, list2, ...)
+    #
+    # The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ",".
+    pass
+
+
+class EntityInstanceName(str):
+    """ Typing helper class for entity instance name."""
+    # instance_name: #1234
+    #
+    # Every entity instance in the exchange structure is given a unique name in the form "#1234". The instance name must
+    # consist of a positive number (>0) and is typically smaller than 263. The instance name is only valid locally within
+    # the STEP-file (?across multiple data sections? - assume: yes!).
+    # If the same content is exported again from a system the instance names may be different for the same
+    # instances. The instance name is also used to reference other entity instances through attribute values or aggregate
+    # members. The referenced instance may be defined before or after the current instance.
+    pass
+
+
+class Keyword(str):
+    """ Typing helper class for keyword."""
+    pass
+
+
+class Enumeration(str):
+    """ Typing helper class for enumeration."""
+    # enum: .ENUM.
+    #   Enumeration, boolean and logical values are given in capital letters with a leading and trailing dot such as
+    #   ".TRUE.".
+    pass
+
+
+class UnsetParameter(str):
+    """ Typing helper class for unset parameter."""
+    # omitted argument: $ or *
+    #     Source: https://en.wikipedia.org/wiki/ISO_10303-21
+    #     Unset attribute values are given as "$".
+    #     Explicit attributes which got re-declared as derived in a subtype are encoded as "*" in the position of the
+    #     supertype attribute.
+    pass
+
+
+class TypedParameter:
+    """ Typed parameter, `type_name` is the type of the parameter, `param` is the parameter itself. """
+
+    def __init__(self, name: str, param):
+        self.type_name = name
+        self.param = param
+
+
+def is_reference(e) -> bool:
+    """ Returns ``True`` if `e` is an entity instance name. """
+    return isinstance(e, EntityInstanceName)
+
+
+def is_enum(e) -> bool:
+    """ Returns ``True`` if `e` is an enumeration. """
+    return isinstance(e, Enumeration)
+
+
+def is_unset_parameter(e) -> bool:
+    """ Returns ``True`` if `e` is an unset parameter. """
+    return isinstance(e, UnsetParameter)
+
+
+def is_typed_parameter(e) -> bool:
+    """ Returns ``True`` if `e` is a typed parameter. """
+    return isinstance(e, TypedParameter)
+
 
 def _to_unicode(s, l, t) -> str:
     return ''.join(chr(int(hexstr, 16)) for hexstr in t[1:-1])
@@ -103,17 +119,16 @@ special = Char('!"*$%&.#+,-()?/:;<=>@[]{|}^`~')
 lower = Char(ascii_lowercase)
 upper = Char(ascii_uppercase + '_')
 digit = Char(nums)
-enumeration = Regex(r'\.[A-Z_][A-Z0-9_]*\.').addParseAction(lambda s, l, t: Enumeration(t[0]))
-integer = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
-real = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
-entity_instance_name = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
-binary = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2:-1], 16))
-
 hex1 = Char(hexnums)
 hex2 = Word(hexnums, exact=2)
 hex4 = Word(hexnums, exact=4)
 hex8 = Word(hexnums, exact=8)
 
+enumeration = Regex(r'\.[A-Z_][A-Z0-9_]*\.').addParseAction(lambda s, l, t: Enumeration(t[0]))
+integer = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
+real = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
+entity_instance_name = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
+binary = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2:-1], 16))
 
 alphabet = Literal(BACKSLASH + 'P') + upper + reverse_solidus
 # alphabet= \P?\ - which characters are supported, what do they mean
@@ -146,12 +161,6 @@ list_ = (Suppress('(') + Optional(parameter + ZeroOrMore(',' + parameter)) + Sup
     lambda s, l, t: ParameterList(t[0::2]))
 typed_parameter = (keyword + '(' + parameter + ')').addParseAction(
     lambda s, l, t: TypedParameter(name=t[0], param=t[2]))
-
-# omitted argument: $ or *
-#     Source: https://en.wikipedia.org/wiki/ISO_10303-21
-#     Unset attribute values are given as "$".
-#     Explicit attributes which got re-declared as derived in a subtype are encoded as "*" in the position of the
-#     supertype attribute.
 
 untyped_parameter = unset_parameter | real | integer | string | entity_instance_name | enumeration | binary | list_
 parameter <<= typed_parameter | untyped_parameter | omitted_parameter
@@ -191,14 +200,22 @@ class Tokens:
 
 
 class Entity:
+    """ STEP-file entity, `name` is the type of the entity, `params` are the entity parameters as a
+    :class:`ParameterList`.
+    """
+
     def __init__(self, name: str, params: ParameterList):
-        self.name = name
-        self.params = params or ParameterList()
+        self.name: str = name
+        self.params: ParameterList = params or ParameterList()
 
 
 class SimpleEntityInstance:
-    def __init__(self, id: EntityInstanceName, entity: Entity):
-        self.id: EntityInstanceName = id
+    """ Simple instance entity, `name` is the instance id as string (e.g. ``'#100'``), `entity` is the :class:`Entity`
+    object.
+    """
+
+    def __init__(self, name: EntityInstanceName, entity: Entity):
+        self.name: EntityInstanceName = name
         self.entity = entity
 
     @property
@@ -207,8 +224,12 @@ class SimpleEntityInstance:
 
 
 class ComplexEntityInstance:
-    def __init__(self, id: EntityInstanceName, entities: List[Entity]):
-        self.id: EntityInstanceName = id
+    """ A complex entity instance consist of multiple :class:`Entity` objects, `name` is the instance id as string
+    (e.g. ``'#100'``)
+    """
+
+    def __init__(self, name: EntityInstanceName, entities: List[Entity]):
+        self.name: EntityInstanceName = name
         self.entities = entities or list()
 
     @property
@@ -225,28 +246,31 @@ class HeaderSection:
     The HEADER section has a fixed structure consisting of 3 to 6 groups in the given order. Except for the data fields
     time_stamp and FILE_SCHEMA all fields may contain empty strings.
 
-    HeaderSection['FILE_DESCRIPTION']
-        - description
-        - implementation_level. The version and conformance option of this file. Possible versions are "1" for the
-          original standard back in 1994, "2" for the technical corrigendum in 1995 and "3" for the second edition.
-          The conformance option is either "1" for internal and "2" for external mapping of complex entity instances.
-          Often, one will find here the value __'2;1'__. The value '2;2' enforcing external mapping is also possible
-          but only very rarely used. The values '3;1' and '3;2' indicate extended STEP-Files as defined in the 2001
-          standard with several DATA sections, multiple schemas and FILE_POPULATION support.
+    HeaderSection['FILE_DESCRIPTION'], parameters:
 
-    HeaderSection['FILE_NAME']
-        - name of this exchange structure. It may correspond to the name of the file in a file system or reflect data
-          in this file. There is no strict rule how to use this field.
-        - time_stamp indicates the time when this file was created. The time is given in the international data time
+        - ``description``
+        - ``implementation_level``: The version and conformance option of this file. Possible versions are "1" for the
+          original standard back in 1994, ``'2'`` for the technical corrigendum in 1995 and "3" for the second edition.
+          The conformance option is either ``'1'`` for internal and ``'2'`` for external mapping of complex entity instances.
+          Often, one will find here the value ``'2;1'``. The value ``'2;2'`` enforcing external mapping is also possible
+          but only very rarely used. The values ``'3;1'`` and ``'3;2'`` indicate extended STEP-Files as defined in the
+          2001 standard with several DATA sections, multiple schemas and ``FILE_POPULATION`` support.
+
+    HeaderSection['FILE_NAME'], parameters:
+
+        - ``name`` of this exchange structure. It may correspond to the name of the file in a file system or reflect
+          data in this file. There is no strict rule how to use this field.
+        - ``time_stamp`` indicates the time when this file was created. The time is given in the international data time
           format ISO 8601, e.g. 2003-12-27T11:57:53 for 27 of December 2003, 2 minutes to noon time.
-        - author the name and mailing address of the person creating this exchange structure
-        - organization the organization to whom the person belongs to
-        - preprocessor_version the name of the system and its version which produces this STEP-file
-        - originating_system the name of the system and its version which originally created the information contained
-          in this STEP-file.
-        - authorization the name and mailing address of the person who authorized this file.
+        - ``author`` the name and mailing address of the person creating this exchange structure
+        - ``organization`` the organization to whom the person belongs to
+        - ``preprocessor_version`` the name of the system and its version which produces this STEP-file
+        - ``originating_system`` the name of the system and its version which originally created the information
+          contained in this STEP-file.
+        - ``authorization`` the name and mailing address of the person who authorized this file.
 
     HeaderSection['FILE_SCHEMA']
+
         - Specifies one or several Express schema governing the information in the data section(s). For first edition
           files, only one EXPRESS schema together with an optional ASN.1 object identifier of the schema version can
           be listed here. Second edition files may specify several EXPRESS schema.
@@ -254,37 +278,42 @@ class HeaderSection:
     The last three header groups are only valid in second edition files.
 
     HeaderSection['FILE_POPULATION'], indicating a valid population (set of entity instances) which conforms
-        to an EXPRESS schemas. This is done by collecting data from several data_sections and referenced instances from
-        other data sections.
-        - governing_schema, the EXPRESS schema to which the indicated population belongs to and by which it can
+    to an EXPRESS schemas. This is done by collecting data from several data_sections and referenced instances from
+    other data sections.
+
+        - ``governing_schema``, the EXPRESS schema to which the indicated population belongs to and by which it can
           be validated.
-        - determination_method to figure out which instances belong to the population. Three methods are predefined:
-          SECTION_BOUNDARY, INCLUDE_ALL_COMPATIBLE, and INCLUDE_REFERENCED.
-        - governed_sections, the data sections whose entity instances fully belongs to the population.
+        - ``determination_method`` to figure out which instances belong to the population. Three methods are predefined:
+          ``'SECTION_BOUNDARY'``, ``'INCLUDE_ALL_COMPATIBLE'``, and ``'INCLUDE_REFERENCED'``.
+        - ``governed_sections``, the data sections whose entity instances fully belongs to the population.
         - The concept of FILE_POPULATION is very close to schema_instance of SDAI. Unfortunately, during the
           standardization process, it was not possible to come to an agreement to merge these concepts. Therefore,
           JSDAI adds further attributes to FILE_POPULATION as intelligent comments to cover all missing information
           from schema_instance. This is supported for both import and export.
 
     HeaderSection['SECTION_LANGUAGE'] allows assignment of a default language for either all or a specific
-         data section. This is needed for those Express schemas that do not provide the capability to specify in which
-         language string attributes of entities such as name and description are given.
+    data section. This is needed for those Express schemas that do not provide the capability to specify in which
+    language string attributes of entities such as name and description are given.
 
     HeaderSection['SECTION_CONTEXT'] provide the capability to specify additional context information for all
-         or single data sections. This can be used e.g. for STEP-APs to indicate which conformance class is covered by
-         a particular data section.
+    or single data sections. This can be used e.g. for STEP-APs to indicate which conformance class is covered by
+    a particular data section.
 
     """
+
     def __init__(self):
         self.entities: OrderedDict[str: Entity] = OrderedDict()
 
     def append(self, entity: Entity) -> None:
+        """ Appends header entry. """
         self.entities[entity.name] = entity
 
     def __getitem__(self, name: str) -> Entity:
+        """ Returns header entry by `name`, raise :class:`KeyError` if not found. """
         return self.entities[name]
 
     def get(self, name: str) -> Opt[Entity]:
+        """ Returns header entry by `name` or ``None`` if not found. """
         try:
             return self.entities[name]
         except KeyError:
@@ -298,74 +327,91 @@ class DataSection:
 
     Source of Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
 
-    Instance name: Every entity instance in the exchange structure is given a unique name in the form <#1234>.
-        The instance name must consist of a positive number (>0) and is typically smaller than 263. The instance name
-        is only valid locally within the STEP-file. If the same content is exported again from a system the instance
-        names may be different for the same instances. The instance name is also used to reference other entity
-        instances through attribute values or aggregate members. The referenced instance may be defined before or
-        after the current instance.
+    Every entity instance in the exchange structure is given a unique name in the form ``'#1234'``.
+    The instance name must consist of a positive number (>0) and is typically smaller than 263. The instance name
+    is only valid locally within the STEP-file. If the same content is exported again from a system the instance
+    names may be different for the same instances. The instance name is also used to reference other entity
+    instances through attribute values or aggregate members. The referenced instance may be defined before or
+    after the current instance.
 
     Instances of single entity data types are represented by writing the name of the entity in capital letters and then
-        followed by the attribute values in the defined order within parentheses. See e.g. <#16=PRODUCT(...)> above.
+    followed by the attribute values in the defined order within parentheses. See e.g. ``#16=PRODUCT(...)`` above.
 
     Instances of complex entity data types are represented in the STEP file by using either the internal mapping or
-        the external mapping.
-        External mapping has always to be used if the complex entity instance consist of more than one leaf entity.
-        In this case all the single entity instance values are given independently from each other in alphabetical
-        order as defined above with all entity values grouped together in parentheses.
-        Internal mapping is used by default for conformance option 1 when the complex entity instance consists of
-        only one leaf entity. The encoding is similar to the one of a single entity instance with the additional order
-        given by the subtype definition.
+    the external mapping.
+    External mapping has always to be used if the complex entity instance consist of more than one leaf entity.
+    In this case all the single entity instance values are given independently from each other in alphabetical
+    order as defined above with all entity values grouped together in parentheses.
+    Internal mapping is used by default for conformance option 1 when the complex entity instance consists of
+    only one leaf entity. The encoding is similar to the one of a single entity instance with the additional order
+    given by the subtype definition.
 
     Mapping of attribute values:
-        Only explicit attributes get mapped. Inverse, Derived and re-declared attributes are not listed since their
-        values can be deduced from the other ones. Unset attribute values are given as <$>.
-        Explicit attributes which got re-declared as derived in a subtype are encoded as <*> in the position of the
-        supertype attribute.
+
+    Only explicit attributes get mapped. Inverse, Derived and re-declared attributes are not listed since their
+    values can be deduced from the other ones. Unset attribute values are given as ``$``.
+    Explicit attributes which got re-declared as derived in a subtype are encoded as ``*`` in the position of the
+    supertype attribute.
 
     Mapping of other data types:
-        Enumeration, boolean and logical values are given in capital letters with a leading and trailing dot such as
-        <.TRUE.>.
-        String values are given in <'>. For characters with a code greater than 126 a special encoding is used. The
-        character sets as defined in ISO 8859 and 10646 are supported. Note that typical 8 (e.g. west European) or
-        16 (Unicode) bit character sets cannot directly be taken for STEP-file strings. They have to be decoded
-        in a very special way.
-        Integers and real values are used identical to typical programming languages
-        Binary values (bit sequences) are encoded as hexadecimal and surrounded by double quotes, with a leading
-        character indicating the number of unused bits (0, 1, 2, or 3) followed by uppercase hexadecimal encoding of
-        data. It is important to note that the entire binary value is encoded as a single hexadecimal number, with
-        the highest order bits in the first hex character and the lowest order bits in the last one.
-        The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by <,>.
-        Care has to be taken for select data types based on defined data types. Here the name of the defined data
-        type gets mapped too.
+
+    Enumeration, boolean and logical values are given in capital letters with a leading and trailing dot such as
+    ``.TRUE.``.
+    String values are given in ``'``. For characters with a code greater than 126 a special encoding is used. The
+    character sets as defined in ISO 8859 and 10646 are supported. Note that typical 8 (e.g. west European) or
+    16 (Unicode) bit character sets cannot directly be taken for STEP-file strings. They have to be decoded
+    in a very special way.
+    Integers and real values are used identical to typical programming languages
+    Binary values (bit sequences) are encoded as hexadecimal and surrounded by double quotes, with a leading
+    character indicating the number of unused bits (0, 1, 2, or 3) followed by uppercase hexadecimal encoding of
+    data. It is important to note that the entire binary value is encoded as a single hexadecimal number, with
+    the highest order bits in the first hex character and the lowest order bits in the last one.
+    The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ``,``.
+    Care has to be taken for select data types based on defined data types. Here the name of the defined data
+    type gets mapped too.
 
     """
+
     def __init__(self):
         self.parameter = ParameterList()
         self.instances: Dict[EntityInstanceName, EntityInstance] = OrderedDict()
 
     def append(self, instance: EntityInstance) -> None:
-        self.instances[instance.id] = instance
+        """
+        Append new entity `instance`.
+
+        Args:
+            instance: entity instance
+
+        """
+        self.instances[instance.name] = instance
 
     def names(self) -> Iterable[EntityInstanceName]:
+        """ Returns iterable of entity instance names. """
         return self.instances.keys()
 
     def sorted_names(self) -> List[EntityInstanceName]:
+        """ Returns sorted list if entity instance names. """
         return sorted(self.instances.keys(), key=lambda e: int(e[1:]))
 
     def instances(self) -> Iterable[EntityInstance]:
+        """ Returns iterable of entity instances. """
         return self.instances.values()
 
     def sorted_instances(self) -> Iterable[EntityInstance]:
+        """ Returns iterable of entity instances sorted by name. """
         return (self.instances[key] for key in self.sorted_names())
 
     def __getitem__(self, name: EntityInstanceName) -> EntityInstance:
+        """ Returns instance by `name`, raise :class:`KeyError` if not found. """
         return self.instances[name]
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """ Returns count of instances. """
         return len(self.instances)
 
     def get(self, name: EntityInstanceName) -> Opt[EntityInstance]:
+        """ Returns instance by `name` of ``None`` if not found. """
         try:
             return self.instances[name]
         except KeyError:
@@ -389,6 +435,7 @@ class StepFile:
     A STEP-File has one :class:`HeaderSection`, and at least one :class:`DataSection`.
 
     """
+
     def __init__(self):
         self.header = HeaderSection()
         # multiple data sections only supported by ISO 10303-21:2002
@@ -396,19 +443,48 @@ class StepFile:
         self.data: List[DataSection] = list()
         self._chain_map: ChainMap = None
 
-    def __getitem__(self, id: EntityInstanceName):
-        if self._chain_map is None:
-            self.rebuild_chain_map()
-        return self._chain_map[id]
+    def __getitem__(self, name: EntityInstanceName):
+        """ Returns :class:`EntityInstance` by instance `name`. Searches all data sections if more than one exist.
 
-    def get(self, id: EntityInstanceName) -> Opt[EntityInstance]:
+        Args:
+            name: entity instance name as string e.g. ``'#100'``
+
+        Raises:
+              KeyError: instance `id` not found
+
+        """
+        if self._chain_map is None:
+            self._rebuild_chain_map()
+        return self._chain_map[name]
+
+    def get(self, name: EntityInstanceName) -> Opt[EntityInstance]:
+        """ Returns :class:`EntityInstance` by instance `name` or ``None`` if not found. Searches all data sections
+        if more than one exist.
+
+        Args:
+            name: entity instance name as string e.g. ``'#100'``
+
+        """
         try:
-            return self.__getitem__(id)
+            return self.__getitem__(name)
         except KeyError:
             return None
 
-    def rebuild_chain_map(self):
+    def _rebuild_chain_map(self) -> None:
+        """ Rebuild chain map for searching across multiple data sections.
+        """
         self._chain_map = ChainMap(*self.data)
+
+    def append(self, data: DataSection) -> None:
+        """
+        Append new data section `data`.
+
+        Args:
+            data: data section
+
+        """
+        self.data.append(data)
+        self._rebuild_chain_map()
 
 
 def _parse_entity(tokens: Tokens) -> Entity:
@@ -429,10 +505,10 @@ def _parse_instance(tokens: Tokens) -> EntityInstance:
             entity = _parse_entity(tokens)
             entities.append(entity)
         tokens.pop()  # )
-        return ComplexEntityInstance(id=instance_id, entities=entities)
+        return ComplexEntityInstance(name=instance_id, entities=entities)
     else:
         entity = _parse_entity(tokens)
-        return SimpleEntityInstance(id=instance_id, entity=entity)
+        return SimpleEntityInstance(name=instance_id, entity=entity)
 
 
 def _parse_header(tokens: Tokens) -> HeaderSection:
@@ -471,30 +547,68 @@ def _parse_step_file(tokens) -> 'StepFile':
     step.header = _parse_header(tokens)
     while tokens.lookahead != 'END-ISO-10303-21':
         # multiple data sections support
-        step.data.append(_parse_data_section(tokens))
+        step.append(_parse_data_section(tokens))
 
     return step
 
 
-def load_string(s: str) -> 'StepFile':
-    """ Load STEP-file from unicode string. """
+# loading and storing API similar json package
+def loads(s: str) -> 'StepFile':
+    """ Load STEP-file (ISO 10303-21) from unicode string.
+
+    Decoding for special characters > 126 to unicode characters according to ISO 10303-21 standard will
+    be applied.
+
+    Args:
+        s: STEP-file content as unicode string
+
+    """
     tokens = step_file.parseString(s)
     return _parse_step_file(tokens)
 
 
-def load_file(filename: str) -> StepFile:
-    """ Load STEP-file from filesystem.
+def load(fp: TextIO) -> StepFile:
+    """ Load STEP-file (ISO 10303-21) from text stream.
 
-    Special encoding of strings is applied, therefore an encoding setting at opening files is not necessary, reading
-    as 'ascii' works fine.
+    A special encoding form characters > 126 is applied in STEP-Files, therefore an encoding setting at opening files
+    is not necessary, reading as ``'ascii'`` works fine. Decoding of this special characters will be applied.
+
+    Args:
+        fp: STEP-file content as text stream yielding unicode strings
 
     """
-    with open(filename, mode='rt') as fp:
-        content = fp.read()
-        return load_string(content)
+    content = fp.read()
+    return loads(content)
 
 
-def load_stream(stream: TextIO) -> StepFile:
-    """ Load STEP-file from text stream. """
-    content = stream.read()
-    return load_string(content)
+def dump(data: StepFile, fp: TextIO) -> None:
+    """
+    Serialize `data` to a STEP-file (ISO 10303-21) formatted stream to ``fp`` (a :meth:`write`-supporting
+    file-like object).
+
+    File encoding should be ``'iso-8859-1'`` but can also be ``'ascii'``, because ISO 10303-21 requires special encoding
+    for characters > 126 into characters < 127 as unicode compatible characters, which should be compatible with most
+    encodings, but don't use 16-bit encodings!
+
+    Args:
+        data: step file data object
+        fp: text stream
+
+    """
+    # todo: steapfile.dump()
+    pass
+
+
+def dumps(data: StepFile) -> None:
+    """
+    Serialize `data` to a STEP-file (ISO 10303-21) formatted ``str``.
+
+    Special encoding for characters > 126 into characters < 127 as unicode compatible characters according to
+    ISO 10303-21 standard will be applied.
+
+    Args:
+        data: step file data object
+
+    """
+    # todo: steapfile.dumps()
+    pass
