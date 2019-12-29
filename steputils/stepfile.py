@@ -103,22 +103,22 @@ special = Char('!"*$%&.#+,-()?/:;<=>@[]{|}^`~')
 lower = Char(ascii_lowercase)
 upper = Char(ascii_uppercase + '_')
 digit = Char(nums)
-real = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
+enumeration = Regex(r'\.[A-Z_][A-Z0-9_]*\.').addParseAction(lambda s, l, t: Enumeration(t[0]))
 integer = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
+real = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
 entity_instance_name = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
+binary = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2:-1], 16))
 
 hex1 = Char(hexnums)
 hex2 = Word(hexnums, exact=2)
 hex4 = Word(hexnums, exact=4)
 hex8 = Word(hexnums, exact=8)
 
-binary = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2:-1], 16))
+
 alphabet = Literal(BACKSLASH + 'P') + upper + reverse_solidus
 # alphabet= \P?\ - which characters are supported, what do they mean
-
 arbitrary = Literal(BACKSLASH + 'X' + BACKSLASH) + hex2
 character = space | digit | lower | upper | special | reverse_solidus | apostrophe
-enumeration = Combine(dot + upper + ZeroOrMore(upper | digit) + dot).addParseAction(lambda s, l, t: Enumeration(t[0]))
 page = Literal(BACKSLASH + 'S' + BACKSLASH) + character
 # page= \S\? - which characters are supported, what do they mean
 

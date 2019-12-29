@@ -2,7 +2,7 @@
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
 import pytest
-from ifc4data.stepfile import load_string, is_reference, is_unset_parameter, is_typed_parameter, is_enum
+from steputils.stepfile import load_string, is_reference, is_unset_parameter, is_typed_parameter, is_enum
 
 STEP_FILE = r"""ISO-10303-21;
 HEADER;

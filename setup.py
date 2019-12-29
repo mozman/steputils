@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 def get_version():
     v = {}
     # do not import ezdxf, because required packages may not be installed yet
-    for line in open('./ifc4data/version.py').readlines():
+    for line in open('steputils/version.py').readlines():
         if line.strip().startswith('__version__'):
             exec(line, v)
             return v['__version__']
@@ -35,15 +35,15 @@ def read(fname, until=""):
 setup(
     name='ifc4data',
     version=get_version(),
-    description='A Python package to read/write ICF4 data files.',
+    description='A Python package to read/write STEP data files.',
     author='Manfred Moitzi',
-    url='https://ifc4data.mozman.at',
-    download_url='https://pypi.org/project/ifc4data/',
+    url='https://steputils.mozman.at',
+    download_url='https://pypi.org/project/steputils/',
     author_email='me@mozman.at',
     python_requires='>=3.6',
     packages=find_packages(),
     zip_safe=True,
-    provides=['ifc4data'],
+    provides=['steputils'],
     install_requires=['pyparsing'],
     setup_requires=['wheel'],
     tests_require=['pytest'],

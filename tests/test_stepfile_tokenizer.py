@@ -3,7 +3,7 @@
 # License: MIT License
 
 import pytest
-from ifc4data.stepfile import step_file, header_entity, list_, string, binary, typed_parameter, is_enum
+from steputils.stepfile import step_file, header_entity, list_, string, binary, typed_parameter, is_enum, enumeration
 
 SHORT_STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -99,19 +99,19 @@ def test_binary():
 
 def test_typed_parameter_1():
     result = typed_parameter.parseString("TEST(100)").asList()[0]
-    assert result.name == 'TEST'
+    assert result.type_name == 'TEST'
     assert result.param == 100
 
 
 def test_typed_parameter_2():
     result = typed_parameter.parseString("TEST((100, 200))").asList()[0]
-    assert result.name == 'TEST'
+    assert result.type_name == 'TEST'
     assert result.param[0] == 100
     assert result.param[1] == 200
 
 
 def test_enum():
-    assert is_enum(binary.parseString('.ENUM.')[0])
+    assert is_enum(enumeration.parseString('.ENUM.')[0]) is True
 
 
 if __name__ == '__main__':

@@ -1,9 +1,14 @@
 Project Goals
 =============
 
-The main goal is to build a simple document object model (DOM) for [IFC4] (Industry Foundation Classes [1]) data. 
+The main goal is to build a simple document object model (DOM) for [STEP] model data. 
 The DOM can be used as an import/export layer for CAD like application or applications which need access to 
-IFC data.
+STEP model data. STEP defines various applications, one example application is [IFC4] data 
+(Industry Foundation Classes [1]), this also will be the first application with explict support, because it is related 
+to my profession and because there is a free documentation for [IFC4] provided by 
+[buildingSMART International](https://www.buildingsmart.org/). Other applications of the ISO 10303 standard may not have
+such free resources, and I will not purchase ISO standards for a hobby project and because of the complexity it is 
+not possible for me to support all application in an extensive way beyond a generic support.
 
 The DOM should provide methods to travers the model and create or delete object nodes like `xml.etree.ElementTree` for 
 XML data.
@@ -11,7 +16,7 @@ XML data.
 Loading and Storing Data
 ------------------------
 
-All official mentioned file formats of the [IFC4] standard should be supported, as plain text file and also as 
+Many file formats of the [STEP] standard should be supported, as plain text file and also as 
 compressed zip file:
 
 1. [STEP] -  Standard for the Exchange of Product model data
@@ -20,23 +25,21 @@ compressed zip file:
 
 ### STEP Requirements & Resources
 
-A parser has to be written for the STEP format, based on the EXPRESS definition file, provided by the [IFC4] maintainer, 
-if possible in an automated way, but the solution I found online called [STEPcode], is not a good starting 
-point, because the generated Python code is just ugly and does not correspond to PEP8, generated code is included in 
+A parser generator has to be written for EXPRESS definition files, the solution I found online called [STEPcode], 
+is starting point, but the generated Python code is ugly and does not correspond to PEP8, generated code is included in 
 folder `doc/stepcode`.
 
 Resources to build STEP parser:
 
-- `IFC4x2.exp`: EXPRESS data specification language, EXPRESS is a standard data modeling language for product data. 
+- EXPRESS data specification language, EXPRESS is a standard data modeling language for product data. 
   EXPRESS is formalized in the ISO Standard for the Exchange of Product model STEP (ISO 10303), and standardized 
   as [ISO 10303-11].
-- `IFC4x2.xsd`: XML Schema definition language (XSD), defined in XML Schema W3C Recommendation
 - `iso-10303-11--2004.bnf`: Backus-Naur-Form for EXPRESS
 - `iso-10303-21--2002.bnf`: Backus-Naur-Form for STEP-File: [ISO 10303-21] defines the encoding mechanism for 
   representing data conforming to a particular schema in the EXPRESS data modeling language specified in [ISO 10303-11]. 
   A STEP-File is also called p21-File and STEP Physical File. The file extensions .stp and .step indicate that the file 
   contains data conforming to STEP Application Protocols while the extension .p21 should be used for all other purposes.
- 
+
 ### XML Requirements & Resources
 
 Import/Export by standard Python module `xml.etree.ElementTree` and the ability to use an faster alternative 
@@ -73,8 +76,6 @@ Instantiation by factory! `args` is a list of positional arguments and `kwargs` 
 
     e = ifc2data.instance('IfcRoot', IfcGloballyUniqueId=guid())
 ```
-
-Ifc2data maintains an entity database by (guid, entity) relationship.
 
 Parsing
 -------
