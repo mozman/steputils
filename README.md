@@ -15,7 +15,7 @@ The DOM has methods to traverse, create and delete object nodes but no further C
 scaling or rotating objects, if you need that - you are looking for a CAD application like 
 [FreeCAD](https://www.freecadweb.org/).   
 
-For more information about the STEP  (ISO 10303) standard read this 
+For more information about the STEP (ISO 10303) standard read this 
 [Wikipedia](https://en.wikipedia.org/w/index.php?title=ISO_10303) article.
 
 Quick-Info
@@ -46,6 +46,6 @@ or from source:
 Contribution
 ------------
 
-The source code of ifc4data can be found at __GitHub__, target your pull requests to the `master` branch:
+The source code of STEPutils can be found at __GitHub__, target your pull requests to the `master` branch:
 
 http://github.com/mozman/steputils.git

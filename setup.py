@@ -33,7 +33,7 @@ def read(fname, until=""):
 
 
 setup(
-    name='ifc4data',
+    name='steputils',
     version=get_version(),
     description='A Python package to read/write STEP data files.',
     author='Manfred Moitzi',

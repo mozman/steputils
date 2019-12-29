@@ -1,12 +1,12 @@
 .tox
 .cache
 .eggs
-.p21examples/*
 build/*
 dist/*
 .idea/*
-docs/stepcode/.idea/*
-ifc4data.egg-info/*
+steputils.egg-info/*
+data/p21examples/*/*.stp
+data/p21examples/*/*.ifc
 docs/build/*
 __pycache__
 tox.ini
