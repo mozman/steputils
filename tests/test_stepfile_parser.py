@@ -50,7 +50,7 @@ def test_data_section(stpfile):
     assert instance2.id == ref
     assert instance2.entity.name == 'IFCORGANIZATION'
     assert instance2.entity.params == ('GS', 'Graphisoft', 'Graphisoft', '$', '$')
-    assert is_unset_parameter(instance2.entity.params[3])
+    assert is_unset_parameter(instance2.entity.params[3]) is True
 
 
 def test_data_order(stpfile):
@@ -60,7 +60,7 @@ def test_data_order(stpfile):
 
 
 # contains comments
-# types parameter
+# typed parameter
 # complex entity instances
 
 COMPLEX_FILE = r"""ISO-10303-21;
@@ -100,7 +100,7 @@ def test_typed_parameter(complex_file):
     instance = complex_file['#24']
     assert instance.entity.name == "UNCERTAINTY_MEASURE_WITH_UNIT"
     typed_param = instance.entity.params[0]
-    assert is_typed_parameter(typed_param)
+    assert is_typed_parameter(typed_param) is True
     assert typed_param.type_name == "LENGTH_MEASURE"
     assert typed_param.param == 0.000196850393701
 
@@ -117,7 +117,7 @@ def test_complex_instance(complex_file):
     assert is_unset_parameter(entities[1].params[0])
     assert entities[2].name == "SI_UNIT"
     assert entities[2].params == ('.MILLI.', '.METRE.')
-    assert is_enum(entities[2].params[0])
+    assert is_enum(entities[2].params[0]) is True
 
 
 if __name__ == '__main__':
