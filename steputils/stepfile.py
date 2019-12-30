@@ -6,6 +6,7 @@ from typing import Optional as Opt
 
 from collections import OrderedDict, ChainMap
 from datetime import datetime
+from io import StringIO
 
 from pyparsing import (
     nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore,
@@ -49,6 +50,9 @@ class ParameterList(tuple):
     # list: (arg1, list2, ...)
     #
     # The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ",".
+
+
+AnyList = Union[Tuple, List, ParameterList]
 
 
 class EntityInstanceName(str):
@@ -145,7 +149,7 @@ def _to_unicode(s, l, t) -> str:
 
 
 # These _write_... functions should also work with Python primitives like, list, tuple, str, ...
-def _write_parameter_list(fp: TextIO, plist: Union[Tuple, List, ParameterList], sep=','):
+def _write_parameter_list(fp: TextIO, plist: AnyList, sep=','):
     fp.write('(')
     first = True
     for p in plist:
@@ -153,10 +157,7 @@ def _write_parameter_list(fp: TextIO, plist: Union[Tuple, List, ParameterList], 
             first = False
         else:  # write `sep` between parameters, but not after the last parameter
             fp.write(sep)
-        if isinstance(p, (tuple, list, ParameterList)):
-            _write_parameter_list(fp, p)
-        else:
-            _write_parameter(fp, p)
+        _write_parameter(fp, p)
     fp.write(')')
 
 
@@ -164,12 +165,16 @@ ASCII_ONLY_ENCODED_PARAMETERS = {Enumeration, Keyword, EntityInstanceName, Unset
 
 
 def _write_parameter(fp: TextIO, p):
+    if p is None:
+        p = UnsetParameter('$')
     type_ = type(p)
     if type_ in ASCII_ONLY_ENCODED_PARAMETERS:
         # faster without step encoding
         fp.write(p)
-    elif type_ is str:
-        fp.write(step_encoded_string(p))
+    elif type_ is str:  # quote with apostrophe
+        fp.write("'{}'".format(step_string_encoder(p)))
+    elif type_ in (tuple, list, ParameterList):
+        _write_parameter_list(fp, p)
     elif type_ is TypedParameter:
         fp.write(p.type_name)
         fp.write('(')
@@ -178,6 +183,12 @@ def _write_parameter(fp: TextIO, p):
     else:
         # TODO: floats may need special treatment for exponential floats like 1e-10 -> 1E-10
         fp.write(str(p))
+
+
+def parameter_to_string(p) -> str:
+    s = StringIO()
+    _write_parameter(s, p)
+    return s.getvalue()
 
 
 HEX_16BIT = "{:04X}"
@@ -191,7 +202,7 @@ EXT_ENCODING = {
 }
 
 
-def step_encoded_string(s: str) -> str:
+def step_string_encoder(s: str) -> str:
     buffer = []
     encoding = 0  # 0 for no encoding, 16 for 16bit encoding, 32 for 32bit encoding
     for char in s:
@@ -200,11 +211,10 @@ def step_encoded_string(s: str) -> str:
             if encoding:  # stop extended encoding
                 buffer.append(EXT_END)
                 encoding = 0
-            else:
-                if char == '\\':  # escaping backslash
-                    char = '\\\\'
-                elif char == "'":  # escaping apostrophe
-                    char = "''"
+            if char == '\\':  # escaping backslash
+                char = '\\\\'
+            elif char == "'":  # escaping apostrophe
+                char = "''"
             buffer.append(char)
         else:  # value > 126
             if not encoding:  # start new extended character sequence
@@ -222,6 +232,8 @@ def step_encoded_string(s: str) -> str:
                 encoding = 32
                 buffer.append(EXT_START_32)
             buffer.append(EXT_ENCODING[encoding].format(value))
+    if encoding:
+        buffer.append(EXT_END)
     return ''.join(buffer)
 
 
@@ -320,12 +332,12 @@ class Tokens:
 
 class Entity:
     """ STEP-file entity, `name` is the type of the entity, `params` are the entity parameters as a
-    :class:`ParameterList`.
+    :class:`ParameterList`, tuple or list.
     """
 
-    def __init__(self, name: str, params: ParameterList):
+    def __init__(self, name: str, params: AnyList):
         self.name: str = name
-        self.params: ParameterList = params or ParameterList()
+        self.params: ParameterList = ParameterList(params or tuple())
 
     def write(self, fp: TextIO) -> None:
         fp.write(self.name)
@@ -340,8 +352,8 @@ class SimpleEntityInstance:
     object.
     """
 
-    def __init__(self, name: EntityInstanceName, entity: Entity):
-        self.name: EntityInstanceName = name
+    def __init__(self, name: str, entity: Entity):
+        self.name: EntityInstanceName = EntityInstanceName(name)
         self.entity = entity
 
     def write(self, fp: TextIO) -> None:
@@ -359,15 +371,15 @@ class ComplexEntityInstance:
     (e.g. ``'#100'``)
     """
 
-    def __init__(self, name: EntityInstanceName, entities: List[Entity]):
-        self.name: EntityInstanceName = name
+    def __init__(self, name: str, entities: List[Entity]):
+        self.name: EntityInstanceName = EntityInstanceName(name)
         self.entities = entities or list()
 
     def write(self, fp: TextIO) -> None:
-        fp.write(self.name + '=')
+        fp.write(self.name + '=(')
         for entity in self.entities:
             entity.write(fp)
-        fp.write(END_OF_INSTANCE)
+        fp.write(')'+END_OF_INSTANCE)
 
     @property
     def is_complex(self) -> bool:
@@ -446,6 +458,7 @@ class HeaderSection:
     """
     REQUIRED_HEADER_ENTITIES = ('FILE_DESCRIPTION', 'FILE_NAME', 'FILE_SCHEMA')
     OPTIONAL_HEADER_ENTITIES = ('FILE_POPULATION', 'SECTION_LANGUAGE', 'SECTION_CONTENT')
+    KNOWN_HEADER_ENTITIES = set(REQUIRED_HEADER_ENTITIES) | set(OPTIONAL_HEADER_ENTITIES)
 
     def __init__(self, entities: Dict = None):
         self.entities: Dict[str: Entity] = entities or OrderedDict()
@@ -466,48 +479,37 @@ class HeaderSection:
             return None
 
     def set_file_description(self, description: Tuple = None, level: str = '2;1'):
-        # FILE_DESCRIPTION(description: ParameterList, implementation_level: str)
-        # Tuple -> ParameterList()
         description = ParameterList(description) if description else ParameterList()
         self.add(Entity('FILE_DESCRIPTION', ParameterList((
             ParameterList(description), str(level)
         ))))
 
     def set_file_name(self, name: str,
-                      time_stamp: str = None,
-                      author: str = "",
+                      time_stamp: str = '',
+                      author: str = '',
                       organization: Tuple = None,
                       preprocessor_version: Tuple = None,
-                      organization_system: str = "",
-                      autorization: str = "",
+                      organization_system: str = '',
+                      autorization: str = '',
                       ):
-        # FILE_NAME(
-        #   name: str,
-        #   time_stamp: str,
-        #   author: str,
-        #   organization: ParameterList,
-        #   preprocessor_version: ParameterList,
-        #   originating_system: str,
-        #   authorization: str)
         if time_stamp is None:
             time_stamp = datetime.utcnow().isoformat(timespec='seconds')
-        # Tuple -> ParameterList()
-        organization = ParameterList(organization) if organization else ParameterList()
-        preprocessor_version = ParameterList(preprocessor_version) if preprocessor_version else ParameterList()
+
+        organization = ParameterList(organization) if organization else ParameterList(('',))
+        preprocessor_version = ParameterList(preprocessor_version) if preprocessor_version else ParameterList(('',))
 
         self.add(Entity('FILE_NAME', ParameterList((
             str(name),
             time_stamp,
-            str(author),
+            author,
             organization,
             preprocessor_version,
-            str(organization_system),
-            str(autorization),
+            organization_system,
+            autorization,
         ))))
 
     def set_file_schema(self, schema: Tuple):
-        # FILE_SCHEMA(schema: ParameterList)
-        schema = ParameterList(schema) if schema else ParameterList()
+        schema = ParameterList((schema,)) if schema else ParameterList()
         self.add(Entity('FILE_SCHEMA', schema))
 
     def write(self, fp: TextIO) -> None:
@@ -526,6 +528,10 @@ class HeaderSection:
         write_entities(names=HeaderSection.REQUIRED_HEADER_ENTITIES, optional=False)
         write_entities(names=HeaderSection.OPTIONAL_HEADER_ENTITIES, optional=True)
         fp.write('ENDSEC' + END_OF_INSTANCE)
+
+        unknown_header_entities = set(self.entities.keys()) - HeaderSection.KNOWN_HEADER_ENTITIES
+        if len(unknown_header_entities):
+            raise StepFileStructureError(f'Found unsupported header entities: {unknown_header_entities}')
 
 
 class DataSection:
@@ -832,7 +838,6 @@ def dumps(data: StepFile) -> str:
         data: step file data object
 
     """
-    from io import StringIO
     fp = StringIO()
     data.write(fp)
     s = fp.getvalue()
