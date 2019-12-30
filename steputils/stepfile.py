@@ -1,10 +1,11 @@
 # Created: 26.12.2019
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
-from typing import List, TextIO, Dict, Union, Iterable
+from typing import List, TextIO, Dict, Union, Iterable, Tuple
 from typing import Optional as Opt
 
 from collections import OrderedDict, ChainMap
+from datetime import datetime
 
 from pyparsing import (
     nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore,
@@ -38,13 +39,16 @@ Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
 #   directly be taken for STEP-file strings. They have to be decoded in a very special way.
 #
 
+class StepFileStructureError(Exception):
+    pass
+
 
 class ParameterList(tuple):
     """ Typing helper class for parameter list. """
+
     # list: (arg1, list2, ...)
     #
     # The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ",".
-    pass
 
 
 class EntityInstanceName(str):
@@ -140,70 +144,152 @@ def _to_unicode(s, l, t) -> str:
     return ''.join(chr(int(hexstr, 16)) for hexstr in t[1:-1])
 
 
+# These _write_... functions should also work with Python primitives like, list, tuple, str, ...
+def _write_parameter_list(fp: TextIO, plist: Union[Tuple, List, ParameterList], sep=','):
+    fp.write('(')
+    first = True
+    for p in plist:
+        if first:
+            first = False
+        else:  # write `sep` between parameters, but not after the last parameter
+            fp.write(sep)
+        if isinstance(p, (tuple, list, ParameterList)):
+            _write_parameter_list(fp, p)
+        else:
+            _write_parameter(fp, p)
+    fp.write(')')
+
+
+ASCII_ONLY_ENCODED_PARAMETERS = {Enumeration, Keyword, EntityInstanceName, UnsetParameter}
+
+
+def _write_parameter(fp: TextIO, p):
+    type_ = type(p)
+    if type_ in ASCII_ONLY_ENCODED_PARAMETERS:
+        # faster without step encoding
+        fp.write(p)
+    elif type_ is str:
+        fp.write(step_encoded_string(p))
+    elif type_ is TypedParameter:
+        fp.write(p.type_name)
+        fp.write('(')
+        _write_parameter(fp, p.param)
+        fp.write(')')
+    else:
+        # TODO: floats may need special treatment for exponential floats like 1e-10 -> 1E-10
+        fp.write(str(p))
+
+
+HEX_16BIT = "{:04X}"
+HEX_32BIT = "{:08X}"
+EXT_START_16 = '\\X4\\'
+EXT_START_32 = '\\X8\\'
+EXT_END = "\\X0\\"
+EXT_ENCODING = {
+    16: HEX_16BIT,
+    32: HEX_32BIT,
+}
+
+
+def step_encoded_string(s: str) -> str:
+    buffer = []
+    encoding = 0  # 0 for no encoding, 16 for 16bit encoding, 32 for 32bit encoding
+    for char in s:
+        value = ord(char)
+        if value < 127:  # just ASCII code
+            if encoding:  # stop extended encoding
+                buffer.append(EXT_END)
+                encoding = 0
+            else:
+                if char == '\\':  # escaping backslash
+                    char = '\\\\'
+                elif char == "'":  # escaping apostrophe
+                    char = "''"
+            buffer.append(char)
+        else:  # value > 126
+            if not encoding:  # start new extended character sequence
+                if value < 65536:  # 16bit character
+                    encoding = 16
+                    buffer.append(EXT_START_16)
+                else:  # 32bit character
+                    encoding = 32
+                    buffer.append(EXT_START_32)
+            elif value >= 65536 and encoding == 16:
+                # already extended 16bit encoding, but 32bit encoding is required
+                # stop 16bit encoding
+                buffer.append(EXT_END)
+                # and start 32bit encoding
+                encoding = 32
+                buffer.append(EXT_START_32)
+            buffer.append(EXT_ENCODING[encoding].format(value))
+    return ''.join(buffer)
+
+
 BACKSLASH = '\\'
-reverse_solidus = Char(BACKSLASH)
-sign = Char('+-')
-space = Char(' ')
-dot = Char('.')
-omitted_parameter = Char('*').setParseAction(lambda s, l, t: UnsetParameter(t[0]))
-unset_parameter = Char('$').setParseAction(lambda s, l, t: UnsetParameter(t[0]))
-apostrophe = Char("'")
-special = Char('!"*$%&.#+,-()?/:;<=>@[]{|}^`~')
-lower = Char(ascii_lowercase)
-upper = Char(ascii_uppercase + '_')
-digit = Char(nums)
-hex1 = Char(hexnums)
-hex2 = Word(hexnums, exact=2)
-hex4 = Word(hexnums, exact=4)
-hex8 = Word(hexnums, exact=8)
+REVERESE_SOLIDUS = Char(BACKSLASH)
+SIGN = Char('+-')
+SPACE = Char(' ')
+DOT = Char('.')
+OMITTED_PARAMETER = Char('*').setParseAction(lambda s, l, t: UnsetParameter(t[0]))
+UNSET_PARAMETER = Char('$').setParseAction(lambda s, l, t: UnsetParameter(t[0]))
+APOSTROPHE = Char("'")
+SPECIAL = Char('!"*$%&.#+,-()?/:;<=>@[]{|}^`~')
+LOWER = Char(ascii_lowercase)
+UPPER = Char(ascii_uppercase + '_')
+DIGIT = Char(nums)
+HEX_1 = Char(hexnums)
+HEX_2 = Word(hexnums, exact=2)
+HEX_4 = Word(hexnums, exact=4)
+HEX_8 = Word(hexnums, exact=8)
 
-enumeration = Regex(r'\.[A-Z_][A-Z0-9_]*\.').addParseAction(lambda s, l, t: Enumeration(t[0]))
-integer = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
-real = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
-entity_instance_name = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
-binary = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2:-1], 16))
+ENUMERATION = Regex(r'\.[A-Z_][A-Z0-9_]*\.').addParseAction(lambda s, l, t: Enumeration(t[0]))
+BINARY = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2:-1], 16))
+INTEGER = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
+REAL = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
+ENTITY_INSTANCE_NAME = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
 
-alphabet = Literal(BACKSLASH + 'P') + upper + reverse_solidus
+ALPHABET = Literal(BACKSLASH + 'P') + UPPER + REVERESE_SOLIDUS
 # alphabet= \P?\ - which characters are supported, what do they mean
-arbitrary = Literal(BACKSLASH + 'X' + BACKSLASH) + hex2
-character = space | digit | lower | upper | special | reverse_solidus | apostrophe
-page = Literal(BACKSLASH + 'S' + BACKSLASH) + character
+ARBITRARY = Literal(BACKSLASH + 'X' + BACKSLASH) + HEX_2
+CHARACTER = SPACE | DIGIT | LOWER | UPPER | SPECIAL | REVERESE_SOLIDUS | APOSTROPHE
+PAGE = Literal(BACKSLASH + 'S' + BACKSLASH) + CHARACTER
 # page= \S\? - which characters are supported, what do they mean
 
-non_q_char = special | digit | space | lower | upper
-end_extended = Literal(BACKSLASH + 'X0' + BACKSLASH)
-extended2 = (Literal(BACKSLASH + 'X2' + BACKSLASH) + OneOrMore(hex4) + end_extended).addParseAction(_to_unicode)
+NON_Q_CHAR = SPECIAL | DIGIT | SPACE | LOWER | UPPER
+END_EXTENDED = Literal(BACKSLASH + 'X0' + BACKSLASH)
+
+extended2 = (Literal(BACKSLASH + 'X2' + BACKSLASH) + OneOrMore(HEX_4) + END_EXTENDED).addParseAction(_to_unicode)
 # \X2\00E4\X0\ - encoding ISO 8859 and 10646 (python encoding 'utf-16be')
-extended4 = (Literal(BACKSLASH + 'X4' + BACKSLASH) + OneOrMore(hex8) + end_extended).addParseAction(_to_unicode)
+extended4 = (Literal(BACKSLASH + 'X4' + BACKSLASH) + OneOrMore(HEX_8) + END_EXTENDED).addParseAction(_to_unicode)
 # \X4\000000E4\X0\ - encoding ISO 8859 and ISO 10646 (python encoding 'utf-32be')
-control_directive = page | alphabet | extended2 | extended4 | arbitrary
+control_directive = PAGE | ALPHABET | extended2 | extended4 | ARBITRARY
 
-string = Combine(Suppress(apostrophe) + ZeroOrMore(
-    non_q_char |
-    (apostrophe + apostrophe).addParseAction(lambda s, l, t: "'") |
-    (reverse_solidus + reverse_solidus).addParseAction(lambda s, l, t: "\\") |
-    control_directive) + Suppress(apostrophe))
+string = Combine(Suppress(APOSTROPHE) + ZeroOrMore(
+    NON_Q_CHAR |
+    (APOSTROPHE + APOSTROPHE).addParseAction(lambda s, l, t: "'") |
+    (REVERESE_SOLIDUS + REVERESE_SOLIDUS).addParseAction(lambda s, l, t: "\\") |
+    control_directive) + Suppress(APOSTROPHE))
 
-standard_keyword = Combine(upper + ZeroOrMore(upper | digit))
-user_defined_keyword = Combine('!' + upper + ZeroOrMore(upper | digit))
+standard_keyword = Combine(UPPER + ZeroOrMore(UPPER | DIGIT))
+user_defined_keyword = Combine('!' + UPPER + ZeroOrMore(UPPER | DIGIT))
 keyword = Combine(user_defined_keyword | standard_keyword).setParseAction(lambda s, l, t: Keyword(t[0]))
 
 parameter = Forward()
 # parse a list of arguments and convert to a tuple
-list_ = (Suppress('(') + Optional(parameter + ZeroOrMore(',' + parameter)) + Suppress(')')).addParseAction(
+LIST = (Suppress('(') + Optional(parameter + ZeroOrMore(',' + parameter)) + Suppress(')')).addParseAction(
     lambda s, l, t: ParameterList(t[0::2]))
 typed_parameter = (keyword + '(' + parameter + ')').addParseAction(
     lambda s, l, t: TypedParameter(name=t[0], param=t[2]))
 
-untyped_parameter = unset_parameter | real | integer | string | entity_instance_name | enumeration | binary | list_
-parameter <<= typed_parameter | untyped_parameter | omitted_parameter
+untyped_parameter = UNSET_PARAMETER | REAL | INTEGER | string | ENTITY_INSTANCE_NAME | ENUMERATION | BINARY | LIST
+parameter <<= typed_parameter | untyped_parameter | OMITTED_PARAMETER
 parameter_list = (parameter + ZeroOrMore(',' + parameter)).addParseAction(lambda s, l, t: ParameterList(t[0::2]))
 
 simple_record = keyword + Suppress('(') + Optional(parameter_list) + Suppress(')')
 simple_record_list = OneOrMore(simple_record)
-simple_entity_instance = entity_instance_name + Suppress('=') + simple_record + Suppress(';')
+simple_entity_instance = ENTITY_INSTANCE_NAME + Suppress('=') + simple_record + Suppress(';')
 subsuper_record = '(' + simple_record_list + ')'
-complex_entity_instance = entity_instance_name + Suppress('=') + subsuper_record + Suppress(';')
+complex_entity_instance = ENTITY_INSTANCE_NAME + Suppress('=') + subsuper_record + Suppress(';')
 entity_instance = simple_entity_instance | complex_entity_instance
 entity_instance_list = ZeroOrMore(entity_instance)
 
@@ -241,6 +327,13 @@ class Entity:
         self.name: str = name
         self.params: ParameterList = params or ParameterList()
 
+    def write(self, fp: TextIO) -> None:
+        fp.write(self.name)
+        _write_parameter_list(fp, self.params)
+
+
+END_OF_INSTANCE = ';\n'
+
 
 class SimpleEntityInstance:
     """ Simple instance entity, `name` is the instance id as string (e.g. ``'#100'``), `entity` is the :class:`Entity`
@@ -250,6 +343,11 @@ class SimpleEntityInstance:
     def __init__(self, name: EntityInstanceName, entity: Entity):
         self.name: EntityInstanceName = name
         self.entity = entity
+
+    def write(self, fp: TextIO) -> None:
+        fp.write(self.name + '=')
+        self.entity.write(fp)
+        fp.write(END_OF_INSTANCE)
 
     @property
     def is_complex(self) -> bool:
@@ -265,6 +363,12 @@ class ComplexEntityInstance:
         self.name: EntityInstanceName = name
         self.entities = entities or list()
 
+    def write(self, fp: TextIO) -> None:
+        fp.write(self.name + '=')
+        for entity in self.entities:
+            entity.write(fp)
+        fp.write(END_OF_INSTANCE)
+
     @property
     def is_complex(self) -> bool:
         return True
@@ -279,7 +383,7 @@ class HeaderSection:
     The HEADER section has a fixed structure consisting of 3 to 6 groups in the given order. Except for the data fields
     time_stamp and FILE_SCHEMA all fields may contain empty strings.
 
-    HeaderSection['FILE_DESCRIPTION'], parameters:
+    :code:`FILE_DESCRIPTION(description: ParameterList, implementation_level: str)`
 
         - ``description``
         - ``implementation_level``: The version and conformance option of this file. Possible versions are "1" for the
@@ -289,7 +393,7 @@ class HeaderSection:
           but only very rarely used. The values ``'3;1'`` and ``'3;2'`` indicate extended STEP-Files as defined in the
           2001 standard with several DATA sections, multiple schemas and ``FILE_POPULATION`` support.
 
-    HeaderSection['FILE_NAME'], parameters:
+    :code:`FILE_NAME(name: str, time_stamp: str, author: str, organization: ParameterList, preprocessor_version: ParameterList, originating_system: str, authorization: str)`
 
         - ``name`` of this exchange structure. It may correspond to the name of the file in a file system or reflect
           data in this file. There is no strict rule how to use this field.
@@ -302,7 +406,7 @@ class HeaderSection:
           contained in this STEP-file.
         - ``authorization`` the name and mailing address of the person who authorized this file.
 
-    HeaderSection['FILE_SCHEMA']
+    :code:`FILE_SCHEMA(schema: ParameterList)`
 
         - Specifies one or several Express schema governing the information in the data section(s). For first edition
           files, only one EXPRESS schema together with an optional ASN.1 object identifier of the schema version can
@@ -310,7 +414,9 @@ class HeaderSection:
 
     The last three header groups are only valid in second edition files.
 
-    HeaderSection['FILE_POPULATION'], indicating a valid population (set of entity instances) which conforms
+    :code:`FILE_POPULATION(governing_schema: str, determination_method: str, governed_sections: ParameterList)` (?)
+
+    Indicating a valid population (set of entity instances) which conforms
     to an EXPRESS schemas. This is done by collecting data from several data_sections and referenced instances from
     other data sections.
 
@@ -319,26 +425,33 @@ class HeaderSection:
         - ``determination_method`` to figure out which instances belong to the population. Three methods are predefined:
           ``'SECTION_BOUNDARY'``, ``'INCLUDE_ALL_COMPATIBLE'``, and ``'INCLUDE_REFERENCED'``.
         - ``governed_sections``, the data sections whose entity instances fully belongs to the population.
-        - The concept of FILE_POPULATION is very close to schema_instance of SDAI. Unfortunately, during the
-          standardization process, it was not possible to come to an agreement to merge these concepts. Therefore,
-          JSDAI adds further attributes to FILE_POPULATION as intelligent comments to cover all missing information
-          from schema_instance. This is supported for both import and export.
+
+    The concept of FILE_POPULATION is very close to schema_instance of SDAI. Unfortunately, during the
+    Standardization process, it was not possible to come to an agreement to merge these concepts. Therefore,
+    JSDAI adds further attributes to FILE_POPULATION as intelligent comments to cover all missing information
+    from schema_instance. This is supported for both import and export.
+
+    :code:`SECTION_LANGUAGE(language: str)` (?)
 
     HeaderSection['SECTION_LANGUAGE'] allows assignment of a default language for either all or a specific
     data section. This is needed for those Express schemas that do not provide the capability to specify in which
     language string attributes of entities such as name and description are given.
 
-    HeaderSection['SECTION_CONTEXT'] provide the capability to specify additional context information for all
+    :code:`SECTION_CONTEXT(context: ParameterList)` (?)
+
+    Provide the capability to specify additional context information for all
     or single data sections. This can be used e.g. for STEP-APs to indicate which conformance class is covered by
     a particular data section.
 
     """
+    REQUIRED_HEADER_ENTITIES = ('FILE_DESCRIPTION', 'FILE_NAME', 'FILE_SCHEMA')
+    OPTIONAL_HEADER_ENTITIES = ('FILE_POPULATION', 'SECTION_LANGUAGE', 'SECTION_CONTENT')
 
-    def __init__(self):
-        self.entities: OrderedDict[str: Entity] = OrderedDict()
+    def __init__(self, entities: Dict = None):
+        self.entities: Dict[str: Entity] = entities or OrderedDict()
 
-    def append(self, entity: Entity) -> None:
-        """ Appends header entry. """
+    def add(self, entity: Entity) -> None:
+        """ Add or replace header entry. """
         self.entities[entity.name] = entity
 
     def __getitem__(self, name: str) -> Entity:
@@ -351,6 +464,68 @@ class HeaderSection:
             return self.entities[name]
         except KeyError:
             return None
+
+    def set_file_description(self, description: Tuple = None, level: str = '2;1'):
+        # FILE_DESCRIPTION(description: ParameterList, implementation_level: str)
+        # Tuple -> ParameterList()
+        description = ParameterList(description) if description else ParameterList()
+        self.add(Entity('FILE_DESCRIPTION', ParameterList((
+            ParameterList(description), str(level)
+        ))))
+
+    def set_file_name(self, name: str,
+                      time_stamp: str = None,
+                      author: str = "",
+                      organization: Tuple = None,
+                      preprocessor_version: Tuple = None,
+                      organization_system: str = "",
+                      autorization: str = "",
+                      ):
+        # FILE_NAME(
+        #   name: str,
+        #   time_stamp: str,
+        #   author: str,
+        #   organization: ParameterList,
+        #   preprocessor_version: ParameterList,
+        #   originating_system: str,
+        #   authorization: str)
+        if time_stamp is None:
+            time_stamp = datetime.utcnow().isoformat(timespec='seconds')
+        # Tuple -> ParameterList()
+        organization = ParameterList(organization) if organization else ParameterList()
+        preprocessor_version = ParameterList(preprocessor_version) if preprocessor_version else ParameterList()
+
+        self.add(Entity('FILE_NAME', ParameterList((
+            str(name),
+            time_stamp,
+            str(author),
+            organization,
+            preprocessor_version,
+            str(organization_system),
+            str(autorization),
+        ))))
+
+    def set_file_schema(self, schema: Tuple):
+        # FILE_SCHEMA(schema: ParameterList)
+        schema = ParameterList(schema) if schema else ParameterList()
+        self.add(Entity('FILE_SCHEMA', schema))
+
+    def write(self, fp: TextIO) -> None:
+        def write_entities(names, optional=False):
+            for name in names:
+                try:
+                    entity = self[name]
+                except KeyError:
+                    if not optional:
+                        raise StepFileStructureError(f'Missing required header entity: {name}')
+                else:
+                    entity.write(fp)
+                    fp.write(END_OF_INSTANCE)
+
+        fp.write('HEADER' + END_OF_INSTANCE)
+        write_entities(names=HeaderSection.REQUIRED_HEADER_ENTITIES, optional=False)
+        write_entities(names=HeaderSection.OPTIONAL_HEADER_ENTITIES, optional=True)
+        fp.write('ENDSEC' + END_OF_INSTANCE)
 
 
 class DataSection:
@@ -405,9 +580,12 @@ class DataSection:
 
     """
 
-    def __init__(self):
-        self.parameter = ParameterList()
-        self.instances: Dict[EntityInstanceName, EntityInstance] = OrderedDict()
+    def __init__(self, params: ParameterList = None, instances: Dict = None):
+        self.parameter = params or ParameterList()
+        self.instances: Dict[EntityInstanceName, EntityInstance] = instances or OrderedDict()
+
+    def __iter__(self):
+        return self.instances.values()
 
     def append(self, instance: EntityInstance) -> None:
         """
@@ -427,15 +605,11 @@ class DataSection:
         """ Returns sorted list if entity instance names. """
         return sorted(self.instances.keys(), key=lambda e: int(e[1:]))
 
-    def instances(self) -> Iterable[EntityInstance]:
-        """ Returns iterable of entity instances. """
-        return self.instances.values()
-
     def sorted_instances(self) -> Iterable[EntityInstance]:
         """ Returns iterable of entity instances sorted by name. """
         return (self.instances[key] for key in self.sorted_names())
 
-    def __getitem__(self, name: EntityInstanceName) -> EntityInstance:
+    def __getitem__(self, name: str) -> EntityInstance:
         """ Returns instance by `name`, raise :class:`KeyError` if not found. """
         return self.instances[name]
 
@@ -443,12 +617,21 @@ class DataSection:
         """ Returns count of instances. """
         return len(self.instances)
 
-    def get(self, name: EntityInstanceName) -> Opt[EntityInstance]:
+    def get(self, name: str) -> Opt[EntityInstance]:
         """ Returns instance by `name` of ``None`` if not found. """
         try:
             return self.instances[name]
         except KeyError:
             return None
+
+    def write(self, fp: TextIO):
+        fp.write('DATA')
+        if len(self.parameter):
+            _write_parameter_list(fp, self.parameter)
+        fp.write(END_OF_INSTANCE)
+        for instance in self.instances.values():
+            instance.write(fp)
+        fp.write('ENDSEC' + END_OF_INSTANCE)
 
 
 class StepFile:
@@ -463,7 +646,7 @@ class StepFile:
         # multiple data sections only supported by ISO 10303-21:2002
         # most files in the wild, don't use multiple data sections!
         self.data: List[DataSection] = list()
-        self._chain_map: ChainMap = None
+        self._linked_data_sections: ChainMap = None
 
     def __getitem__(self, name: EntityInstanceName):
         """ Returns :class:`EntityInstance` by instance `name`. Searches all data sections if more than one exist.
@@ -475,9 +658,14 @@ class StepFile:
               KeyError: instance `id` not found
 
         """
-        if self._chain_map is None:
+        if self._linked_data_sections is None:
             self._rebuild_chain_map()
-        return self._chain_map[name]
+        return self._linked_data_sections[name]
+
+    def __iter__(self):
+        """ Returns unsorted iterable of all instance entities of all data sections."""
+        for ds in self.data:
+            yield from iter(ds)
 
     def get(self, name: EntityInstanceName) -> Opt[EntityInstance]:
         """ Returns :class:`EntityInstance` by instance `name` or ``None`` if not found. Searches all data sections
@@ -495,7 +683,7 @@ class StepFile:
     def _rebuild_chain_map(self) -> None:
         """ Rebuild chain map for searching across multiple data sections.
         """
-        self._chain_map = ChainMap(*self.data)
+        self._linked_data_sections = ChainMap(*[ds.instances for ds in self.data])
 
     def append(self, data: DataSection) -> None:
         """
@@ -507,6 +695,19 @@ class StepFile:
         """
         self.data.append(data)
         self._rebuild_chain_map()
+
+    def new_data_section(self, params: Iterable = None):
+        params = ParameterList(params) if params else ParameterList()
+        new_section = DataSection(params=params)
+        self.append(new_section)
+        return new_section
+
+    def write(self, fp: TextIO) -> None:
+        fp.write('ISO-10303-21' + END_OF_INSTANCE)
+        self.header.write(fp)
+        for data in self.data:
+            data.write(fp)
+        fp.write('END-ISO-10303-21' + END_OF_INSTANCE)
 
 
 def _parse_entity(tokens: Tokens) -> Entity:
@@ -539,7 +740,7 @@ def _parse_header(tokens: Tokens) -> HeaderSection:
     assert t == 'HEADER'
     while tokens.lookahead != 'ENDSEC':
         entity = _parse_entity(tokens)
-        header.append(entity)
+        header.add(entity)
     tokens.pop()  # ENDSEC
     return header
 
@@ -617,8 +818,7 @@ def dump(data: StepFile, fp: TextIO) -> None:
         fp: text stream
 
     """
-    # todo: stepfile.dump()
-    pass
+    data.write(fp)
 
 
 def dumps(data: StepFile) -> str:
@@ -632,5 +832,9 @@ def dumps(data: StepFile) -> str:
         data: step file data object
 
     """
-    # todo: stepfile.dumps()
-    return ""
+    from io import StringIO
+    fp = StringIO()
+    data.write(fp)
+    s = fp.getvalue()
+    fp.close()
+    return s

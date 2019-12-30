@@ -3,7 +3,7 @@
 # License: MIT License
 
 import pytest
-from steputils.stepfile import step_file, header_entity, list_, string, binary, typed_parameter, is_enum, enumeration
+from steputils.stepfile import step_file, header_entity, LIST, string, BINARY, typed_parameter, is_enum, ENUMERATION
 
 SHORT_STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -34,17 +34,17 @@ def test_header_entity():
 
 
 def test_empty_list():
-    result = list(list_.parseString("()"))
+    result = list(LIST.parseString("()"))
     assert result == [tuple()]  # empty tuple
 
 
 def test_list_1():
-    result = list(list_.parseString("('IFC2X3')"))
+    result = list(LIST.parseString("('IFC2X3')"))
     assert result[0] == ('IFC2X3',)
 
 
 def test_list_2():
-    result = list(list_.parseString("(1, 3.1415)"))
+    result = list(LIST.parseString("(1, 3.1415)"))
     assert result[0] == (1, 3.1415)
 
 
@@ -94,7 +94,7 @@ def test_extended_string_x4():
 
 
 def test_binary():
-    assert binary.parseString('"0FF"')[0] == 255
+    assert BINARY.parseString('"0FF"')[0] == 255
 
 
 def test_typed_parameter_1():
@@ -111,7 +111,7 @@ def test_typed_parameter_2():
 
 
 def test_enum():
-    assert is_enum(enumeration.parseString('.ENUM.')[0]) is True
+    assert is_enum(ENUMERATION.parseString('.ENUM.')[0]) is True
 
 
 if __name__ == '__main__':

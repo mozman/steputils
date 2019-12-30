@@ -1,6 +1,8 @@
 .tox
 .cache
 .eggs
+.pytest_cache
+.vscode
 build/*
 dist/*
 .idea/*

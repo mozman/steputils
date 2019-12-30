@@ -35,10 +35,7 @@ Resources to build STEP parser:
   EXPRESS is formalized in the ISO Standard for the Exchange of Product model STEP (ISO 10303), and standardized 
   as [ISO 10303-11].
 - `iso-10303-11--2004.bnf`: Backus-Naur-Form for EXPRESS
-- `iso-10303-21--2002.bnf`: Backus-Naur-Form for STEP-File: [ISO 10303-21] defines the encoding mechanism for 
-  representing data conforming to a particular schema in the EXPRESS data modeling language specified in [ISO 10303-11]. 
-  A STEP-File is also called p21-File and STEP Physical File. The file extensions .stp and .step indicate that the file 
-  contains data conforming to STEP Application Protocols while the extension .p21 should be used for all other purposes.
+- `iso-10303-21--2002.bnf`: Backus-Naur-Form for STEP-file - STEP-file loader is done; serializer is pending;  
 
 ### XML Requirements & Resources
 
@@ -70,22 +67,78 @@ Internal Data Model
 
 Instantiation by factory! `args` is a list of positional arguments and `kwargs` are keyword arguments as a dict.
 
-```
     def instance(cls_name: str, *args, **kwargs):
         pass
 
-    e = ifc2data.instance('IfcRoot', IfcGloballyUniqueId=guid())
-```
+    ifc4 = steputils.create_model('IFC4')
+    root = ifc4.get_root()
+    entity = ifc4.entity('IfcRoot', IfcGloballyUniqueId=guid())
 
-Parsing
--------
+### DOM Interface
 
-Use [pyparsing] to write parsers, i have already some experience with this tool and it is Pythonic,
-big disadvantage: it is slow!
+Create new model:
 
-But speed shouldn't be a problem, an EXPRESS parser does not have to be fast because parsing EXPRESS files is not a 
-runtime process, and STEP-files are organized as one object per line, sometimes very long lines, but mostly short 
-lines, so no deep nested parsing is necessary, for XML and JSON exist Python tools and advanced 3rd party libs.   
+    ifc4 = steputils.create_model('IFC4')
+
+Get root node:
+
+    root = ifc4.get_root()
+
+Create new node:
+
+    entity = ifc4.entity('IfcRoot', IfcGloballyUniqueId=guid())
+
+Adding new node to parent:
+
+    # add one child node
+    root.append(entity)
+    
+    # add multiple child nodes
+    root.extend([entity, entity2, ...])
+    
+    # insert at a specified position
+    root.insert(index, entity)
+    
+Iterate child nodes:
+
+    for entity in root:
+        pass
+
+Delete child nodes:
+
+    root.remove(entity)
+    
+### Query Language - First Draft
+
+Query entities in a XPath like way:
+
+`tag` Selects all child elements with the given tag. For example, `spam` selects all child elements named spam, 
+and `spam/egg` selects all grandchildren named egg in all children named spam.
+
+`.` Selects the current node. This is mostly useful at the beginning of the path, to indicate that it’s a relative path.
+
+`*` Selects all child elements. For example, `*/egg` selects all grandchildren named egg
+
+`//` Selects all subelements, on all levels beneath the current element. For example, `.//egg` selects all egg
+elements in the entire tree.
+
+`..` Selects the parent element.
+
+`[@attrib]` Selects all elements that have the given attribute.
+
+`[@attrib='value']` Selects all elements for which the given attribute has the given value. The value cannot contain quotes.
+
+`[tag]` Selects all elements that have a child named tag. Only immediate children are supported.
+
+`[tag='text']` Selects all elements that have a child named tag whose complete text content, including descendants,
+equals the given text.
+
+`[position]` Selects all elements that are located at the given position. The position is an integer: 1 is the first 
+position, -1 for the last position like Python list indices.
+
+    root.findall('spam')  # finds all matching child elements named spam
+    root.find('spam')  # find first matching child element named spam
+
 
 [IFC4]: https://technical.buildingsmart.org/
 [STEP]: https://en.wikipedia.org/wiki/ISO_10303-21
