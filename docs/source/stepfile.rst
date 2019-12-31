@@ -19,39 +19,90 @@ Protocols while the extension .p21 should be used for all other purposes.
 
 Source: https://en.wikipedia.org/wiki/ISO_10303-21
 
-Functions
----------
+The intended usage is to import the :class:`Factory` class and create new objects by factory functions:
 
-.. autofunction:: load(fp: TextIO) -> StepFile
+.. code-block:: python
 
-.. autofunction:: loads(s: str) -> StepFile
+   from steputils.stepfile import Factory
 
-.. autofunction:: dump(data: StepFile, fp: TextIO) -> None
+   # load an existing file from file system
+   stepfile = Factory.load('example.stp')
+   # or create a new STEP-file
+   stepfile = Factory.new()
+   data = stepfile.new_data_section()
+   # Entities are STEP application specific objects and are not checked for correct keywords and
+   # parameters, this task belongs to the next application layer.
+   data.append(Factory.simple_entity_instance('#1', 'Application', ('MyApp', 'v1.0')))
 
-.. autofunction:: dumps(data: StepFile) -> str
+   # set required header entities
+   stepfile.set_file_description(('Example STEP file', 'v1.0'))
+   stepfile.set_file_name(name='example.stp', organization=('me', 'myself'), autorization='me')
+   stepfile.set_file_schema(('NONE'))
 
-Checking for Types
-~~~~~~~~~~~~~~~~~~
+   stepfile.save('example.stp')
 
-.. autofunction:: is_string
+Public Interface
+----------------
 
-.. autofunction:: is_integer
+.. autoclass:: Factory
 
-.. autofunction:: is_real
+   .. automethod:: load(fp: TextIO) -> StepFile
 
-.. autofunction:: is_reference
+   .. automethod:: loads(s: str) -> StepFile
 
-.. autofunction:: is_keyword
+   .. automethod:: new() -> StepFile
 
-.. autofunction:: is_enum
+   .. automethod:: keyword(name: str) -> Keyword
 
-.. autofunction:: is_unset_parameter
+   .. automethod:: reference(ref: str) -> EntityInstanceName
 
-.. autofunction:: is_typed_parameter
+   .. automethod:: enum(enum: str) -> Enumeration
 
-.. autofunction:: is_parameter_list
+   .. automethod:: binary(value: int, unset: int = 0) -> Binary
 
-   Note: It is a single parameter if it's not a :class:`ParameterList`
+   .. automethod:: unset_parameter(char: str) -> UnsetParameter
+
+   .. automethod:: parameter_list(*args) -> ParameterList
+
+   .. automethod:: typed_parameter(type_name: str, param) -> TypedParameter
+
+   .. automethod:: entity(name: str, params) -> Entity
+
+   .. automethod:: simple_entity_instance(ref: str, name: str, params) -> SimpleEntityInstance
+
+   .. automethod:: complex_entity_instance(ref: str, entities: List[Entity]) -> ComplexEntityInstance
+
+   .. automethod:: timestamp
+
+   .. automethod:: is_string
+
+   .. automethod:: is_integer
+
+   .. automethod:: is_real
+
+   .. automethod:: is_binary
+
+   .. automethod:: is_reference
+
+   .. automethod:: is_keyword
+
+   .. automethod:: is_enum
+
+   .. automethod:: is_unset_parameter
+
+   .. automethod:: is_typed_parameter
+
+   .. automethod:: is_parameter_list
+
+      Note: It is a single parameter if it's not a :class:`ParameterList`
+
+   .. automethod:: is_entity
+
+   .. automethod:: is_simple_entity_instance
+
+   .. automethod:: is_complex_entity_instance
+
+
 
 Classes
 -------
@@ -71,11 +122,19 @@ StepFile
 
     .. automethod:: __getitem__(name: EntityInstanceName) -> EntityInstance
 
+    .. automethod:: __str__
+
     .. automethod:: get(name: EntityInstanceName) -> Optional[EntityInstance]
+
+    .. automethod:: new_data_section(self, params: Iterable = None) -> DataSection
 
     .. automethod:: append(data: DataSection) -> None
 
-    .. automethod:: append
+    .. automethod:: save
+
+    .. automethod:: write
+
+    .. automethod:: is_unique_reference
 
 
 HeaderSection
@@ -87,11 +146,19 @@ HeaderSection
 
         Ordered dict of all header entities as :class:`Entity` objects.
 
-    .. automethod:: append(entity: Entity) -> None
-
     .. automethod:: __getitem__(name: str) -> Entity
 
     .. automethod:: get(name: str) -> Optional[Entity]
+
+    .. automethod:: add(self, entity: Entity) -> None
+
+    .. automethod:: set_file_description(description: Tuple = None, level: str = '2;1') -> None
+
+    .. automethod:: set_file_name(name: str, time_stamp: str = None, author: str = '', organization: Tuple = None, preprocessor_version: Tuple = None, organization_system: str = '', autorization: str = '') -> None
+
+    .. automethod:: set_file_schema(schema: Tuple) -> None
+
+
 
 DataSection
 ~~~~~~~~~~~
@@ -109,17 +176,13 @@ DataSection
 
     .. automethod:: __getitem__(name: EntityInstanceName) -> EntityInstance
 
+    .. automethod:: __iter__
+
     .. automethod:: get(name: EntityInstanceName) -> Optional[EntityInstance]
 
     .. automethod:: __len__() -> int
 
     .. automethod:: names() -> Iterable[EntityInstanceName]
-
-    .. automethod:: sorted_names() -> List[EntityInstanceName]
-
-    .. automethod:: instances() -> Iterable[EntityInstance]
-
-    .. automethod:: sorted_instances() -> Iterable[EntityInstance]
 
     .. automethod:: append(instance: EntityInstance) -> None
 
@@ -134,10 +197,60 @@ Helper Classes
 
 .. autoclass:: Enumeration
 
+.. autoclass:: Binary
+
+    .. attribute:: value
+
+        Value as ``int``.
+
+    .. attribute:: unset
+
+        Count of unset bits in the range from 0 to 3.
+
 .. autoclass:: UnsetParameter
 
 .. autoclass:: TypedParameter
 
     .. attribute:: type_name
 
+        Type name as :class:`Keyword`
+
     .. attribute:: param
+
+.. autoclass:: Entity
+
+    .. attribute:: name
+
+        Entity name as :class:`Keyword`
+
+    .. attribute:: params
+
+        Entity parameters as :class:`ParameterList`.
+
+.. autoclass:: SimpleEntityInstance
+
+    .. attribute:: name
+
+        Instance name as :class:`EntityInstanceName`
+
+    .. attribute:: entity
+
+        Instance entity as :class:`Entity`.
+
+    .. attribute:: is_complex
+
+        Set to ``False``
+
+.. autoclass:: SimpleEntityInstance
+
+    .. attribute:: name
+
+        Instance name as :class:`EntityInstanceName`
+
+    .. attribute:: entities
+
+        Instance entities as list of :class:`Entity` objects.
+
+    .. attribute:: is_complex
+
+        Set to ``True``

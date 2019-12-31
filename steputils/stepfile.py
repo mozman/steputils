@@ -20,6 +20,7 @@ STEP physical file representation (STEP-file) specified by the ISO 10303-21 stan
 Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
 
 """
+__all__ = ['Factory', 'StepFileStructureError']
 
 
 # Data types:
@@ -50,6 +51,8 @@ class ParameterList(tuple):
     # list: (arg1, list2, ...)
     #
     # The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ",".
+    def __str__(self):
+        return '({})'.format(','.join(parameter_string(p) for p in self))
 
 
 AnyList = Union[Tuple, List, ParameterList]
@@ -82,12 +85,14 @@ class Enumeration(str):
 
 
 class UnsetParameter(str):
-    """ Typing helper class for unset parameter."""
-    # omitted argument: $ or *
-    #     Source: https://en.wikipedia.org/wiki/ISO_10303-21
-    #     Unset attribute values are given as "$".
-    #     Explicit attributes which got re-declared as derived in a subtype are encoded as "*" in the position of the
-    #     supertype attribute.
+    """
+    Typing helper class for unset parameter.
+
+    Unset attribute values are given as ``'$'``. Explicit attributes which got re-declared as derived in a subtype
+    are encoded as ``'*'`` in the position of the supertype attribute.
+
+    Source: https://en.wikipedia.org/wiki/ISO_10303-21
+    """
     pass
 
 
@@ -95,100 +100,49 @@ class TypedParameter:
     """ Typed parameter, `type_name` is the type of the parameter, `param` is the parameter itself. """
 
     def __init__(self, name: str, param):
-        self.type_name = name
+        self.type_name = Keyword(name)
         self.param = param
 
-
-def is_string(e) -> bool:
-    """ Returns ``True`` if `e` is a ``str``. """
-    return type(e) is str
+    def __str__(self):
+        return f'{self.type_name}({parameter_string(self.param)})'
 
 
-def is_integer(e) -> bool:
-    """ Returns ``True`` if `e` is an ``int``. """
-    return type(e) is int
+class Binary:
+    """ Binary type for exporting, loaded binary data is converted to `int` automatically. """
+
+    def __init__(self, value: int, unused: int = 0):
+        self.value: int = value
+        self.unused: int = unused
+
+    def __str__(self):
+        return '"{}{:X}"'.format(self.unused, self.value)
 
 
-def is_real(e) -> bool:
-    """ Returns ``True`` if `e` is a ``float``. """
-    return type(e) is float
-
-
-def is_reference(e) -> bool:
-    """ Returns ``True`` if `e` is an :class:`EntityInstanceName`. """
-    return type(e) is EntityInstanceName
-
-
-def is_keyword(e) -> bool:
-    """ Returns ``True`` if `e` is a :class:`Keyword`. """
-    return type(e) is Keyword
-
-
-def is_enum(e) -> bool:
-    """ Returns ``True`` if `e` is an :class:`Enumeration`. """
-    return type(e) is Enumeration
-
-
-def is_unset_parameter(e) -> bool:
-    """ Returns ``True`` if `e` is an unset or omitted parameter (:class:`UnsetParameter`). """
-    return type(e) is UnsetParameter
-
-
-def is_typed_parameter(e) -> bool:
-    """ Returns ``True`` if `e` is a :class:`TypedParameter`. """
-    return type(e) is TypedParameter
-
-
-def is_parameter_list(e) -> bool:
-    """ Returns ``True`` if `e` is a :class:`ParameterList`. """
-    return type(e) is ParameterList
+ASCII_ONLY_ENCODED_PARAMETERS = {Enumeration, Keyword, EntityInstanceName, UnsetParameter}
 
 
 def _to_unicode(s, l, t) -> str:
     return ''.join(chr(int(hexstr, 16)) for hexstr in t[1:-1])
 
 
-# These _write_... functions should also work with Python primitives like, list, tuple, str, ...
-def _write_parameter_list(fp: TextIO, plist: AnyList, sep=','):
-    fp.write('(')
-    first = True
-    for p in plist:
-        if first:
-            first = False
-        else:  # write `sep` between parameters, but not after the last parameter
-            fp.write(sep)
-        _write_parameter(fp, p)
-    fp.write(')')
+def quoted_string(s: str) -> str:
+    return f"'{step_string_encoder(s)}'"
 
 
-ASCII_ONLY_ENCODED_PARAMETERS = {Enumeration, Keyword, EntityInstanceName, UnsetParameter}
-
-
-def _write_parameter(fp: TextIO, p):
+def parameter_string(p) -> str:
     if p is None:
-        p = UnsetParameter('$')
+        return '$'
     type_ = type(p)
     if type_ in ASCII_ONLY_ENCODED_PARAMETERS:
         # faster without step encoding
-        fp.write(p)
+        return p
     elif type_ is str:  # quote with apostrophe
-        fp.write("'{}'".format(step_string_encoder(p)))
-    elif type_ in (tuple, list, ParameterList):
-        _write_parameter_list(fp, p)
-    elif type_ is TypedParameter:
-        fp.write(p.type_name)
-        fp.write('(')
-        _write_parameter(fp, p.param)
-        fp.write(')')
-    else:
-        # TODO: floats may need special treatment for exponential floats like 1e-10 -> 1E-10
-        fp.write(str(p))
-
-
-def parameter_to_string(p) -> str:
-    s = StringIO()
-    _write_parameter(s, p)
-    return s.getvalue()
+        return quoted_string(p)
+    # tuple, list, ParameterList, TypedParameter, float, int, Binary
+    if isinstance(p, (tuple, list)):
+        p = ParameterList(p)
+    # TODO: floats may need special treatment for exponential floats like 1e-10 -> 1E-10
+    return str(p)
 
 
 HEX_16BIT = "{:04X}"
@@ -332,16 +286,15 @@ class Tokens:
 
 class Entity:
     """ STEP-file entity, `name` is the type of the entity, `params` are the entity parameters as a
-    :class:`ParameterList`, tuple or list.
+    :class:`ParameterList`.
     """
 
     def __init__(self, name: str, params: AnyList):
-        self.name: str = name
-        self.params: ParameterList = ParameterList(params or tuple())
+        self.name = Keyword(name)
+        self.params = ParameterList(params or tuple())
 
-    def write(self, fp: TextIO) -> None:
-        fp.write(self.name)
-        _write_parameter_list(fp, self.params)
+    def __str__(self):
+        return self.name + parameter_string(self.params)
 
 
 END_OF_INSTANCE = ';\n'
@@ -353,13 +306,11 @@ class SimpleEntityInstance:
     """
 
     def __init__(self, name: str, entity: Entity):
-        self.name: EntityInstanceName = EntityInstanceName(name)
+        self.name = EntityInstanceName(name)
         self.entity = entity
 
-    def write(self, fp: TextIO) -> None:
-        fp.write(self.name + '=')
-        self.entity.write(fp)
-        fp.write(END_OF_INSTANCE)
+    def __str__(self):
+        return f"{self.name}={str(self.entity)}{END_OF_INSTANCE}"
 
     @property
     def is_complex(self) -> bool:
@@ -372,14 +323,12 @@ class ComplexEntityInstance:
     """
 
     def __init__(self, name: str, entities: List[Entity]):
-        self.name: EntityInstanceName = EntityInstanceName(name)
+        self.name = EntityInstanceName(name)
         self.entities = entities or list()
 
-    def write(self, fp: TextIO) -> None:
-        fp.write(self.name + '=(')
-        for entity in self.entities:
-            entity.write(fp)
-        fp.write(')'+END_OF_INSTANCE)
+    def __str__(self):
+        estr = "".join(str(e) for e in self.entities)
+        return f"{self.name}=({estr}){END_OF_INSTANCE}"
 
     @property
     def is_complex(self) -> bool:
@@ -405,7 +354,9 @@ class HeaderSection:
           but only very rarely used. The values ``'3;1'`` and ``'3;2'`` indicate extended STEP-Files as defined in the
           2001 standard with several DATA sections, multiple schemas and ``FILE_POPULATION`` support.
 
-    :code:`FILE_NAME(name: str, time_stamp: str, author: str, organization: ParameterList, preprocessor_version: ParameterList, originating_system: str, authorization: str)`
+
+    :code:`FILE_NAME(name: str, time_stamp: str, author: str, organization: ParameterList,`
+    :code:`preprocessor_version: ParameterList, originating_system: str, authorization: str)`
 
         - ``name`` of this exchange structure. It may correspond to the name of the file in a file system or reflect
           data in this file. There is no strict rule how to use this field.
@@ -478,20 +429,20 @@ class HeaderSection:
         except KeyError:
             return None
 
-    def set_file_description(self, description: Tuple = None, level: str = '2;1'):
+    def set_file_description(self, description: Tuple = None, level: str = '2;1') -> None:
         description = ParameterList(description) if description else ParameterList()
         self.add(Entity('FILE_DESCRIPTION', ParameterList((
             ParameterList(description), str(level)
         ))))
 
     def set_file_name(self, name: str,
-                      time_stamp: str = '',
+                      time_stamp: str = None,
                       author: str = '',
                       organization: Tuple = None,
                       preprocessor_version: Tuple = None,
                       organization_system: str = '',
                       autorization: str = '',
-                      ):
+                      ) -> None:
         if time_stamp is None:
             time_stamp = datetime.utcnow().isoformat(timespec='seconds')
 
@@ -508,7 +459,7 @@ class HeaderSection:
             autorization,
         ))))
 
-    def set_file_schema(self, schema: Tuple):
+    def set_file_schema(self, schema: Tuple) -> None:
         schema = ParameterList((schema,)) if schema else ParameterList()
         self.add(Entity('FILE_SCHEMA', schema))
 
@@ -521,7 +472,7 @@ class HeaderSection:
                     if not optional:
                         raise StepFileStructureError(f'Missing required header entity: {name}')
                 else:
-                    entity.write(fp)
+                    fp.write(str(entity))
                     fp.write(END_OF_INSTANCE)
 
         fp.write('HEADER' + END_OF_INSTANCE)
@@ -591,6 +542,7 @@ class DataSection:
         self.instances: Dict[EntityInstanceName, EntityInstance] = instances or OrderedDict()
 
     def __iter__(self):
+        """ Returns iterable of all instances in this data section. """
         return self.instances.values()
 
     def append(self, instance: EntityInstance) -> None:
@@ -606,14 +558,6 @@ class DataSection:
     def names(self) -> Iterable[EntityInstanceName]:
         """ Returns iterable of entity instance names. """
         return self.instances.keys()
-
-    def sorted_names(self) -> List[EntityInstanceName]:
-        """ Returns sorted list if entity instance names. """
-        return sorted(self.instances.keys(), key=lambda e: int(e[1:]))
-
-    def sorted_instances(self) -> Iterable[EntityInstance]:
-        """ Returns iterable of entity instances sorted by name. """
-        return (self.instances[key] for key in self.sorted_names())
 
     def __getitem__(self, name: str) -> EntityInstance:
         """ Returns instance by `name`, raise :class:`KeyError` if not found. """
@@ -633,10 +577,10 @@ class DataSection:
     def write(self, fp: TextIO):
         fp.write('DATA')
         if len(self.parameter):
-            _write_parameter_list(fp, self.parameter)
+            fp.write(parameter_string(self.parameter))
         fp.write(END_OF_INSTANCE)
         for instance in self.instances.values():
-            instance.write(fp)
+            fp.write(str(instance))
         fp.write('ENDSEC' + END_OF_INSTANCE)
 
 
@@ -702,18 +646,262 @@ class StepFile:
         self.data.append(data)
         self._rebuild_chain_map()
 
-    def new_data_section(self, params: Iterable = None):
+    def new_data_section(self, params: Iterable = None) -> DataSection:
+        """ Create a new :class:`DataSection` and append to existing data sections. """
         params = ParameterList(params) if params else ParameterList()
         new_section = DataSection(params=params)
         self.append(new_section)
         return new_section
 
     def write(self, fp: TextIO) -> None:
+        """
+        Serialize to a STEP-file (ISO 10303-21) formatted stream to ``fp`` (a :meth:`write`-supporting
+        file-like object).
+
+        File encoding should be ``'iso-8859-1'`` but can also be ``'ascii'``, because ISO 10303-21 requires special encoding
+        for characters > 126 into characters < 127 as unicode compatible characters, which should be compatible with most
+        encodings, but don't use 16-bit encodings!
+
+        Args:
+            fp: text stream
+        """
         fp.write('ISO-10303-21' + END_OF_INSTANCE)
         self.header.write(fp)
         for data in self.data:
             data.write(fp)
         fp.write('END-ISO-10303-21' + END_OF_INSTANCE)
+
+    def save(self, name: str) -> None:
+        """ Export STEP-file to the file system. """
+        with open(name, mode='wt', encoding='iso-8859-1') as fp:
+            self.write(fp)
+
+    def __str__(self) -> str:
+        """
+        Serialize to a STEP-file (ISO 10303-21) formatted ``str``.
+
+        Special encoding for characters > 126 into characters < 127 as unicode compatible characters according to
+        ISO 10303-21 standard will be applied.
+
+        """
+        fp = StringIO()
+        self.write(fp)
+        s = fp.getvalue()
+        fp.close()
+        return s
+
+    def is_unique_reference(self, ref: str) -> bool:
+        """ Returns `True` if reference `ref` is unique across all data sections. """
+        return ref in self._linked_data_sections
+
+
+class Factory:
+    """ Public Interface """
+
+    @staticmethod
+    def timestamp() -> str:
+        """ Factory function returns an ISO formatted UTC timestamp. """
+        return datetime.utcnow().isoformat(timespec='seconds')
+
+    @staticmethod
+    def is_string(e) -> bool:
+        """ Returns ``True`` if `e` is a ``str``. """
+        return type(e) is str
+
+    @staticmethod
+    def is_integer(e) -> bool:
+        """ Returns ``True`` if `e` is an ``int``. """
+        return type(e) is int
+
+    @staticmethod
+    def is_real(e) -> bool:
+        """ Returns ``True`` if `e` is a ``float``. """
+        return type(e) is float
+
+    @staticmethod
+    def is_binary(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`Binary`. """
+        return type(e) is Binary
+
+    @staticmethod
+    def is_reference(e) -> bool:
+        """ Returns ``True`` if `e` is an :class:`EntityInstanceName`. """
+        return type(e) is EntityInstanceName
+
+    @staticmethod
+    def is_keyword(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`Keyword`. """
+        return type(e) is Keyword
+
+    @staticmethod
+    def is_enum(e) -> bool:
+        """ Returns ``True`` if `e` is an :class:`Enumeration`. """
+        return type(e) is Enumeration
+
+    @staticmethod
+    def is_unset_parameter(e) -> bool:
+        """ Returns ``True`` if `e` is an unset or omitted parameter (:class:`UnsetParameter`). """
+        return type(e) is UnsetParameter
+
+    @staticmethod
+    def is_typed_parameter(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`TypedParameter`. """
+        return type(e) is TypedParameter
+
+    @staticmethod
+    def is_parameter_list(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`ParameterList`. """
+        return type(e) is ParameterList
+
+    @staticmethod
+    def is_entity(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`Entity`. """
+        return type(e) is Entity
+
+    @staticmethod
+    def is_simple_entity_instance(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`SimpleEntityInstance`. """
+        return type(e) is SimpleEntityInstance
+
+    @staticmethod
+    def is_complex_entity_instance(e) -> bool:
+        """ Returns ``True`` if `e` is a :class:`ComplexEntityInstance`. """
+        return type(e) is ComplexEntityInstance
+
+    @staticmethod
+    def new() -> StepFile:
+        """ Factory function to create a new :class:`StepFile` object. """
+        return StepFile()
+
+    @staticmethod
+    def keyword(name: str) -> Keyword:
+        """ Factory function to create a new :class:`Keyword` object. Only uppercase letters an digits are allowed,
+        standard keyword has to start with an uppercase letter an user defined keyword has to start with ``'!'``.
+        """
+        if keyword.matches(name):
+            return Keyword(name)
+        else:
+            raise ValueError(f'Invalid formed keyword: {name}')
+
+    @staticmethod
+    def reference(ref: str) -> EntityInstanceName:
+        """ Factory function to create a new reference :class:`EntityInstanceName` object. A reference has to start
+        with ``'#'`` followed by only digits e.g. ``'#100'``
+        """
+        if ENTITY_INSTANCE_NAME.matches(ref):
+            return EntityInstanceName(ref)
+        else:
+            raise ValueError(f'Invalid formed reference: {ref}')
+
+    @staticmethod
+    def enum(enum: str) -> Enumeration:
+        """ Factory function to create a new :class:`Enumeration` object. A enumeration is surrounded ``'.'`` and only
+        uppercase letters and digits are allowed e.g. ``'.TRUE.'`` or ``'.FALSE.'``.
+        """
+        if ENUMERATION.matches(enum):
+            return Enumeration(enum)
+        else:
+            raise ValueError(f'Invalid formed enumeration: {enum}')
+
+    @staticmethod
+    def binary(value: int, unset: int = 0) -> Binary:
+        """ Factory function to create a new :class:`Binary` object. Only for export used, `unset` specifies the
+        uppermost unset bits.
+        """
+        if unset not in (0, 1, 2, 3):
+            raise ValueError('Argument `unset` has to be in  range from 0 to 3.')
+        return Binary(int(value), unset)
+
+    @staticmethod
+    def unset_parameter(char: str) -> UnsetParameter:
+        """ Factory function to create a new :class:`UnsetParameter` object. Unset attribute values are given
+        as ``'$'``. Explicit attributes which got re-declared as derived in a subtype are encoded as ``'*'`` in the
+        position of the supertype attribute.
+        """
+        if char not in '*$':
+            raise ValueError(f'Invalid character for unset parameter: "{char}"')
+        return UnsetParameter(char)
+
+    @staticmethod
+    def parameter_list(*args) -> ParameterList:
+        """ Factory function to create a new :class:`ParameterList` object. """
+        return ParameterList(args)
+
+    @staticmethod
+    def typed_parameter(type_name: str, param) -> TypedParameter:
+        """ Factory function to create a new :class:`TypedParameter` object.
+
+        Args:
+             type_name: type name as ``str`` or :class:`Keyword` object.
+             param: typed parameter
+        """
+        return TypedParameter(Factory.keyword(type_name), param)
+
+    @staticmethod
+    def entity(name: str, params: AnyList) -> Entity:
+        """ Factory function to create a new :class:`Entity` object.
+
+        Args:
+             name: entity name as str or :class:`Keyword` object
+             params: entity parameters as ``tuple``, ``list`` or :class:`ParameterList`
+
+        """
+        return Entity(Factory.keyword(name), params)
+
+    @staticmethod
+    def simple_entity_instance(ref: str, name: str, params: AnyList) -> SimpleEntityInstance:
+        """ Factory function to create a new :class:`SimpleEntityInstance` object.
+
+        Args:
+            ref: entity instance name (reference) as ``str`` or :class:`EntityInstanceName` object.
+            name: entity name as str or :class:`Keyword` object
+            params: entity parameters as ``tuple``, ``list`` or :class:`ParameterList`
+
+        """
+        return SimpleEntityInstance(Factory.reference(ref), Factory.entity(name, params))
+
+    @staticmethod
+    def complex_entity_instance(ref: str, entities: List[Entity]) -> ComplexEntityInstance:
+        """ Factory function to create a new :class:`ComplexEntityInstance` object.
+
+        Args:
+            ref: entity instance name (reference) as ``str`` or :class:`EntityInstanceName` object.
+            entities: list of :class:`Entity` objects.
+
+        """
+        for entity in entities:
+            if not Factory.is_entity(entity):
+                raise ValueError('Only Entity() types allowed.')
+        return ComplexEntityInstance(Factory.reference(ref), entities)
+
+    # loading and storing API similar json package
+    @staticmethod
+    def loads(s: str) -> StepFile:
+        """ Load STEP-file (ISO 10303-21) from unicode string.
+
+        Decoding for special characters > 126 to unicode characters according to ISO 10303-21 standard will
+        be applied.
+
+        Args:
+            s: STEP-file content as unicode string
+
+        """
+        tokens = step_file.parseString(s)
+        return _parse_step_file(tokens)
+
+    @staticmethod
+    def load(fp: TextIO) -> StepFile:
+        """ Load STEP-file (ISO 10303-21) from text stream.
+
+        A special encoding form characters > 126 is applied in STEP-Files, therefore an encoding setting at opening files
+        is not necessary, reading as ``'ascii'`` works fine. Decoding of this special characters will be applied.
+
+        Args:
+            fp: STEP-file content as text stream yielding unicode strings
+
+        """
+        content = fp.read()
+        return Factory.loads(content)
 
 
 def _parse_entity(tokens: Tokens) -> Entity:
@@ -779,67 +967,3 @@ def _parse_step_file(tokens) -> 'StepFile':
         step.append(_parse_data_section(tokens))
 
     return step
-
-
-# loading and storing API similar json package
-def loads(s: str) -> StepFile:
-    """ Load STEP-file (ISO 10303-21) from unicode string.
-
-    Decoding for special characters > 126 to unicode characters according to ISO 10303-21 standard will
-    be applied.
-
-    Args:
-        s: STEP-file content as unicode string
-
-    """
-    tokens = step_file.parseString(s)
-    return _parse_step_file(tokens)
-
-
-def load(fp: TextIO) -> StepFile:
-    """ Load STEP-file (ISO 10303-21) from text stream.
-
-    A special encoding form characters > 126 is applied in STEP-Files, therefore an encoding setting at opening files
-    is not necessary, reading as ``'ascii'`` works fine. Decoding of this special characters will be applied.
-
-    Args:
-        fp: STEP-file content as text stream yielding unicode strings
-
-    """
-    content = fp.read()
-    return loads(content)
-
-
-def dump(data: StepFile, fp: TextIO) -> None:
-    """
-    Serialize `data` to a STEP-file (ISO 10303-21) formatted stream to ``fp`` (a :meth:`write`-supporting
-    file-like object).
-
-    File encoding should be ``'iso-8859-1'`` but can also be ``'ascii'``, because ISO 10303-21 requires special encoding
-    for characters > 126 into characters < 127 as unicode compatible characters, which should be compatible with most
-    encodings, but don't use 16-bit encodings!
-
-    Args:
-        data: step file data object
-        fp: text stream
-
-    """
-    data.write(fp)
-
-
-def dumps(data: StepFile) -> str:
-    """
-    Serialize `data` to a STEP-file (ISO 10303-21) formatted ``str``.
-
-    Special encoding for characters > 126 into characters < 127 as unicode compatible characters according to
-    ISO 10303-21 standard will be applied.
-
-    Args:
-        data: step file data object
-
-    """
-    fp = StringIO()
-    data.write(fp)
-    s = fp.getvalue()
-    fp.close()
-    return s

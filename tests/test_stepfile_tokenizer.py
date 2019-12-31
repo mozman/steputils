@@ -3,7 +3,7 @@
 # License: MIT License
 
 import pytest
-from steputils.stepfile import step_file, header_entity, LIST, string, BINARY, typed_parameter, is_enum, ENUMERATION
+from steputils.stepfile import step_file, header_entity, LIST, string, BINARY, typed_parameter
 
 SHORT_STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -108,10 +108,6 @@ def test_typed_parameter_2():
     assert result.type_name == 'TEST'
     assert result.param[0] == 100
     assert result.param[1] == 200
-
-
-def test_enum():
-    assert is_enum(ENUMERATION.parseString('.ENUM.')[0]) is True
 
 
 if __name__ == '__main__':

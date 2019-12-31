@@ -2,7 +2,7 @@
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
 import pytest
-from steputils.stepfile import loads, is_reference, is_unset_parameter, is_typed_parameter, is_enum
+from steputils.stepfile import Factory
 
 STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -25,7 +25,7 @@ END-ISO-10303-21;
 
 @pytest.fixture(scope='module')
 def stpfile():
-    return loads(STEP_FILE)
+    return Factory.loads(STEP_FILE)
 
 
 def test_header(stpfile):
@@ -45,18 +45,17 @@ def test_data_section(stpfile):
     assert instance.entity.params == ('#10', '14.0', 'ArchiCAD 14.0', 'ArchiCAD')
 
     ref = instance.entity.params[0]
-    assert is_reference(ref)
+    assert Factory.is_reference(ref)
     instance2 = stpfile[ref]
     assert instance2.name == ref
     assert instance2.entity.name == 'IFCORGANIZATION'
     assert instance2.entity.params == ('GS', 'Graphisoft', 'Graphisoft', '$', '$')
-    assert is_unset_parameter(instance2.entity.params[3]) is True
+    assert Factory.is_unset_parameter(instance2.entity.params[3]) is True
 
 
 def test_data_order(stpfile):
     data = stpfile.data[0]
     assert list(data.names()) == ['#8', '#10', '#5', '#6']
-    assert data.sorted_names() == ['#5', '#6', '#8', '#10']
 
 
 # contains comments
@@ -93,14 +92,14 @@ END-ISO-10303-21;
 
 @pytest.fixture(scope='module')
 def complex_file():
-    return loads(COMPLEX_FILE)
+    return Factory.loads(COMPLEX_FILE)
 
 
 def test_typed_parameter(complex_file):
     instance = complex_file['#24']
     assert instance.entity.name == "UNCERTAINTY_MEASURE_WITH_UNIT"
     typed_param = instance.entity.params[0]
-    assert is_typed_parameter(typed_param) is True
+    assert Factory.is_typed_parameter(typed_param) is True
     assert typed_param.type_name == "LENGTH_MEASURE"
     assert typed_param.param == 0.000196850393701
 
@@ -114,10 +113,10 @@ def test_complex_instance(complex_file):
     assert len(entities[0].params) == 0
     assert entities[1].name == "NAMED_UNIT"
     assert entities[1].params[0] == "*"
-    assert is_unset_parameter(entities[1].params[0])
+    assert Factory.is_unset_parameter(entities[1].params[0])
     assert entities[2].name == "SI_UNIT"
     assert entities[2].params == ('.MILLI.', '.METRE.')
-    assert is_enum(entities[2].params[0]) is True
+    assert Factory.is_enum(entities[2].params[0]) is True
 
 
 if __name__ == '__main__':
