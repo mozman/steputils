@@ -2,8 +2,8 @@
 News
 ====
 
-Version 0.1a0 - dev
+Version 0.1a1 - dev
 -------------------
 
 - pre-alpha state
-- STEP-file loader works
+- STEP-file loader and serializer works
