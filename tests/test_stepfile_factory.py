@@ -68,7 +68,7 @@ def test_entity():
 
 def test_simple_entity_instance():
     instance = Factory.simple_entity_instance('#100', 'TEST', (1, 2, 3))
-    assert instance.name == '#100'
+    assert instance.ref == '#100'
     assert instance.entity.name == 'TEST'
     assert instance.entity.params == (1, 2, 3)
     assert Factory.is_simple_entity_instance(instance) is True
@@ -80,7 +80,7 @@ def test_complex_entity_instance():
         Factory.entity('TEST', (1, 2, 'hello')),
         Factory.entity('TEST2', (3, 4, 'greetings')),
     ])
-    assert instance.name == '#100'
+    assert instance.ref == '#100'
     assert instance.entities[0].name == 'TEST'
     assert instance.entities[1].name == 'TEST2'
     assert str(instance) == "#100=(TEST(1,2,'hello')TEST2(3,4,'greetings'));\n"

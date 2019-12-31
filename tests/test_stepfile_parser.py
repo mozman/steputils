@@ -40,14 +40,16 @@ def test_header(stpfile):
 def test_data_section(stpfile):
     data = stpfile.data[0]
     instance = data['#5']
-    assert instance.name == '#5'
+    assert instance.ref == '#5'
+    assert Factory.is_simple_entity_instance(instance) is True
     assert instance.entity.name == 'IFCAPPLICATION'
     assert instance.entity.params == ('#10', '14.0', 'ArchiCAD 14.0', 'ArchiCAD')
 
     ref = instance.entity.params[0]
     assert Factory.is_reference(ref)
     instance2 = stpfile[ref]
-    assert instance2.name == ref
+    assert instance2.ref == ref
+    assert Factory.is_simple_entity_instance(instance2) is True
     assert instance2.entity.name == 'IFCORGANIZATION'
     assert instance2.entity.params == ('GS', 'Graphisoft', 'Graphisoft', '$', '$')
     assert Factory.is_unset_parameter(instance2.entity.params[3]) is True
@@ -55,7 +57,7 @@ def test_data_section(stpfile):
 
 def test_data_order(stpfile):
     data = stpfile.data[0]
-    assert list(data.names()) == ['#8', '#10', '#5', '#6']
+    assert list(data.references()) == ['#8', '#10', '#5', '#6']
 
 
 # contains comments
@@ -106,7 +108,7 @@ def test_typed_parameter(complex_file):
 
 def test_complex_instance(complex_file):
     instance = complex_file['#17']
-    assert instance.is_complex is True
+    assert Factory.is_complex_entity_instance(instance) is True
     entities = instance.entities
     assert len(entities) == 3
     assert entities[0].name == "LENGTH_UNIT"

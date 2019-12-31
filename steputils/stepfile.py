@@ -10,7 +10,7 @@ from io import StringIO
 
 from pyparsing import (
     nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore,
-    Combine, Suppress, cStyleComment,
+    Combine, Suppress, cStyleComment
 )
 from string import ascii_lowercase, ascii_uppercase
 
@@ -20,7 +20,8 @@ STEP physical file representation (STEP-file) specified by the ISO 10303-21 stan
 Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
 
 """
-__all__ = ['Factory', 'StepFileStructureError']
+__all__ = ['Factory', 'StepFileStructureError', 'STEP_FILE_ENCODING']
+STEP_FILE_ENCODING = 'iso-8859-1'
 
 
 # Data types:
@@ -300,42 +301,36 @@ class Entity:
 END_OF_INSTANCE = ';\n'
 
 
-class SimpleEntityInstance:
-    """ Simple instance entity, `name` is the instance id as string (e.g. ``'#100'``), `entity` is the :class:`Entity`
+class EntityInstance:
+    def __init__(self, ref: str):
+        self.ref = EntityInstanceName(ref)
+
+
+class SimpleEntityInstance(EntityInstance):
+    """ Simple instance entity, `ref` is the instance name as string (e.g. ``'#100'``), `entity` is the :class:`Entity`
     object.
     """
 
-    def __init__(self, name: str, entity: Entity):
-        self.name = EntityInstanceName(name)
+    def __init__(self, ref: str, entity: Entity):
+        super().__init__(ref)
         self.entity = entity
 
     def __str__(self):
-        return f"{self.name}={str(self.entity)}{END_OF_INSTANCE}"
-
-    @property
-    def is_complex(self) -> bool:
-        return False
+        return f"{self.ref}={str(self.entity)}{END_OF_INSTANCE}"
 
 
-class ComplexEntityInstance:
-    """ A complex entity instance consist of multiple :class:`Entity` objects, `name` is the instance id as string
+class ComplexEntityInstance(EntityInstance):
+    """ A complex entity instance consist of multiple :class:`Entity` objects, `ref` is the instance name as string
     (e.g. ``'#100'``)
     """
 
-    def __init__(self, name: str, entities: List[Entity]):
-        self.name = EntityInstanceName(name)
+    def __init__(self, ref: str, entities: List[Entity]):
+        super().__init__(ref)
         self.entities = entities or list()
 
     def __str__(self):
         estr = "".join(str(e) for e in self.entities)
-        return f"{self.name}=({estr}){END_OF_INSTANCE}"
-
-    @property
-    def is_complex(self) -> bool:
-        return True
-
-
-EntityInstance = Union[SimpleEntityInstance, ComplexEntityInstance]
+        return f"{self.ref}=({estr}){END_OF_INSTANCE}"
 
 
 class HeaderSection:
@@ -545,32 +540,32 @@ class DataSection:
         """ Returns iterable of all instances in this data section. """
         return self.instances.values()
 
-    def append(self, instance: EntityInstance) -> None:
+    def add(self, instance: EntityInstance) -> None:
         """
-        Append new entity `instance`.
+        Append new entity `instance`. Replaces existing instances with same instance name if already exists.
 
         Args:
             instance: entity instance
 
         """
-        self.instances[instance.name] = instance
+        self.instances[instance.ref] = instance
 
-    def names(self) -> Iterable[EntityInstanceName]:
+    def references(self) -> Iterable[EntityInstanceName]:
         """ Returns iterable of entity instance names. """
         return self.instances.keys()
 
-    def __getitem__(self, name: str) -> EntityInstance:
-        """ Returns instance by `name`, raise :class:`KeyError` if not found. """
-        return self.instances[name]
+    def __getitem__(self, ref: str) -> EntityInstance:
+        """ Returns instance by `ref`, raise :class:`KeyError` if not found. """
+        return self.instances[ref]
 
     def __len__(self) -> int:
         """ Returns count of instances. """
         return len(self.instances)
 
-    def get(self, name: str) -> Opt[EntityInstance]:
-        """ Returns instance by `name` of ``None`` if not found. """
+    def get(self, ref: str) -> Opt[EntityInstance]:
+        """ Returns instance by `ref` of ``None`` if not found. """
         try:
-            return self.instances[name]
+            return self.instances[ref]
         except KeyError:
             return None
 
@@ -598,11 +593,11 @@ class StepFile:
         self.data: List[DataSection] = list()
         self._linked_data_sections: ChainMap = None
 
-    def __getitem__(self, name: EntityInstanceName):
-        """ Returns :class:`EntityInstance` by instance `name`. Searches all data sections if more than one exist.
+    def __getitem__(self, ref: str):
+        """ Returns :class:`EntityInstance` by instance name `ref`. Searches all data sections if more than one exist.
 
         Args:
-            name: entity instance name as string e.g. ``'#100'``
+            ref: entity instance name as string e.g. ``'#100'``
 
         Raises:
               KeyError: instance `id` not found
@@ -610,23 +605,27 @@ class StepFile:
         """
         if self._linked_data_sections is None:
             self._rebuild_chain_map()
-        return self._linked_data_sections[name]
+        return self._linked_data_sections[ref]
 
-    def __iter__(self):
-        """ Returns unsorted iterable of all instance entities of all data sections."""
+    def __len__(self) -> int:
+        """ Returns count of all stored entity instances. """
+        return len(self._linked_data_sections)
+
+    def __iter__(self) -> Iterable[EntityInstance]:
+        """ Returns iterable of all instance entities of all data sections."""
         for ds in self.data:
-            yield from iter(ds)
+            yield from ds.instances.values()
 
-    def get(self, name: EntityInstanceName) -> Opt[EntityInstance]:
-        """ Returns :class:`EntityInstance` by instance `name` or ``None`` if not found. Searches all data sections
+    def get(self, ref: EntityInstanceName) -> Opt[EntityInstance]:
+        """ Returns :class:`EntityInstance` by instance name `ref` or ``None`` if not found. Searches all data sections
         if more than one exist.
 
         Args:
-            name: entity instance name as string e.g. ``'#100'``
+            ref: entity instance name as string e.g. ``'#100'``
 
         """
         try:
-            return self.__getitem__(name)
+            return self.__getitem__(ref)
         except KeyError:
             return None
 
@@ -673,7 +672,7 @@ class StepFile:
 
     def save(self, name: str) -> None:
         """ Export STEP-file to the file system. """
-        with open(name, mode='wt', encoding='iso-8859-1') as fp:
+        with open(name, mode='wt', encoding=STEP_FILE_ENCODING) as fp:
             self.write(fp)
 
     def __str__(self) -> str:
@@ -690,8 +689,8 @@ class StepFile:
         fp.close()
         return s
 
-    def is_unique_reference(self, ref: str) -> bool:
-        """ Returns `True` if reference `ref` is unique across all data sections. """
+    def has_reference(self, ref: str) -> bool:
+        """ Returns `True` if reference `ref` exist in any data section. """
         return ref in self._linked_data_sections
 
 
@@ -903,6 +902,12 @@ class Factory:
         content = fp.read()
         return Factory.loads(content)
 
+    @staticmethod
+    def readfile(filename: str) -> StepFile:
+        """ Read STEP-file (ISO 10303-21) ` filename` from file system. """
+        with open(filename, 'rt', encoding=STEP_FILE_ENCODING) as fp:
+            return Factory.load(fp)
+
 
 def _parse_entity(tokens: Tokens) -> Entity:
     name = tokens.pop()
@@ -922,10 +927,10 @@ def _parse_instance(tokens: Tokens) -> EntityInstance:
             entity = _parse_entity(tokens)
             entities.append(entity)
         tokens.pop()  # )
-        return ComplexEntityInstance(name=instance_id, entities=entities)
+        return ComplexEntityInstance(ref=instance_id, entities=entities)
     else:
         entity = _parse_entity(tokens)
-        return SimpleEntityInstance(name=instance_id, entity=entity)
+        return SimpleEntityInstance(ref=instance_id, entity=entity)
 
 
 def _parse_header(tokens: Tokens) -> HeaderSection:
@@ -949,7 +954,7 @@ def _parse_data_section(tokens: Tokens) -> DataSection:
 
     while tokens.lookahead != 'ENDSEC':
         instance = _parse_instance(tokens)
-        data.append(instance)
+        data.add(instance)
     tokens.pop()  # ENDSEC
     return data
 

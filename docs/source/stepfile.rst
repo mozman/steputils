@@ -23,28 +23,45 @@ The intended usage is to import the :class:`Factory` class and create new object
 
 .. code-block:: python
 
-   from steputils.stepfile import Factory
+   from steputils.stepfile import Factory as sf  # (S)TEP-file (F)actory
+   from pyparsing import ParseException
 
-   # load an existing file from file system
-   stepfile = Factory.load('example.stp')
-   # or create a new STEP-file
-   stepfile = Factory.new()
+   FNAME = "example.p21"
+
+   # Create a new STEP-file:
+   stepfile = sf.new()
+
+   # Create a new data section:
    data = stepfile.new_data_section()
-   # Entities are STEP application specific objects and are not checked for correct keywords and
-   # parameters, this task belongs to the next application layer.
-   data.append(Factory.simple_entity_instance('#1', 'Application', ('MyApp', 'v1.0')))
 
-   # set required header entities
-   stepfile.set_file_description(('Example STEP file', 'v1.0'))
-   stepfile.set_file_name(name='example.stp', organization=('me', 'myself'), autorization='me')
-   stepfile.set_file_schema(('NONE'))
+   # Add entity instances to data section:
+   data.add(sf.simple_entity_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
 
-   stepfile.save('example.stp')
+   # Set required header entities:
+   stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
+   stepfile.header.set_file_name(name=FNAME, organization=('me', 'myself'), autorization='me')
+   stepfile.header.set_file_schema(('NONE',))
+
+   # Write STEP-file to file system:
+   stepfile.save(FNAME)
+
+   # Read an existing file from file system:
+   try:
+       stepfile = sf.readfile(FNAME)
+   except IOError as e:
+       print(str(e))
+   except ParseException as e:
+       # Invalid STEP-file
+       print(str(e))
+   else:
+       print(f'File {FNAME} is a valid STEP-file')
 
 Public Interface
 ----------------
 
 .. autoclass:: Factory
+
+   .. automethod:: readfile(filename: str) -> StepFile
 
    .. automethod:: load(fp: TextIO) -> StepFile
 
@@ -120,13 +137,17 @@ StepFile
 
         List of data sections as :class:`DataSection` objects
 
-    .. automethod:: __getitem__(name: EntityInstanceName) -> EntityInstance
+    .. automethod:: __getitem__(ref: EntityInstanceName) -> EntityInstance
+
+    .. automethod:: __iter__() -> Iterable[EntityInstance]
+
+    .. automethod:: __len__
 
     .. automethod:: __str__
 
-    .. automethod:: get(name: EntityInstanceName) -> Optional[EntityInstance]
+    .. automethod:: get(ref: EntityInstanceName) -> Optional[EntityInstance]
 
-    .. automethod:: new_data_section(self, params: Iterable = None) -> DataSection
+    .. automethod:: new_data_section(params: Iterable = None) -> DataSection
 
     .. automethod:: append(data: DataSection) -> None
 
@@ -134,7 +155,7 @@ StepFile
 
     .. automethod:: write
 
-    .. automethod:: is_unique_reference
+    .. automethod:: has_reference
 
 
 HeaderSection
@@ -174,17 +195,17 @@ DataSection
         Ordered dict of all entity instances of this data section. Key is the name of instance as a string
         (e.g. ``'#100'``), values are :class:`EntityInstance` objects.
 
-    .. automethod:: __getitem__(name: EntityInstanceName) -> EntityInstance
+    .. automethod:: __getitem__(ref: str) -> EntityInstance
 
     .. automethod:: __iter__
 
-    .. automethod:: get(name: EntityInstanceName) -> Optional[EntityInstance]
+    .. automethod:: get(ref: str) -> Optional[EntityInstance]
 
     .. automethod:: __len__() -> int
 
-    .. automethod:: names() -> Iterable[EntityInstanceName]
+    .. automethod:: references() -> Iterable[EntityInstanceName]
 
-    .. automethod:: append(instance: EntityInstance) -> None
+    .. automethod:: add(instance: EntityInstance) -> None
 
 Helper Classes
 ~~~~~~~~~~~~~~
@@ -229,7 +250,7 @@ Helper Classes
 
 .. autoclass:: SimpleEntityInstance
 
-    .. attribute:: name
+    .. attribute:: ref
 
         Instance name as :class:`EntityInstanceName`
 
@@ -237,20 +258,12 @@ Helper Classes
 
         Instance entity as :class:`Entity`.
 
-    .. attribute:: is_complex
+.. autoclass:: ComplexEntityInstance
 
-        Set to ``False``
-
-.. autoclass:: SimpleEntityInstance
-
-    .. attribute:: name
+    .. attribute:: ref
 
         Instance name as :class:`EntityInstanceName`
 
     .. attribute:: entities
 
         Instance entities as list of :class:`Entity` objects.
-
-    .. attribute:: is_complex
-
-        Set to ``True``

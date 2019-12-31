@@ -2,24 +2,44 @@
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
 import pytest
-from datetime import datetime
 from io import StringIO
 
-from steputils.stepfile import Factory
+from steputils.stepfile import Factory as sf
 
 
 @pytest.fixture
 def stpfile():
-    stp = Factory.new()
-    timestamp = Factory.timestamp()
+    stp = sf.new()
+    timestamp = sf.timestamp()
     stp.header.set_file_description(('notes1', 'notes2'))
     stp.header.set_file_name('test.stp', timestamp)
     stp.header.set_file_schema(('IFC2X3',))
     section = stp.new_data_section()
-    section.append(Factory.simple_entity_instance('#100', 'TEST', (1, 2, 3)))
-    section.append(Factory.simple_entity_instance('#1', 'TEST', (3, 2, 1)))
+    section.add(sf.simple_entity_instance('#100', 'TEST', (1, 2, 3)))
+    section.add(sf.simple_entity_instance('#1', 'TEST', (3, 2, 1)))
     stp.new_data_section(params=('DataSection2',))
     return stp
+
+
+def test_has_reference(stpfile):
+    assert stpfile.has_reference('#100') is True
+    assert stpfile.has_reference('#1') is True
+    assert stpfile.has_reference('#2') is False
+
+
+def test_iter_protocol(stpfile):
+    result = list(stpfile)
+    assert len(result) == 2
+    assert sf.is_simple_entity_instance(result[0])
+
+
+def test_step_file_getter(stpfile):
+    assert stpfile['#100'].ref == '#100'
+    assert stpfile['#1'].ref == '#1'
+
+
+def test_len(stpfile):
+    assert len(stpfile) == 2
 
 
 def test_header(stpfile):
