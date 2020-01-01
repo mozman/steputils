@@ -11,4 +11,5 @@ data/p21examples/*/*.stp
 data/p21examples/*/*.ifc
 docs/build/*
 __pycache__
+*.bat
 tox.ini
