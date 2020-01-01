@@ -15,7 +15,7 @@ import steputils
 
 
 project = 'STEPutils'
-copyright = '2019, Manfred Moitzi'
+copyright = '2019-2020, Manfred Moitzi'
 author = steputils.__author__
 
 # The short X.Y version.

@@ -1,5 +1,5 @@
 # Created: 26.12.2019
-# Copyright (c) 2019, Manfred Moitzi
+# Copyright (c) 2019-2020, Manfred Moitzi
 # License: MIT License
 import sys
 from .version import version, __version__
