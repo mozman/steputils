@@ -3,7 +3,8 @@
 # License: MIT License
 
 import pytest
-from steputils.stepfile import step_file, header_entity, LIST, string, BINARY, typed_parameter
+from steputils.stepfile import step_file, header_entity, LIST, string, BINARY, typed_parameter, KEYWORD
+from pyparsing import ParseException
 
 SHORT_STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -21,6 +22,10 @@ ENDSEC;
 
 END-ISO-10303-21;
 """
+
+
+def parse_str(pattern, s) -> str:
+    return pattern.parseString(s).asList()[0]
 
 
 def test_short_step_file():
@@ -49,48 +54,39 @@ def test_list_2():
 
 
 def test_string_apostrophe_1():
-    result = string.parseString("''''").asList()[0]
-    assert result == "'"
+    assert parse_str(string, "''''") == "'"
 
 
 def test_string_apostrophe_2():
-    result = string.parseString("'x''x'").asList()[0]
-    assert result == "x'x"
+    assert parse_str(string, "'x''x'") == "x'x"
 
 
 def test_string_quote_1():
-    result = string.parseString("'\"'").asList()[0]
-    assert result == "\""
+    assert parse_str(string, "'\"'") == "\""
 
 
 def test_string_quote_2():
-    result = string.parseString("'x\"x'").asList()[0]
-    assert result == "x\"x"
+    assert parse_str(string, "'x\"x'") == "x\"x"
 
 
 def test_string_backslash_1():
-    result = string.parseString("'\\\\'").asList()[0]
-    assert result == "\\"
+    assert parse_str(string, "'\\\\'") == "\\"
 
 
 def test_string_backslash_2():
-    result = string.parseString("'x\\\\x'").asList()[0]
-    assert result == "x\\x"
+    assert parse_str(string, "'x\\\\x'") == "x\\x"
 
 
 def test_extended_string_x2():
-    result = string.parseString(r"'\X2\00E4\X0\'").asList()[0]
-    assert result == '\u00E4'
+    assert parse_str(string, r"'\X2\00E4\X0\'") == '\u00E4'
 
 
 def test_extended_string_multi_x2():
-    result = string.parseString(r"'\X2\00E400E4\X0\'").asList()[0]
-    assert result == '\u00E4\u00E4'
+    assert parse_str(string, r"'\X2\00E400E4\X0\'") == '\u00E4\u00E4'
 
 
 def test_extended_string_x4():
-    result = string.parseString(r"'\X4\000000E4\X0\'").asList()[0]
-    assert result == '\u00E4'
+    assert parse_str(string, r"'\X4\000000E4\X0\'") == '\u00E4'
 
 
 def test_binary():
@@ -108,6 +104,21 @@ def test_typed_parameter_2():
     assert result.type_name == 'TEST'
     assert result.param[0] == 100
     assert result.param[1] == 200
+
+
+def test_valid_keywords():
+    assert parse_str(KEYWORD, 'KEYWORD') == 'KEYWORD'
+    assert parse_str(KEYWORD, 'KEYWORD_0') == 'KEYWORD_0'
+    assert parse_str(KEYWORD, '_KEYWORD_0') == '_KEYWORD_0'
+    assert parse_str(KEYWORD, '!USER_KEYWORD') == '!USER_KEYWORD'
+    assert parse_str(KEYWORD, '!_USER_KEYWORD') == '!_USER_KEYWORD'
+
+
+def test_invalid_keywords():
+    pytest.raises(ParseException, KEYWORD.parseString, '0KEYWORD', ('parseAll', True))
+    pytest.raises(ParseException, KEYWORD.parseString, 'KEYWORD.', ('parseAll', True))
+    pytest.raises(ParseException, KEYWORD.parseString, 'KEYWORD!', ('parseAll', True))
+    pytest.raises(ParseException, KEYWORD.parseString, 'Keyword', ('parseAll', True))
 
 
 if __name__ == '__main__':

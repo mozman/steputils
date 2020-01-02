@@ -67,7 +67,7 @@ def test_entity():
 
 
 def test_simple_entity_instance():
-    instance = Factory.simple_entity_instance('#100', 'TEST', (1, 2, 3))
+    instance = Factory.simple_instance('#100', 'TEST', (1, 2, 3))
     assert instance.ref == '#100'
     assert instance.entity.name == 'TEST'
     assert instance.entity.params == (1, 2, 3)

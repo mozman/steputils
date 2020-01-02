@@ -7,6 +7,7 @@ from typing import Optional as Opt
 from collections import OrderedDict, ChainMap
 from datetime import datetime
 from io import StringIO
+import re
 
 from pyparsing import (
     nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore,
@@ -214,6 +215,8 @@ BINARY = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2
 INTEGER = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
 REAL = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
 ENTITY_INSTANCE_NAME = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
+STRING = Regex(r"'(?:[][!\"*$%&.#+,\-()?/:;<=>@{}|^`~0-9a-zA-Z_\\ ]|'')*'")  # ???
+KEYWORD = Regex(r"(?:!|)[A-Z_][0-9A-Z_]*").addParseAction(lambda s, l, t: Keyword(t[0]))
 
 ALPHABET = Literal(BACKSLASH + 'P') + UPPER + REVERESE_SOLIDUS
 # alphabet= \P?\ - which characters are supported, what do they mean
@@ -237,22 +240,18 @@ string = Combine(Suppress(APOSTROPHE) + ZeroOrMore(
     (REVERESE_SOLIDUS + REVERESE_SOLIDUS).addParseAction(lambda s, l, t: "\\") |
     control_directive) + Suppress(APOSTROPHE))
 
-standard_keyword = Combine(UPPER + ZeroOrMore(UPPER | DIGIT))
-user_defined_keyword = Combine('!' + UPPER + ZeroOrMore(UPPER | DIGIT))
-keyword = Combine(user_defined_keyword | standard_keyword).setParseAction(lambda s, l, t: Keyword(t[0]))
-
 parameter = Forward()
 # parse a list of arguments and convert to a tuple
 LIST = (Suppress('(') + Optional(parameter + ZeroOrMore(',' + parameter)) + Suppress(')')).addParseAction(
     lambda s, l, t: ParameterList(t[0::2]))
-typed_parameter = (keyword + '(' + parameter + ')').addParseAction(
+typed_parameter = (KEYWORD + '(' + parameter + ')').addParseAction(
     lambda s, l, t: TypedParameter(name=t[0], param=t[2]))
 
 untyped_parameter = UNSET_PARAMETER | REAL | INTEGER | string | ENTITY_INSTANCE_NAME | ENUMERATION | BINARY | LIST
 parameter <<= typed_parameter | untyped_parameter | OMITTED_PARAMETER
 parameter_list = (parameter + ZeroOrMore(',' + parameter)).addParseAction(lambda s, l, t: ParameterList(t[0::2]))
 
-simple_record = keyword + Suppress('(') + Optional(parameter_list) + Suppress(')')
+simple_record = KEYWORD + Suppress('(') + Optional(parameter_list) + Suppress(')')
 simple_record_list = OneOrMore(simple_record)
 simple_entity_instance = ENTITY_INSTANCE_NAME + Suppress('=') + simple_record + Suppress(';')
 subsuper_record = '(' + simple_record_list + ')'
@@ -263,7 +262,7 @@ entity_instance_list = ZeroOrMore(entity_instance)
 data_section = 'DATA' + Optional(
     Suppress('(') + parameter_list + Suppress(')')) + Suppress(';') + entity_instance_list + 'ENDSEC' + Suppress(';')
 
-header_entity = keyword + Suppress('(') + Optional(parameter_list) + Suppress(')') + Suppress(';')
+header_entity = KEYWORD + Suppress('(') + Optional(parameter_list) + Suppress(')') + Suppress(';')
 header_entity_list = OneOrMore(header_entity)
 header_section = 'HEADER' + Suppress(';') + header_entity + header_entity + header_entity + Optional(
     header_entity_list) + 'ENDSEC' + Suppress(';')
@@ -777,7 +776,7 @@ class Factory:
         """ Factory function to create a new :class:`Keyword` object. Only uppercase letters an digits are allowed,
         standard keyword has to start with an uppercase letter an user defined keyword has to start with ``'!'``.
         """
-        if keyword.matches(name):
+        if KEYWORD.matches(name):
             return Keyword(name)
         else:
             raise ValueError(f'Invalid formed keyword: {name}')
@@ -848,8 +847,19 @@ class Factory:
         return Entity(Factory.keyword(name), params)
 
     @staticmethod
-    def simple_entity_instance(ref: str, name: str, params: AnyList) -> SimpleEntityInstance:
+    def simple_entity_instance(ref: str, entity: Entity) -> SimpleEntityInstance:
         """ Factory function to create a new :class:`SimpleEntityInstance` object.
+
+        Args:
+            ref: entity instance name (reference) as ``str`` or :class:`EntityInstanceName` object.
+            entity: entity as :class:`Entity` object
+        """
+        return SimpleEntityInstance(Factory.reference(ref), entity)
+
+    @staticmethod
+    def simple_instance(ref: str, name: str, params: AnyList) -> SimpleEntityInstance:
+        """ Factory function to create a new :class:`SimpleEntityInstance` object. This method creates the
+        :class:`Entity` object automatically.
 
         Args:
             ref: entity instance name (reference) as ``str`` or :class:`EntityInstanceName` object.

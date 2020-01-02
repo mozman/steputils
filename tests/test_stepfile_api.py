@@ -15,8 +15,8 @@ def stpfile():
     stp.header.set_file_name('test.stp', timestamp)
     stp.header.set_file_schema(('IFC2X3',))
     section = stp.new_data_section()
-    section.add(sf.simple_entity_instance('#100', 'TEST', (1, 2, 3)))
-    section.add(sf.simple_entity_instance('#1', 'TEST', (3, 2, 1)))
+    section.add(sf.simple_entity_instance('#100', sf.entity('TEST', (1, 2, 3))))
+    section.add(sf.simple_entity_instance('#1', sf.entity('TEST', (3, 2, 1))))
     stp.new_data_section(params=('DataSection2',))
     return stp
 

@@ -35,7 +35,7 @@ The intended usage is to import the :class:`Factory` class and create new object
    data = stepfile.new_data_section()
 
    # Add entity instances to data section:
-   data.add(sf.simple_entity_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
+   data.add(sf.simple_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
 
    # Set required header entities:
    stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
@@ -85,7 +85,9 @@ Public Interface
 
    .. automethod:: entity(name: str, params) -> Entity
 
-   .. automethod:: simple_entity_instance(ref: str, name: str, params) -> SimpleEntityInstance
+   .. automethod:: simple_instance(ref: str, name: str, params) -> SimpleEntityInstance
+
+   .. automethod:: simple_entity_instance(ref: str, entity:Entity) -> SimpleEntityInstance
 
    .. automethod:: complex_entity_instance(ref: str, entities: List[Entity]) -> ComplexEntityInstance
 

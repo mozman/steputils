@@ -11,7 +11,7 @@ stepfile = sf.new()
 data = stepfile.new_data_section()
 
 # Add entity instances to data section:
-data.add(sf.simple_entity_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
+data.add(sf.simple_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
 
 # Set required header entities:
 stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
