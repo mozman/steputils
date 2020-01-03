@@ -19,15 +19,17 @@ Loading and Storing Data
 Many file formats of the [STEP] standard should be supported, as plain text file and also as 
 compressed zip file:
 
-1. [STEP] -  Standard for the Exchange of Product model data
-2. [XML] - Extensible Markup Language
-3. [JSON] - JavaScript Object Notation
+1. [STEP] - Standard for the Exchange of Product model data. 
+   My pure Python implementation is very slow for big files (>1 MB), and the reference Python implementation from 
+   the stepcode project is not much faster.
+2. [XML] - Extensible Markup Language, fast to read from Python with `xml.etree.ElementTree`
+3. [JSON] - JavaScript Object Notation, no examples available yet
 
 ### STEP Requirements & Resources
 
 A parser generator has to be written for EXPRESS definition files, the solution I found online called [STEPcode], 
-is starting point, but the generated Python code is ugly and does not correspond to PEP8, generated code is included in 
-folder `doc/stepcode`.
+is a starting point, but the generated Python code is ugly and does not correspond to PEP8, generated code is 
+included in folder `doc/stepcode`.
 
 Resources to build STEP parser:
 
@@ -35,7 +37,7 @@ Resources to build STEP parser:
   EXPRESS is formalized in the ISO Standard for the Exchange of Product model STEP (ISO 10303), and standardized 
   as [ISO 10303-11].
 - `iso-10303-11--2004.bnf`: Backus-Naur-Form for EXPRESS
-- `iso-10303-21--2002.bnf`: Backus-Naur-Form for STEP-file - STEP-file loader is done; serializer is pending;  
+- `iso-10303-21--2002.bnf`: Backus-Naur-Form for STEP-file - STEP-file loader/serializer is done but very slow  
 
 ### XML Requirements & Resources
 
@@ -53,13 +55,11 @@ Internal Data Model
 ### Classes
 
 1. Static: create class declarations from EXPRESS file as a Python .py file
-   - (-) requires data from EXPRESS file, need a parser
    - (+) manually modifications are possible
    - (-) modifications are lost at recreation process
    - (-) big code base     
 
 2. Dynamic: use Python meta programming to create classes on the fly
-   - (-) requires data from EXPRESS file, need a parser  
    - (-) no modifications are possible by default, maybe extensible by mixins
    - (+) small code base
 
@@ -67,10 +67,7 @@ Internal Data Model
 
 Instantiation by factory! `args` is a list of positional arguments and `kwargs` are keyword arguments as a dict.
 
-    def instance(cls_name: str, *args, **kwargs):
-        pass
-
-    ifc4 = steputils.create_model('IFC4')
+    ifc4 = steputils.model('IFC4')
     root = ifc4.get_root()
     entity = ifc4.entity('IfcRoot', IfcGloballyUniqueId=guid())
 
@@ -78,7 +75,7 @@ Instantiation by factory! `args` is a list of positional arguments and `kwargs` 
 
 Create new model:
 
-    ifc4 = steputils.create_model('IFC4')
+    ifc4 = steputils.model('IFC4')
 
 Get root node:
 

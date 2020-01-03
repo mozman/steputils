@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Created: 25.12.2019
-# Copyright (c) 2019 Manfred Moitzi
+# Copyright (c) 2019-2020 Manfred Moitzi
 # License: MIT License
 import os
 from setuptools import setup, find_packages
@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 def get_version():
     v = {}
-    # do not import ezdxf, because required packages may not be installed yet
+    # do not import steputils, because required packages may not be installed yet
     for line in open('steputils/version.py').readlines():
         if line.strip().startswith('__version__'):
             exec(line, v)
