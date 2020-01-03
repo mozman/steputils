@@ -7,7 +7,6 @@ from typing import Optional as Opt
 from collections import OrderedDict, ChainMap
 from datetime import datetime
 from io import StringIO
-import re
 
 from pyparsing import (
     nums, hexnums, Literal, Char, Word, Regex, Optional, Forward, ZeroOrMore, OneOrMore,
@@ -194,7 +193,7 @@ def step_string_encoder(s: str) -> str:
 
 
 BACKSLASH = '\\'
-REVERESE_SOLIDUS = Char(BACKSLASH)
+REVERSE_SOLIDUS = Char(BACKSLASH)
 SIGN = Char('+-')
 SPACE = Char(' ')
 DOT = Char('.')
@@ -215,13 +214,15 @@ BINARY = Regex(r'"[0-3][0-9A-Fa-f]*"').addParseAction(lambda s, l, t: int(t[0][2
 INTEGER = Regex(r"[-+]?\d+").addParseAction(lambda s, l, t: int(t[0]))
 REAL = Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?").addParseAction(lambda s, l, t: float(t[0]))
 ENTITY_INSTANCE_NAME = Regex(r"[#]\d+").setParseAction(lambda s, l, t: EntityInstanceName(t[0]))
-STRING = Regex(r"'(?:[][!\"*$%&.#+,\-()?/:;<=>@{}|^`~0-9a-zA-Z_\\ ]|'')*'")  # ???
 KEYWORD = Regex(r"(?:!|)[A-Z_][0-9A-Z_]*").addParseAction(lambda s, l, t: Keyword(t[0]))
+# STRING = Regex(r"'(?:[][!\"*$%&.#+,\-()?/:;<=>@{}|^`~0-9a-zA-Z_\\ ]|'')*'")  # ? requires extra string decoding routine
 
-ALPHABET = Literal(BACKSLASH + 'P') + UPPER + REVERESE_SOLIDUS
+# ALPHABET = Literal(BACKSLASH + 'P') + UPPER + REVERSE_SOLIDUS
+ALPHABET = Regex(r'\\P[A-Z_]\\')
 # alphabet= \P?\ - which characters are supported, what do they mean
-ARBITRARY = Literal(BACKSLASH + 'X' + BACKSLASH) + HEX_2
-CHARACTER = SPACE | DIGIT | LOWER | UPPER | SPECIAL | REVERESE_SOLIDUS | APOSTROPHE
+# ARBITRARY = Literal(BACKSLASH + 'X' + BACKSLASH) + HEX_2
+ARBITRARY = Regex(r'\\X\\[0-9a-zA-Z][0-9a-zA-Z]')
+CHARACTER = SPACE | DIGIT | LOWER | UPPER | SPECIAL | REVERSE_SOLIDUS | APOSTROPHE
 PAGE = Literal(BACKSLASH + 'S' + BACKSLASH) + CHARACTER
 # page= \S\? - which characters are supported, what do they mean
 
@@ -237,7 +238,7 @@ control_directive = PAGE | ALPHABET | extended2 | extended4 | ARBITRARY
 string = Combine(Suppress(APOSTROPHE) + ZeroOrMore(
     NON_Q_CHAR |
     (APOSTROPHE + APOSTROPHE).addParseAction(lambda s, l, t: "'") |
-    (REVERESE_SOLIDUS + REVERESE_SOLIDUS).addParseAction(lambda s, l, t: "\\") |
+    (REVERSE_SOLIDUS + REVERSE_SOLIDUS).addParseAction(lambda s, l, t: "\\") |
     control_directive) + Suppress(APOSTROPHE))
 
 parameter = Forward()

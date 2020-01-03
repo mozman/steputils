@@ -44,7 +44,7 @@ setup(
     packages=find_packages(),
     zip_safe=True,
     provides=['steputils'],
-    install_requires=['pyparsing'],
+    install_requires=['pyparsing', 'ply'],
     setup_requires=['wheel'],
     tests_require=['pytest'],
     keywords=['IFC4', 'CAD', 'STEP'],

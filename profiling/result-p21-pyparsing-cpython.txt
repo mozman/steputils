@@ -1,0 +1,43 @@
+
+Entering Folder <p21examples>
+
+Entering Folder <ap209>
+File: ATS1-out.stp; Size: 18.12 kB; Loading Time: 0.22 sec.
+File: ATS10-out.stp; Size: 113.92 kB; Loading Time: 1.45 sec.
+File: ATS2-out.stp; Size: 33.95 kB; Loading Time: 0.37 sec.
+File: ATS3-out.stp; Size: 59.17 kB; Loading Time: 0.67 sec.
+File: ATS4-out.stp; Size: 109.92 kB; Loading Time: 1.37 sec.
+File: ATS7-out.stp; Size: 127.90 kB; Loading Time: 1.50 sec.
+File: ATS8-out.stp; Size: 263.56 kB; Loading Time: 3.59 sec.
+-------------------------------------------------------------------------------
+Folder <ap209> Runtime: 9.18 sec.
+
+Entering Folder <ap214e3>
+File: as1-oc-214.stp; Size: 431.61 kB; Loading Time: 6.03 sec.
+File: dm1-id-214.stp; Size: 85.51 kB; Loading Time: 1.19 sec.
+File: FOOT.stp; Size: 6.59 kB; Loading Time: 0.11 sec.
+File: FOOT_BACK_000.stp; Size: 26.07 kB; Loading Time: 0.43 sec.
+File: FOOT_FRONT_000.stp; Size: 26.01 kB; Loading Time: 0.43 sec.
+File: HEAD.stp; Size: 6.58 kB; Loading Time: 0.10 sec.
+File: HEAD_BACK.stp; Size: 45.76 kB; Loading Time: 0.65 sec.
+File: HEAD_FRONT.stp; Size: 15.56 kB; Loading Time: 0.23 sec.
+File: io1-cm-214.stp; Size: 41.71 kB; Loading Time: 0.71 sec.
+File: MAINBODY.stp; Size: 6.63 kB; Loading Time: 0.10 sec.
+File: MAINBODY_BACK.stp; Size: 112.62 kB; Loading Time: 1.66 sec.
+File: MAINBODY_FRONT.stp; Size: 85.46 kB; Loading Time: 1.30 sec.
+File: s1-c5-214.stp; Size: 12.11 kB; Loading Time: 0.18 sec.
+File: sg1-c5-214.stp; Size: 23.27 kB; Loading Time: 0.43 sec.
+File: TAIL.stp; Size: 7.41 kB; Loading Time: 0.12 sec.
+File: TAIL_MIDDLE_PART.stp; Size: 37.85 kB; Loading Time: 0.66 sec.
+File: TAIL_TURBINE.stp; Size: 39.50 kB; Loading Time: 0.67 sec.
+-------------------------------------------------------------------------------
+Folder <ap214e3> Runtime: 15.02 sec.
+
+Entering Folder <ifc>
+File: Bien-Zenker_Jasmin-Sun-AC14-V2.ifc; Size: 4697.76 kB; Loading Time: 59.87 sec.
+-------------------------------------------------------------------------------
+Folder <ifc> Runtime: 59.87 sec.
+README.md is not as STEP-file.
+-------------------------------------------------------------------------------
+Folder <p21examples> Runtime: 84.12 sec.
+Overall Runtime: 84.12 sec.
