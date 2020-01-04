@@ -273,18 +273,6 @@ step_file = 'ISO-10303-21' + Suppress(';') + header_section + OneOrMore(data_sec
 step_file.ignore(cStyleComment)
 
 
-class Tokens:
-    def __init__(self, tokens):
-        self.stack = list(reversed(tokens))
-
-    @property
-    def lookahead(self):
-        return self.stack[-1]
-
-    def pop(self):
-        return self.stack.pop()
-
-
 class Entity:
     """ STEP-file entity, `name` is the type of the entity, `params` are the entity parameters as a
     :class:`ParameterList`.
@@ -915,9 +903,21 @@ class Factory:
 
     @staticmethod
     def readfile(filename: str) -> StepFile:
-        """ Read STEP-file (ISO 10303-21) ` filename` from file system. """
+        """ Read STEP-file (ISO 10303-21) `filename` from file system. """
         with open(filename, 'rt', encoding=STEP_FILE_ENCODING) as fp:
             return Factory.load(fp)
+
+
+class Tokens:
+    def __init__(self, tokens):
+        self.stack = list(reversed(tokens))
+
+    @property
+    def lookahead(self):
+        return self.stack[-1]
+
+    def pop(self):
+        return self.stack.pop()
 
 
 def _parse_entity(tokens: Tokens) -> Entity:

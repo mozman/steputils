@@ -1,5 +1,4 @@
 from pathlib import Path
-from datetime import timedelta, datetime
 import time
 from steputils.stepfile import Factory as sf
 from pyparsing import ParseException
@@ -32,7 +31,7 @@ def scan_p21_files(p: Path):
             result = load_p21(file)
             result.print()
     run_time = time.perf_counter() - start_time
-    print('-'*79)
+    print('-' * 79)
     print(f"Folder <{p.stem}> Runtime: {run_time:.2f} sec.")
 
 
