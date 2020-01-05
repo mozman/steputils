@@ -1,17 +1,16 @@
-from steputils.stepfile import Factory as sf  # (S)TEP-file (F)actory
-from pyparsing import ParseException
+from steputils import p21
 
 OUTDIR = 'C:\\Users\\manfred\\Desktop\\Outbox\\'
 FNAME = 'example.p21'
 
 # Create a new STEP-file:
-stepfile = sf.new()
+stepfile = p21.new_step_file()
 
 # Create new data section:
 data = stepfile.new_data_section()
 
 # Add entity instances to data section:
-data.add(sf.simple_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
+data.add(p21.simple_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
 
 # Set required header entities:
 stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
@@ -23,10 +22,10 @@ stepfile.save(OUTDIR+FNAME)
 
 # Read an existing file from file system:
 try:
-    stepfile = sf.readfile(OUTDIR+FNAME)
+    stepfile = p21.readfile(OUTDIR+FNAME)
 except IOError as e:
     print(str(e))
-except ParseException as e:
+except p21.ParseError as e:
     # Invalid STEP-file
     print(str(e))
 else:

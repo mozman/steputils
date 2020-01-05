@@ -20,7 +20,7 @@ Quick-Info
    :maxdepth: 2
    :caption: Contents:
 
-   stepfile
+   p21
 
 Indices and tables
 ==================

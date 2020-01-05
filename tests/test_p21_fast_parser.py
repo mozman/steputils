@@ -2,7 +2,7 @@
 # Copyright (c) 2019 Manfred Moitzi
 # License: MIT License
 import pytest
-from steputils.stepfile import Factory
+from steputils import p21
 
 STEP_FILE = r"""ISO-10303-21;
 HEADER;
@@ -25,7 +25,7 @@ END-ISO-10303-21;
 
 @pytest.fixture(scope='module')
 def stpfile():
-    return Factory.loads(STEP_FILE)
+    return p21.loads(STEP_FILE)
 
 
 def test_header(stpfile):
@@ -41,18 +41,18 @@ def test_data_section(stpfile):
     data = stpfile.data[0]
     instance = data['#5']
     assert instance.ref == '#5'
-    assert Factory.is_simple_entity_instance(instance) is True
+    assert p21.is_simple_entity_instance(instance) is True
     assert instance.entity.name == 'IFCAPPLICATION'
     assert instance.entity.params == ('#10', '14.0', 'ArchiCAD 14.0', 'ArchiCAD')
 
     ref = instance.entity.params[0]
-    assert Factory.is_reference(ref)
+    assert p21.is_reference(ref)
     instance2 = stpfile[ref]
     assert instance2.ref == ref
-    assert Factory.is_simple_entity_instance(instance2) is True
+    assert p21.is_simple_entity_instance(instance2) is True
     assert instance2.entity.name == 'IFCORGANIZATION'
     assert instance2.entity.params == ('GS', 'Graphisoft', 'Graphisoft', '$', '$')
-    assert Factory.is_unset_parameter(instance2.entity.params[3]) is True
+    assert p21.is_unset_parameter(instance2.entity.params[3]) is True
 
 
 def test_data_order(stpfile):
@@ -87,6 +87,9 @@ DATA;
 #59=DIRECTION('NONE',(0.0393700787402,0.,0.)) ;
 #24=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.000196850393701),#23,'distance_accuracy_value','CONFUSED CURVE UNCERTAINTY') ;
 #17=(LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.)) ;
+#100= FEA_LINEAR_ELASTICITY('',FEA_ISOTROPIC_SYMMETRIC_TENSOR4_3D(
+(10000000.,0.33)));
+
 ENDSEC;
 END-ISO-10303-21;
 """
@@ -94,31 +97,46 @@ END-ISO-10303-21;
 
 @pytest.fixture(scope='module')
 def complex_file():
-    return Factory.loads(COMPLEX_FILE)
+    return p21.loads(COMPLEX_FILE)
 
 
 def test_typed_parameter(complex_file):
     instance = complex_file['#24']
     assert instance.entity.name == "UNCERTAINTY_MEASURE_WITH_UNIT"
     typed_param = instance.entity.params[0]
-    assert Factory.is_typed_parameter(typed_param) is True
+    assert p21.is_typed_parameter(typed_param) is True
     assert typed_param.type_name == "LENGTH_MEASURE"
     assert typed_param.param == 0.000196850393701
 
 
 def test_complex_instance(complex_file):
     instance = complex_file['#17']
-    assert Factory.is_complex_entity_instance(instance) is True
+    assert p21.is_complex_entity_instance(instance) is True
     entities = instance.entities
     assert len(entities) == 3
     assert entities[0].name == "LENGTH_UNIT"
     assert len(entities[0].params) == 0
     assert entities[1].name == "NAMED_UNIT"
     assert entities[1].params[0] == "*"
-    assert Factory.is_unset_parameter(entities[1].params[0])
+    assert p21.is_unset_parameter(entities[1].params[0])
     assert entities[2].name == "SI_UNIT"
     assert entities[2].params == ('.MILLI.', '.METRE.')
-    assert Factory.is_enum(entities[2].params[0]) is True
+    assert p21.is_enum(entities[2].params[0]) is True
+
+
+def test_typed_parameter_list(complex_file):
+    instance = complex_file['#100']
+    assert instance.entity.name == 'FEA_LINEAR_ELASTICITY'
+    entity = instance.entity
+    assert len(entity.params) == 2
+    typed_param = entity.params[1]
+    assert p21.is_typed_parameter(typed_param)
+    assert typed_param.type_name == 'FEA_ISOTROPIC_SYMMETRIC_TENSOR4_3D'
+    param_list = typed_param.param
+    assert p21.is_parameter_list(param_list)
+    assert type(param_list[0]) is float
+    assert param_list[0] == 10_000_000.
+    assert param_list[1] == 0.33
 
 
 if __name__ == '__main__':

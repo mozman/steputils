@@ -1,0 +1,43 @@
+
+Entering Folder <p21examples>
+
+Entering Folder <ap209>
+File: ATS1-out.stp;  Size: 18.12 kB; IO: 0.00s; Parsing: 0.02s; Sum: 0.02s; 
+File: ATS10-out.stp;  Size: 113.92 kB; IO: 0.00s; Parsing: 0.15s; Sum: 0.15s; 
+File: ATS2-out.stp;  Size: 33.95 kB; IO: 0.00s; Parsing: 0.04s; Sum: 0.04s; 
+File: ATS3-out.stp;  Size: 59.17 kB; IO: 0.00s; Parsing: 0.08s; Sum: 0.08s; 
+File: ATS4-out.stp;  Size: 109.92 kB; IO: 0.00s; Parsing: 0.14s; Sum: 0.14s; 
+File: ATS7-out.stp;  Size: 127.90 kB; IO: 0.00s; Parsing: 0.17s; Sum: 0.17s; 
+File: ATS8-out.stp;  Size: 263.56 kB; IO: 0.00s; Parsing: 0.36s; Sum: 0.36s; 
+-------------------------------------------------------------------------------
+Folder <ap209> Runtime: 0.97 sec.
+
+Entering Folder <ap214e3>
+File: as1-oc-214.stp;  Size: 431.61 kB; IO: 0.00s; Parsing: 0.62s; Sum: 0.62s; 
+File: dm1-id-214.stp;  Size: 85.51 kB; IO: 0.00s; Parsing: 0.13s; Sum: 0.13s; 
+File: FOOT.stp;  Size: 6.59 kB; IO: 0.00s; Parsing: 0.01s; Sum: 0.01s; 
+File: FOOT_BACK_000.stp;  Size: 26.07 kB; IO: 0.00s; Parsing: 0.04s; Sum: 0.04s; 
+File: FOOT_FRONT_000.stp;  Size: 26.01 kB; IO: 0.00s; Parsing: 0.04s; Sum: 0.04s; 
+File: HEAD.stp;  Size: 6.58 kB; IO: 0.00s; Parsing: 0.01s; Sum: 0.01s; 
+File: HEAD_BACK.stp;  Size: 45.76 kB; IO: 0.00s; Parsing: 0.06s; Sum: 0.06s; 
+File: HEAD_FRONT.stp;  Size: 15.56 kB; IO: 0.00s; Parsing: 0.02s; Sum: 0.02s; 
+File: io1-cm-214.stp;  Size: 41.71 kB; IO: 0.00s; Parsing: 0.07s; Sum: 0.07s; 
+File: MAINBODY.stp;  Size: 6.63 kB; IO: 0.00s; Parsing: 0.01s; Sum: 0.01s; 
+File: MAINBODY_BACK.stp;  Size: 112.62 kB; IO: 0.00s; Parsing: 0.15s; Sum: 0.15s; 
+File: MAINBODY_FRONT.stp;  Size: 85.46 kB; IO: 0.00s; Parsing: 0.12s; Sum: 0.12s; 
+File: s1-c5-214.stp;  Size: 12.11 kB; IO: 0.00s; Parsing: 0.02s; Sum: 0.02s; 
+File: sg1-c5-214.stp;  Size: 23.27 kB; IO: 0.00s; Parsing: 0.03s; Sum: 0.03s; 
+File: TAIL.stp;  Size: 7.41 kB; IO: 0.00s; Parsing: 0.01s; Sum: 0.01s; 
+File: TAIL_MIDDLE_PART.stp;  Size: 37.85 kB; IO: 0.00s; Parsing: 0.06s; Sum: 0.06s; 
+File: TAIL_TURBINE.stp;  Size: 39.50 kB; IO: 0.00s; Parsing: 0.06s; Sum: 0.06s; 
+-------------------------------------------------------------------------------
+Folder <ap214e3> Runtime: 1.46 sec.
+
+Entering Folder <ifc>
+File: Bien-Zenker_Jasmin-Sun-AC14-V2.ifc;  Size: 4697.76 kB; IO: 0.01s; Parsing: 7.23s; Sum: 7.25s; 
+-------------------------------------------------------------------------------
+Folder <ifc> Runtime: 7.25 sec.
+README.md is not as STEP-file.
+-------------------------------------------------------------------------------
+Folder <p21examples> Runtime: 9.74 sec.
+Overall Runtime: 9.74 sec.

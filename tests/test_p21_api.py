@@ -4,19 +4,19 @@
 import pytest
 from io import StringIO
 
-from steputils.stepfile import Factory as sf
+from steputils import p21
 
 
 @pytest.fixture
 def stpfile():
-    stp = sf.new()
-    timestamp = sf.timestamp()
+    stp = p21.new_step_file()
+    timestamp = p21.timestamp()
     stp.header.set_file_description(('notes1', 'notes2'))
     stp.header.set_file_name('test.stp', timestamp)
     stp.header.set_file_schema(('IFC2X3',))
     section = stp.new_data_section()
-    section.add(sf.simple_entity_instance('#100', sf.entity('TEST', (1, 2, 3))))
-    section.add(sf.simple_entity_instance('#1', sf.entity('TEST', (3, 2, 1))))
+    section.add(p21.simple_entity_instance('#100', p21.entity('TEST', (1, 2, 3))))
+    section.add(p21.simple_entity_instance('#1', p21.entity('TEST', (3, 2, 1))))
     stp.new_data_section(params=('DataSection2',))
     return stp
 
@@ -30,7 +30,7 @@ def test_has_reference(stpfile):
 def test_iter_protocol(stpfile):
     result = list(stpfile)
     assert len(result) == 2
-    assert sf.is_simple_entity_instance(result[0])
+    assert p21.is_simple_entity_instance(result[0])
 
 
 def test_step_file_getter(stpfile):

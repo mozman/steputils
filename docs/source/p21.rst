@@ -1,0 +1,398 @@
+.. method signatures added, because sphinx always use fully qualified type hints, which is not very
+   pretty nor readable
+
+.. module:: steputils.p21
+
+===============
+p21 - STEP-file
+===============
+
+STEP physical file representation (STEP-file) specified by the ISO 10303-21 standard.
+
+STEP-File is data exchange form of STEP. ISO 10303 can represent 3D objects in Computer-aided
+design (CAD) and related information. Due to its ASCII structure, a STEP-file is easy to read, with typically one
+instance per line. The format of a STEP-File is defined in ISO 10303-21 Clear Text Encoding of the Exchange Structure.
+
+ISO 10303-21 defines the encoding mechanism for representing data conforming to a particular schema in the
+EXPRESS data modeling language specified in ISO 10303-11. A STEP-File is also called p21-File and STEP Physical
+File. The file extensions .stp and .step indicate that the file contains data conforming to STEP Application
+Protocols while the extension .p21 should be used for all other purposes.
+
+Source: https://en.wikipedia.org/wiki/ISO_10303-21
+
+The intended usage is to import the :mod:`p21` module and create new objects by factory functions:
+
+.. code-block:: python
+
+   from steputils import p21
+
+   FNAME = "example.p21"
+
+   # Create a new STEP-file:
+   stepfile = p21.new_step_file()
+
+   # Create a new data section:
+   data = stepfile.new_data_section()
+
+   # Add entity instances to data section:
+   data.add(p21.simple_instance('#1', name='APPLICATION', params=('MyApp', 'v1.0')))
+
+   # Set required header entities:
+   stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
+   stepfile.header.set_file_name(name=FNAME, organization=('me', 'myself'), autorization='me')
+   stepfile.header.set_file_schema(('NONE',))
+
+   # Write STEP-file to file system:
+   stepfile.save(FNAME)
+
+   # Read an existing file from file system:
+   try:
+       stepfile = p21.readfile(FNAME)
+   except IOError as e:
+       print(str(e))
+   except ParseError as e:
+       # Invalid STEP-file
+       print(str(e))
+   else:
+       print(f'File {FNAME} is a valid STEP-file')
+
+Loader Functions
+----------------
+
+.. autofunction:: readfile(filename: str) -> StepFile
+
+.. autofunction:: load(fp: TextIO) -> StepFile
+
+.. autofunction:: loads(s: str) -> StepFile
+
+Factory Functions
+-----------------
+
+.. autofunction:: new_step_file() -> StepFile
+
+.. autofunction:: simple_instance(ref: str, name: str, params) -> SimpleEntityInstance
+
+.. autofunction:: simple_entity_instance(ref: str, entity:Entity) -> SimpleEntityInstance
+
+.. autofunction:: complex_entity_instance(ref: str, entities: List[Entity]) -> ComplexEntityInstance
+
+.. autofunction:: entity(name: str, params) -> Entity
+
+.. autofunction:: keyword(name: str) -> Keyword
+
+.. autofunction:: reference(ref: str) -> Reference
+
+.. autofunction:: parameter_list(*args) -> ParameterList
+
+.. autofunction:: unset_parameter(char: str) -> UnsetParameter
+
+.. autofunction:: typed_parameter(type_name: str, param) -> TypedParameter
+
+.. autofunction:: enum(enum: str) -> Enumeration
+
+.. autofunction:: binary(value: int, unset: int = 0) -> Binary
+
+.. autofunction:: timestamp
+
+Type Checker Functions
+----------------------
+
+.. autofunction:: is_string
+
+.. autofunction:: is_integer
+
+.. autofunction:: is_real
+
+.. autofunction:: is_binary
+
+.. autofunction:: is_reference
+
+.. autofunction:: is_keyword
+
+.. autofunction:: is_enum
+
+.. autofunction:: is_unset_parameter
+
+.. autofunction:: is_typed_parameter
+
+.. autofunction:: is_parameter_list
+
+   Note: It is a single parameter if it's not a :class:`ParameterList`
+
+.. autofunction:: is_entity
+
+.. autofunction:: is_simple_entity_instance
+
+.. autofunction:: is_complex_entity_instance
+
+
+Classes
+-------
+
+Create new instances by the associated factory function!
+
+StepFile
+~~~~~~~~
+
+.. class:: StepFile
+
+    STEP physical file representation (STEP-file). Create new STEP-files by factory function :func:`new_step_file`.
+
+    A STEP-File has one :class:`HeaderSection`, and at least one :class:`DataSection`.
+
+    .. attribute:: header
+
+        Header section as :class:`HeaderSection` object.
+
+    .. attribute:: data
+
+        List of data sections as :class:`DataSection` objects
+
+    .. automethod:: __getitem__(ref: Reference) -> EntityInstance
+
+    .. automethod:: __iter__() -> Iterable[EntityInstance]
+
+    .. automethod:: __len__
+
+    .. automethod:: __str__
+
+    .. automethod:: get(ref: Reference) -> Optional[EntityInstance]
+
+    .. automethod:: new_data_section(params: Iterable = None) -> DataSection
+
+    .. automethod:: append(data: DataSection) -> None
+
+    .. automethod:: save
+
+    .. automethod:: write
+
+    .. automethod:: has_reference
+
+
+HeaderSection
+~~~~~~~~~~~~~
+
+ The HEADER section has a fixed structure consisting of 3 to 6 groups in the given order. Except for the data fields
+ time_stamp and FILE_SCHEMA all fields may contain empty strings.
+
+ :code:`FILE_DESCRIPTION(description: ParameterList, implementation_level: str)`
+
+     - ``description``
+     - ``implementation_level``: The version and conformance option of this file. Possible versions are "1" for the
+       original standard back in 1994, ``'2'`` for the technical corrigendum in 1995 and "3" for the second edition.
+       The conformance option is either ``'1'`` for internal and ``'2'`` for external mapping of complex entity instances.
+       Often, one will find here the value ``'2;1'``. The value ``'2;2'`` enforcing external mapping is also possible
+       but only very rarely used. The values ``'3;1'`` and ``'3;2'`` indicate extended STEP-Files as defined in the
+       2001 standard with several DATA sections, multiple schemas and ``FILE_POPULATION`` support.
+
+
+ :code:`FILE_NAME(name: str, time_stamp: str, author: str, organization: ParameterList,`
+ :code:`preprocessor_version: ParameterList, originating_system: str, authorization: str)`
+
+     - ``name`` of this exchange structure. It may correspond to the name of the file in a file system or reflect
+       data in this file. There is no strict rule how to use this field.
+     - ``time_stamp`` indicates the time when this file was created. The time is given in the international data time
+       format ISO 8601, e.g. 2003-12-27T11:57:53 for 27 of December 2003, 2 minutes to noon time.
+     - ``author`` the name and mailing address of the person creating this exchange structure
+     - ``organization`` the organization to whom the person belongs to
+     - ``preprocessor_version`` the name of the system and its version which produces this STEP-file
+     - ``originating_system`` the name of the system and its version which originally created the information
+       contained in this STEP-file.
+     - ``authorization`` the name and mailing address of the person who authorized this file.
+
+ :code:`FILE_SCHEMA(schema: ParameterList)`
+
+     - Specifies one or several Express schema governing the information in the data section(s). For first edition
+       files, only one EXPRESS schema together with an optional ASN.1 object identifier of the schema version can
+       be listed here. Second edition files may specify several EXPRESS schema.
+
+ The last three header groups are only valid in second edition files.
+
+ :code:`FILE_POPULATION(governing_schema: str, determination_method: str, governed_sections: ParameterList)` (?)
+
+ Indicating a valid population (set of entity instances) which conforms
+ to an EXPRESS schemas. This is done by collecting data from several data_sections and referenced instances from
+ other data sections.
+
+     - ``governing_schema``, the EXPRESS schema to which the indicated population belongs to and by which it can
+       be validated.
+     - ``determination_method`` to figure out which instances belong to the population. Three methods are predefined:
+       ``'SECTION_BOUNDARY'``, ``'INCLUDE_ALL_COMPATIBLE'``, and ``'INCLUDE_REFERENCED'``.
+     - ``governed_sections``, the data sections whose entity instances fully belongs to the population.
+
+ The concept of FILE_POPULATION is very close to schema_instance of SDAI. Unfortunately, during the
+ Standardization process, it was not possible to come to an agreement to merge these concepts. Therefore,
+ JSDAI adds further attributes to FILE_POPULATION as intelligent comments to cover all missing information
+ from schema_instance. This is supported for both import and export.
+
+ :code:`SECTION_LANGUAGE(language: str)` (?)
+
+ HeaderSection['SECTION_LANGUAGE'] allows assignment of a default language for either all or a specific
+ data section. This is needed for those Express schemas that do not provide the capability to specify in which
+ language string attributes of entities such as name and description are given.
+
+ :code:`SECTION_CONTEXT(context: ParameterList)` (?)
+
+ Provide the capability to specify additional context information for all
+ or single data sections. This can be used e.g. for STEP-APs to indicate which conformance class is covered by
+ a particular data section.
+
+.. class:: HeaderSection
+
+    A :class:`StepFile` has always one header section as attribute :attr:`StepFile.header`.
+
+    .. attribute:: entities
+
+        Ordered dict of all header entities as :class:`Entity` objects.
+
+    .. automethod:: __getitem__(name: str) -> Entity
+
+    .. automethod:: get(name: str) -> Optional[Entity]
+
+    .. automethod:: add(self, entity: Entity) -> None
+
+    .. automethod:: set_file_description(description: Tuple = None, level: str = '2;1') -> None
+
+    .. automethod:: set_file_name(name: str, time_stamp: str = None, author: str = '', organization: Tuple = None, preprocessor_version: Tuple = None, organization_system: str = '', autorization: str = '') -> None
+
+    .. automethod:: set_file_schema(schema: Tuple) -> None
+
+
+
+DataSection
+~~~~~~~~~~~
+
+ The DATA section contains application data according to one specific express schema. The encoding of this data
+ follows some simple principles.
+
+ Source of Documentation: https://en.wikipedia.org/wiki/ISO_10303-21
+
+ Every entity instance in the exchange structure is given a unique name in the form ``'#1234'``.
+ The instance name must consist of a positive number (>0) and is typically smaller than 263. The instance name
+ is only valid locally within the STEP-file. If the same content is exported again from a system the instance
+ names may be different for the same instances. The instance name is also used to reference other entity
+ instances through attribute values or aggregate members. The referenced instance may be defined before or
+ after the current instance.
+
+ Instances of single entity data types are represented by writing the name of the entity in capital letters and then
+ followed by the attribute values in the defined order within parentheses. See e.g. ``#16=PRODUCT(...)`` above.
+
+ Instances of complex entity data types are represented in the STEP file by using either the internal mapping or
+ the external mapping.
+ External mapping has always to be used if the complex entity instance consist of more than one leaf entity.
+ In this case all the single entity instance values are given independently from each other in alphabetical
+ order as defined above with all entity values grouped together in parentheses.
+ Internal mapping is used by default for conformance option 1 when the complex entity instance consists of
+ only one leaf entity. The encoding is similar to the one of a single entity instance with the additional order
+ given by the subtype definition.
+
+ Mapping of attribute values:
+
+ Only explicit attributes get mapped. Inverse, Derived and re-declared attributes are not listed since their
+ values can be deduced from the other ones. Unset attribute values are given as ``$``.
+ Explicit attributes which got re-declared as derived in a subtype are encoded as ``*`` in the position of the
+ supertype attribute.
+
+ Mapping of other data types:
+
+ Enumeration, boolean and logical values are given in capital letters with a leading and trailing dot such as
+ ``.TRUE.``.
+ String values are given in ``'``. For characters with a code greater than 126 a special encoding is used. The
+ character sets as defined in ISO 8859 and 10646 are supported. Note that typical 8 (e.g. west European) or
+ 16 (Unicode) bit character sets cannot directly be taken for STEP-file strings. They have to be decoded
+ in a very special way.
+ Integers and real values are used identical to typical programming languages
+ Binary values (bit sequences) are encoded as hexadecimal and surrounded by double quotes, with a leading
+ character indicating the number of unused bits (0, 1, 2, or 3) followed by uppercase hexadecimal encoding of
+ data. It is important to note that the entire binary value is encoded as a single hexadecimal number, with
+ the highest order bits in the first hex character and the lowest order bits in the last one.
+ The elements of aggregates (SET, BAG, LIST, ARRAY) are given in parentheses, separated by ``,``.
+ Care has to be taken for select data types based on defined data types. Here the name of the defined data
+ type gets mapped too.
+
+.. class:: DataSection
+
+    A :class:`StepFile` has a ``list`` of data sections as attribute :attr:`StepFile.data`. A new STEP-file
+    has no data sections, create at least one by factory function :meth:`StepFile.new_data_section`.
+
+    .. attribute:: parameter
+
+        Each data section can have associated parameters stored in attribute :attr:`parameter`.
+
+    .. attribute:: instances
+
+        Ordered dict of all entity instances of this data section. Key is the name of instance as a string
+        (e.g. ``'#100'``), values are :class:`EntityInstance` objects.
+
+    .. automethod:: __getitem__(ref: str) -> EntityInstance
+
+    .. automethod:: __iter__
+
+    .. automethod:: get(ref: str) -> Optional[EntityInstance]
+
+    .. automethod:: __len__() -> int
+
+    .. automethod:: references() -> Iterable[Reference]
+
+    .. automethod:: add(instance: EntityInstance) -> None
+
+Helper Classes
+~~~~~~~~~~~~~~
+
+.. autoclass:: ParameterList
+
+.. autoclass:: Reference
+
+.. autoclass:: Keyword
+
+.. autoclass:: Enumeration
+
+.. autoclass:: Binary
+
+    .. attribute:: value
+
+        Value as ``int``.
+
+    .. attribute:: unset
+
+        Count of unset bits in the range from 0 to 3.
+
+.. autoclass:: UnsetParameter
+
+.. autoclass:: TypedParameter
+
+    .. attribute:: type_name
+
+        Type name as :class:`Keyword`
+
+    .. attribute:: param
+
+.. autoclass:: Entity
+
+    .. attribute:: name
+
+        Entity name as :class:`Keyword`
+
+    .. attribute:: params
+
+        Entity parameters as :class:`ParameterList`.
+
+.. autoclass:: SimpleEntityInstance
+
+    .. attribute:: ref
+
+        Instance name as :class:`Reference`
+
+    .. attribute:: entity
+
+        Instance entity as :class:`Entity`.
+
+.. autoclass:: ComplexEntityInstance
+
+    .. attribute:: ref
+
+        Instance name as :class:`Reference`
+
+    .. attribute:: entities
+
+        Instance entities as list of :class:`Entity` objects.
