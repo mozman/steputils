@@ -704,7 +704,7 @@ class Lexer:
                 return ''.join(s)
 
 
-PARAMETER_TYPES = {int, float, str, Enumeration, UnsetParameter, Reference}
+PARAMETER_TYPES = {int, float, str, Enumeration, UnsetParameter, Reference, TypedParameter}
 
 
 class Parser:
@@ -740,7 +740,10 @@ class Parser:
         if self.lookahead == '(':
             param = self._parameter_list()
         else:
-            param = self.pop()
+            if isinstance(self.lookahead, Keyword):
+                param = self._typed_param()
+            else:
+                param = self.pop()
             if type(param) not in PARAMETER_TYPES:
                 raise ParseError(
                     f'Expected parameter type for typed parameter: {name} in instance: {self.current_instance}.')

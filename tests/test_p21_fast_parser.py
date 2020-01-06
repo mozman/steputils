@@ -89,6 +89,8 @@ DATA;
 #17=(LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.)) ;
 #100= FEA_LINEAR_ELASTICITY('',FEA_ISOTROPIC_SYMMETRIC_TENSOR4_3D(
 (10000000.,0.33)));
+#101= SIMPLE_ENTITY(TYPE1(TYPE2(TYPE3(1))));
+#102= SIMPLE_ENTITY(TYPE1(TYPE2(TYPE3((1,2,3)))));
 
 ENDSEC;
 END-ISO-10303-21;
@@ -137,6 +139,20 @@ def test_typed_parameter_list(complex_file):
     assert type(param_list[0]) is float
     assert param_list[0] == 10_000_000.
     assert param_list[1] == 0.33
+
+
+def test_nested_typed_parameters(complex_file):
+    instance = complex_file['#101']
+    assert instance.entity.name == 'SIMPLE_ENTITY'
+    entity = instance.entity
+    assert len(entity.params) == 1
+    t1 = entity.params[0]
+    assert p21.is_typed_parameter(t1)
+    assert t1.type_name == 'TYPE1'
+    assert p21.is_typed_parameter(t1.param)  # TYPE2
+    assert t1.param.type_name == 'TYPE2'
+    assert p21.is_typed_parameter(t1.param.param)  # TYPE3
+    assert t1.param.param.type_name == 'TYPE3'
 
 
 if __name__ == '__main__':
