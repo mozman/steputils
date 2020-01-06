@@ -26,6 +26,17 @@ def test_has_reference(stpfile):
     assert stpfile.has_reference('#2') is False
 
 
+def test_new_named_data_section():
+    stp = p21.new_step_file()
+    stp.new_data_section()
+    assert len(stp.data) == 1
+    stp.new_data_section('WithName', 'Schema')
+    assert len(stp.data) == 2
+    with pytest.raises(ValueError):
+        # A named data section requires a file schema
+        stp.new_data_section('WithName')
+
+
 def test_iter_protocol(stpfile):
     result = list(stpfile)
     assert len(result) == 2
@@ -80,6 +91,9 @@ def test_iso_10303_21_marker(stpfile):
 
 
 def test_creation_of_file_schema_entry(stpfile):
+    assert 'FILE_SCHEMA' not in stpfile.header
+    # FILE_SCHEMA will be created automatically if not defined by user, but is ('NONE')
+    # if data sections have no schema attribute.
     stpfile._set_schemas()
     entry = stpfile.header['FILE_SCHEMA']
     assert entry.params[0] == ('IFC2X3',)

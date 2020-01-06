@@ -185,6 +185,10 @@ class HeaderSection:
         """ Returns header entry by `name`, raise :class:`KeyError` if not found. """
         return self.entities[name]
 
+    def __contains__(self, name: str) -> bool:
+        """ Returns `True` if header entry `name` exist. """
+        return name in self.entities
+
     def get(self, name: str) -> Optional[Entity]:
         """ Returns header entry by `name` or ``None`` if not found. """
         try:
@@ -264,6 +268,8 @@ class DataSection:
     def __init__(self, name: str = None, schema: str = None, instances: Dict = None):
         self.name = name
         self.schema = schema
+        if name is not None and schema is None:
+            raise ValueError('A named data section requires a valid file schema.')
         self.instances: Dict[Reference, EntityInstance] = instances or OrderedDict()
 
     def __iter__(self):
@@ -409,12 +415,12 @@ class StepFile:
 
     def _set_schemas(self):
         if 'FILE_SCHEMA' in self.header.entities:
-            return
+            return  # file schema explicit set by user
         schemas = {section.schema.upper() for section in self.data if section.schema is not None}
         if len(schemas):
             self.header.set_file_schema(schemas)
         else:
-            self.header.set_file_schema(('NONE', ))
+            self.header.set_file_schema(('NONE',))
 
     def save(self, name: str) -> None:
         """ Export STEP-file to the file system. """

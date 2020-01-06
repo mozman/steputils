@@ -45,6 +45,7 @@ The intended usage is to import the :mod:`p21` module and create new objects by 
    # Set required header entities:
    stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
    stepfile.header.set_file_name(name=FNAME, organization=('me', 'myself'), autorization='me')
+   # A file schema has to be defined explicit, list all used file schemas.
    stepfile.header.set_file_schema(('NONE',))
 
    # Write STEP-file to file system:
@@ -210,6 +211,9 @@ HeaderSection
      - Specifies one or several Express schema governing the information in the data section(s). For first edition
        files, only one EXPRESS schema together with an optional ASN.1 object identifier of the schema version can
        be listed here. Second edition files may specify several EXPRESS schema.
+     - If data sections have names and schema defined, `FILE_SCHEMA` will be created automatically from the data
+       sections attributes, if data sections do not have `schema` attribute, define a general file schema by
+       :meth:`HeaderSection.set_file_schema`.
 
  The last three header groups are only valid in second edition files.
 
@@ -252,6 +256,8 @@ HeaderSection
 
     .. automethod:: __getitem__(name: str) -> Entity
 
+    .. automethod:: __contains__(name: str) -> bool
+
     .. automethod:: get(name: str) -> Optional[Entity]
 
     .. automethod:: add(self, entity: Entity) -> None
@@ -260,7 +266,7 @@ HeaderSection
 
     .. automethod:: set_file_name(name: str, time_stamp: str = None, author: str = '', organization: Tuple = None, preprocessor_version: Tuple = None, organization_system: str = '', autorization: str = '') -> None
 
-    .. automethod:: set_file_schema(schema: Tuple) -> None
+    .. automethod:: set_file_schema(schema: Iterable) -> None
 
 
 
