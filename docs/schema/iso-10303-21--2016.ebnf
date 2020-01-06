@@ -22,6 +22,9 @@ SPECIAL  = "!" | """" | "*" | "$" | "%" | "&" | "." | "#"
 	 | ";" | "<"  | "=" | ">" | "@" | "[" | "]" | "{"
 	 | "|" | "}"  | "^" | "`" | "~" ;
 
+HEX = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" |
+      "8" | "9" | "A" | "B" | "C" | "D" | "E" | "F" ;
+
 REVERSE_SOLIDUS  = "\" ;
 
 APOSTROPHE = "'" ;
@@ -32,6 +35,12 @@ LATIN_CODEPOINT = SPACE | DIGIT | LOWER | UPPER | SPECIAL
 
 HIGH_CODEPOINT	= (U+0080 to U+10FFFF)
 
+(* PRINT CONTROL DIRECTIVES:
+
+"\N\" new line
+"\F\" form feed
+
+*)
 
 (* Table 2 — WSN of token definitions *)
 
@@ -47,6 +56,26 @@ INTEGER           = [ SIGN ] DIGIT { DIGIT } ;
 
 REAL              = [ SIGN ] DIGIT { DIGIT } "." { DIGIT }
                     [ "E" [ SIGN ] DIGIT { DIGIT } ] ;
+
+HEX_ONE = HEX HEX ;
+
+HEX_TWO = HEX_ONE HEX_ONE ;
+
+HEX_FOUR = HEX_TWO HEX_TWO ;
+
+PAGE = REVERSE_SOLIDUS "S" REVERSE_SOLIDUS LATIN_CODEPOINT ;
+
+ALPHABET = REVERSE_SOLIDUS "P" UPPER REVERSE_SOLIDUS ;
+
+END_EXTENDED = REVERSE_SOLIDUS "X0" REVERSE_SOLIDUS ;
+
+EXTENDED2 = REVERSE_SOLIDUS "X2" REVERSE_SOLIDUS HEX_TWO { HEX_TWO } END_EXTENDED ;
+
+EXTENDED4 = REVERSE_SOLIDUS "X4" REVERSE_SOLIDUS HEX_FOUR { HEX_FOUR } END_EXTENDED ;
+
+ARBITRARY = REVERSE_SOLIDUS "X" REVERSE_SOLIDUS HEX_ONE ;
+
+CONTROL_DIRECTIVE = PAGE | ALPHABET | EXTENDED2 | EXTENDED4 | ARBITRARY ;
 
 STRING            = "'" { SPECIAL | DIGIT | SPACE | LOWER | UPPER |
                     HIGH_CODEPOINT |
@@ -74,9 +103,6 @@ TAG_NAME          = ( UPPER | LOWER) { UPPER | LOWER | DIGIT } ;
 RESOURCE          = "<" UNIVERSAL_RESOURCE_IDENTIFIER ">" ;
 
 ENUMERATION       = "." UPPER { UPPER | DIGIT } "." ;
-
-HEX               = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" |
-                    "8" | "9" | "A" | "B" | "C" | "D" | "E" | "F" ;
 
 BINARY            = """" ( "0" | "1" | "2" | "3" ) { HEX } """" ;
 

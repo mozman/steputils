@@ -1050,9 +1050,9 @@ def new_step_file() -> StepFile:
 
 
 def loads(s: str) -> StepFile:
-    """ Load STEP-file (ISO 10303-21) from unicode string.
+    """ Load STEP-file (ISO 10303-21:2002) from unicode string.
 
-    Decoding for special characters > 126 to unicode characters according to ISO 10303-21 standard will
+    Decoding for special characters > 126 to unicode characters according to ISO 10303-21:2002 standard will
     be applied.
 
     Args:
@@ -1064,10 +1064,12 @@ def loads(s: str) -> StepFile:
 
 
 def load(fp: TextIO) -> StepFile:
-    """ Load STEP-file (ISO 10303-21) from text stream.
+    """ Load STEP-file (ISO 10303-21:2002) from text stream.
 
     A special encoding form characters > 126 is applied in STEP-Files, therefore an encoding setting at opening files
     is not necessary, reading as ``'ascii'`` works fine. Decoding of this special characters will be applied.
+    ISO 10303-21:2016 files are not supported yet, they are ``'UTF-8'`` encoded, this encoding can be used also
+    for older STEP-files, because code points < 127 are equal to ``'ISO-8859-1'`` or default ``'ascii'`` encoding.
 
     Args:
         fp: STEP-file content as text stream yielding unicode strings
@@ -1078,6 +1080,6 @@ def load(fp: TextIO) -> StepFile:
 
 
 def readfile(filename: str) -> StepFile:
-    """ Read STEP-file (ISO 10303-21) `filename` from file system. """
+    """ Read STEP-file (ISO 10303-21:2002) `filename` from file system. """
     with open(filename, 'rt', encoding=STEP_FILE_ENCODING) as fp:
         return load(fp)
