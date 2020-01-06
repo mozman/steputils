@@ -20,6 +20,11 @@ Protocols while the extension .p21 should be used for all other purposes.
 
 Source: https://en.wikipedia.org/wiki/ISO_10303-21
 
+A summery of ISO 10303-21 can be viewed online at the `Library of Congress`_. The final draft of `ISO 10303-21;2016`_
+is online available at `STEP Tools, Inc.`_.
+
+`ISO 10303-21;2016`_ is **not** supported yet!
+
 The intended usage is to import the :mod:`p21` module and create new objects by factory functions:
 
 .. code-block:: python
@@ -50,11 +55,11 @@ The intended usage is to import the :mod:`p21` module and create new objects by 
        stepfile = p21.readfile(FNAME)
    except IOError as e:
        print(str(e))
-   except ParseError as e:
-       # Invalid STEP-file
+   except p21.ParseError as e:
+       # Invalid STEP-file or unsupported version
        print(str(e))
    else:
-       print(f'File {FNAME} is a valid STEP-file')
+       print(f'File {FNAME} is a valid STEP-file (ISO 10303-21;2002).')
 
 Loader Functions
 ----------------
@@ -396,3 +401,9 @@ Helper Classes
     .. attribute:: entities
 
         Instance entities as list of :class:`Entity` objects.
+
+.. _Library of Congress:  https://www.loc.gov/preservation/digital/formats/fdd/fdd000448.shtml
+
+.. _ISO 10303-21;2016: http://www.steptools.com/stds/step/IS_final_p21e3.html
+
+.. _STEP Tools, Inc.: http://www.steptools.com/

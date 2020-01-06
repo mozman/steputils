@@ -1,4 +1,4 @@
-# Faster STEP-file lexer and parser
+# Faster handwritten STEP-file lexer and parser
 # Created: 04.01.2020
 # Copyright (c) 2020 Manfred Moitzi
 # License: MIT License
@@ -17,7 +17,9 @@ __all__ = [
     'load', 'loads', 'readfile', 'STEP_FILE_ENCODING', 'ParseError', 'StepFileStructureError',
 ]
 
-STEP_FILE_ENCODING = 'iso-8859-1'
+# ISO 10303-21-2016 allows UTF-8 encoding, prior versions of the standard used used IOS-8859-1 encoding, but
+# lower code points (<127) are the same for both encodings.
+STEP_FILE_ENCODING = 'utf-8'
 END_OF_INSTANCE = ';\n'
 
 EOF = '\a'
@@ -555,10 +557,6 @@ class Buffer:
 
 
 class Lexer:
-    DEFAULT = 0
-    STRING = 1
-    COMMENT = 2
-
     def __init__(self, s: str):
         self.buffer = Buffer(s)
 
@@ -845,6 +843,7 @@ class Parser:
         return data
 
     def parse(self) -> 'StepFile':
+        # TODO: ANCHOR, REFERENCE and SIGNATURE sections - maybe just to ignore it
         step = StepFile()
 
         assert self.pop() == 'ISO-10303-21'

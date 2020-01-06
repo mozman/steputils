@@ -22,6 +22,12 @@ Quick-Info
 
    p21
 
+.. toctree::
+   :maxdepth: 1
+   :caption: References:
+
+   step-file-loc
+
 Indices and tables
 ==================
 
