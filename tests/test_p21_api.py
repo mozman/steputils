@@ -13,11 +13,10 @@ def stpfile():
     timestamp = p21.timestamp()
     stp.header.set_file_description(('notes1', 'notes2'))
     stp.header.set_file_name('test.stp', timestamp)
-    stp.header.set_file_schema(('IFC2X3',))
     section = stp.new_data_section()
     section.add(p21.simple_entity_instance('#100', p21.entity('TEST', (1, 2, 3))))
     section.add(p21.simple_entity_instance('#1', p21.entity('TEST', (3, 2, 1))))
-    stp.new_data_section(params=('DataSection2',))
+    stp.new_data_section(name='SEC1', schema='IFC2X3')
     return stp
 
 
@@ -43,6 +42,7 @@ def test_len(stpfile):
 
 
 def test_header(stpfile):
+    stpfile._set_schemas()
     timestamp = stpfile.header['FILE_NAME'].params[1]
     fp = StringIO()
     stpfile.header.write(fp)
@@ -68,7 +68,7 @@ def test_data_section_2(stpfile):
     fp = StringIO()
     stpfile.data[1].write(fp)
     result = fp.getvalue().split('\n')
-    assert result[0] == "DATA('DataSection2');"
+    assert result[0] == "DATA('SEC1',('IFC2X3'));"
     assert result[-2] == 'ENDSEC;'
 
 
@@ -77,6 +77,12 @@ def test_iso_10303_21_marker(stpfile):
     assert result[0] == 'ISO-10303-21;'
     # StingIO() last '' marks ends of file
     assert result[-2] == 'END-ISO-10303-21;'
+
+
+def test_creation_of_file_schema_entry(stpfile):
+    stpfile._set_schemas()
+    entry = stpfile.header['FILE_SCHEMA']
+    assert entry.params[0] == ('IFC2X3',)
 
 
 if __name__ == '__main__':

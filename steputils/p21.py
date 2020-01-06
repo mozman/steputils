@@ -222,9 +222,9 @@ class HeaderSection:
             autorization,
         ))))
 
-    def set_file_schema(self, schema: Tuple) -> None:
-        schema = ParameterList((schema,)) if schema else ParameterList()
-        self.add(Entity('FILE_SCHEMA', schema))
+    def set_file_schema(self, schemas: Iterable) -> None:
+        schema = ParameterList(schemas) if schemas else ParameterList()
+        self.add(Entity('FILE_SCHEMA', ParameterList((schema,))))
 
     def write(self, fp: TextIO) -> None:
         def write_entities(names, optional=False):
@@ -253,10 +253,17 @@ class DataSection:
     The DATA section contains application data according to one specific express schema. The encoding of this data
     follows some simple principles.
 
+    The attribute `name`, if not `None`, should be a unique data section name.
+    The attribute `schema` defines the schema that shall govern this data section. The schema name must appear in the
+    header section `file_schema` entry. If a `name` is set, a valid `schema` has to be set also.
+
+    Argument Structure (11.1): DATA('NAME',('SCHEMA'))
+
     """
 
-    def __init__(self, params: ParameterList = None, instances: Dict = None):
-        self.parameter = params or ParameterList()
+    def __init__(self, name: str = None, schema: str = None, instances: Dict = None):
+        self.name = name
+        self.schema = schema
         self.instances: Dict[Reference, EntityInstance] = instances or OrderedDict()
 
     def __iter__(self):
@@ -294,8 +301,8 @@ class DataSection:
 
     def write(self, fp: TextIO):
         fp.write('DATA')
-        if len(self.parameter):
-            fp.write(parameter_string(self.parameter))
+        if self.name is not None:
+            fp.write(f"('{self.name}',('{self.schema}'))")
         fp.write(END_OF_INSTANCE)
         for instance in self.instances.values():
             fp.write(str(instance))
@@ -368,10 +375,16 @@ class StepFile:
         self.data.append(data)
         self._rebuild_chain_map()
 
-    def new_data_section(self, params: Iterable = None) -> DataSection:
-        """ Create a new :class:`DataSection` and append to existing data sections. """
-        params = ParameterList(params) if params else ParameterList()
-        new_section = DataSection(params=params)
+    def new_data_section(self, name: str = None, schema: str = None) -> DataSection:
+        """ Create a new :class:`DataSection` and append to existing data sections.
+        The schema name must appear in the header section `file_schema` entry.
+
+        Args:
+            name: name of data section, optional
+            schema: schema of data section, optional
+
+        """
+        new_section = DataSection(name=name, schema=schema)
         self.append(new_section)
         return new_section
 
@@ -387,11 +400,21 @@ class StepFile:
         Args:
             fp: text stream
         """
+        self._set_schemas()
         fp.write('ISO-10303-21' + END_OF_INSTANCE)
         self.header.write(fp)
         for data in self.data:
             data.write(fp)
         fp.write('END-ISO-10303-21' + END_OF_INSTANCE)
+
+    def _set_schemas(self):
+        if 'FILE_SCHEMA' in self.header.entities:
+            return
+        schemas = {section.schema.upper() for section in self.data if section.schema is not None}
+        if len(schemas):
+            self.header.set_file_schema(schemas)
+        else:
+            self.header.set_file_schema(('NONE', ))
 
     def save(self, name: str) -> None:
         """ Export STEP-file to the file system. """
@@ -827,22 +850,33 @@ class Parser:
         return header
 
     def _data_section(self) -> DataSection:
-        data = DataSection()
+        name = None
+        schema = None
         if self.pop() != 'DATA':
             raise ParseError('Expected: DATA section')
         # optional parameter list of data section: DATA(arg1, list1, ...)
         if isinstance(self.lookahead, ParameterList):
-            data.parameter = self.pop()
+            params = self.pop()
+            if len(params) == 2 and is_string(params[0]) and is_parameter_list(params[1]):
+                name = params[0]
+                schema_list = params[1]
+                if len(schema_list) == 1:
+                    schema = schema_list[0]
+                else:
+                    raise ParseError("Expected schema parameter as single string in a list ('SCHEMA').")
+            else:
+                raise ParseError("Expected data section parameters DATA('SECTION_NAME',('SCHEMA')).")
         else:
             if self.pop() != ';':
                 raise ParseError('Expected: ";" after DATA')
-
+        data = DataSection(name, schema)
         while self.lookahead != 'ENDSEC':
             instance = self._instance()
             data.add(instance)
         self.pop()  # ENDSEC
         if self.pop() != ';':
             raise ParseError('Expected: ";" after ENDSEC')
+
         return data
 
     def parse(self) -> 'StepFile':
