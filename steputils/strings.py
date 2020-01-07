@@ -4,7 +4,7 @@
 import re
 from .exceptions import StringDecodingError
 
-EOF = '\a'
+EOF = '\0'
 HEX_16BIT = "{:04X}"
 HEX_32BIT = "{:08X}"
 EXT_START_16 = '\\X2\\'
@@ -62,10 +62,7 @@ EXT_MATCH = re.compile(r'\\(X[24])\\([0-9A-F]+)\\X0\\')
 
 
 def _decode_bytes(ext_type: str, hexstr: str) -> str:
-    if ext_type == 'X2':
-        hex_char_count = 4
-    else:
-        hex_char_count = 8
+    hex_char_count = 4 if ext_type == 'X2' else 8
     length = len(hexstr)
     if length % hex_char_count:
         raise StringDecodingError
@@ -99,19 +96,19 @@ class StringBuffer:
         self._cursor = 0
         self.line_number = 1
 
-    def look(self, n=0):
+    def look(self, n: int = 0) -> str:
         try:
             return self._buffer[self._cursor + n]
         except IndexError:
             self._cursor = len(self._buffer)
             return EOF
 
-    def get(self):
+    def get(self) -> str:
         value = self.look()
         if value == '\n':
             self.line_number += 1
         self._cursor += 1
         return value
 
-    def skip(self, n=1):
+    def skip(self, n: int = 1) -> None:
         self._cursor += n

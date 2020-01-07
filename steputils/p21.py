@@ -463,7 +463,8 @@ def parameter_string(p) -> str:
     # tuple, list, ParameterList, TypedParameter, float, int, Binary
     if isinstance(p, (tuple, list)):
         p = ParameterList(p)
-    # TODO: floats may need special treatment for exponential floats like 1e-10 -> 1E-10
+    elif type(p) == float:
+        return str(p).upper()  # 1e-10 -> 1E-10
     return str(p)
 
 
@@ -621,7 +622,7 @@ PARAMETER_TYPES = {int, float, str, Enumeration, UnsetParameter, Reference, Type
 class Parser:
     def __init__(self, lexer):
         self.tokens = list(lexer)
-        self.tokens.reverse()
+        self.tokens.reverse()  # popping values from start to end
         self.current_instance = None
 
     @property
@@ -641,13 +642,13 @@ class Parser:
         if KEYWORD.fullmatch(self.lookahead):
             return self.pop()
         else:
-            raise ParseError(f'Invalid keyword: {self.lookahead}')
+            raise ParseError(f'Invalid keyword "{self.lookahead}" in instance: {self.current_instance}.')
 
     def _typed_param(self) -> TypedParameter:
         name = self._keyword()
         if self.pop() != '(':
             raise ParseError(
-                f'Expected "(" after type for typed parameter: {name} in instance: {self.current_instance}.')
+                f'Expected "(" after type for typed parameter "{name}" in instance: {self.current_instance}.')
         if self.lookahead == '(':
             param = self._parameter_list()
         else:
@@ -657,15 +658,15 @@ class Parser:
                 param = self.pop()
             if type(param) not in PARAMETER_TYPES:
                 raise ParseError(
-                    f'Expected parameter type for typed parameter: {name} in instance: {self.current_instance}.')
+                    f'Expected parameter type for typed parameter "{name}" in instance: {self.current_instance}.')
 
         if self.pop() != ')':
-            raise ParseError(f'Expected ")" after typed parameter: {name} in instance: {self.current_instance}.')
+            raise ParseError(f'Expected ")" after typed parameter "{name}" in instance: {self.current_instance}.')
         return TypedParameter(name, param)
 
     def _parameter_list(self) -> ParameterList:
         if self.pop() != '(':
-            raise ParseError('Expected "(" for parameter list.')
+            raise ParseError(f'Expected "(" for parameter list in instance: {self.current_instance}.')
         if self.lookahead == ')':  # empty list
             self.pop()
             return ParameterList()
@@ -685,7 +686,7 @@ class Parser:
                 self.pop()
                 return ParameterList(params)
             elif self.pop() != ',':
-                raise ParseError('Expected "," between parameters in parameter list.')
+                raise ParseError(f'Expected "," between parameters in parameter list in instance: {self.current_instance}.')
 
     def _entity(self) -> Entity:
         name = self._keyword()
@@ -701,7 +702,7 @@ class Parser:
             raise ParseError(f'Invalid reference: {instance_id}.')
         self.current_instance = instance_id
         if self.pop() != '=':
-            raise ParseError(f'Expected "=" after reference: {instance_id}')
+            raise ParseError(f'Expected "=" after entity instance name: {instance_id}')
 
         if self.lookahead == '(':  # Complex Instance Entity
             self.pop()  # (
@@ -711,38 +712,36 @@ class Parser:
                 entities.append(entity)
             self.pop()  # )
             if self.pop() != ';':
-                raise ParseError(f'Expected: ";" after complex entity instance: {instance_id}')
+                raise ParseError(f'Missing ";" after complex entity instance: {instance_id}')
 
             return ComplexEntityInstance(ref=instance_id, entities=entities)
         else:
             entity = self._entity()
             if self.pop() != ';':
-                raise ParseError(f'Expected: ";" after simple entity instance: {instance_id}.')
+                raise ParseError(f'Missing ";" after simple entity instance: {instance_id}.')
             return SimpleEntityInstance(ref=instance_id, entity=entity)
 
     def _header(self) -> HeaderSection:
         header = HeaderSection()
         if self.pop() != 'HEADER' or self.pop() != ';':
-            raise ParseError('Expected: HEADER; section')
+            raise ParseError('Expected HEADER section.')
 
         while self.lookahead != 'ENDSEC':
             entity = self._entity()
             if self.lookahead == ';':
                 self.pop()
             else:
-                raise ParseError(f'Expected: ";" after HEADER entry: {entity.name}.')
+                raise ParseError(f'Missing ";" after HEADER entry: {entity.name}.')
             header.add(entity)
-        self.pop()  # ENDSEC
-        if self.pop() != ';':
-            raise ParseError('Expected: ";" after ENDSEC')
+        self._pop_endsec()
         return header
 
     def _data_section(self) -> DataSection:
         name = None
         schema = None
         if self.pop() != 'DATA':
-            raise ParseError('Expected: DATA section')
-        # optional parameter list of data section: DATA(arg1, list1, ...)
+            raise ParseError('Expected DATA section.')
+        # optional parameter list of data section: DATA('SECTION_NAME',('SCHEMA'))
         if isinstance(self.lookahead, ParameterList):
             params = self.pop()
             if len(params) == 2 and is_string(params[0]) and is_parameter_list(params[1]):
@@ -756,23 +755,26 @@ class Parser:
                 raise ParseError("Expected data section parameters DATA('SECTION_NAME',('SCHEMA')).")
         else:
             if self.pop() != ';':
-                raise ParseError('Expected: ";" after DATA')
+                raise ParseError('Missing ";" after DATA.')
         data = DataSection(name, schema)
         while self.lookahead != 'ENDSEC':
             instance = self._instance()
             data.add(instance)
-        self.pop()  # ENDSEC
-        if self.pop() != ';':
-            raise ParseError('Expected: ";" after ENDSEC')
-
+        self._pop_endsec()
         return data
 
+    def _pop_endsec(self):
+        assert self.pop() == 'ENDSEC'
+        if self.pop() != ';':
+            raise ParseError('Missing ";" after ENDSEC.')
+
     def parse(self) -> 'StepFile':
-        # TODO: ANCHOR, REFERENCE and SIGNATURE sections - maybe just to ignore it
+        # TODO: ANCHOR, REFERENCE and SIGNATURE sections (2016) - maybe just to ignore it
         step = StepFile()
 
-        assert self.pop() == 'ISO-10303-21'
-        assert self.pop() == ';'
+        start_token = self.pop() + self.pop()
+        if start_token != 'ISO-10303-21;':
+            raise ParseError('Expected ISO-10303-21; as first record.')
 
         step.header = self._header()
         while self.lookahead != 'END-ISO-10303-21':
@@ -780,7 +782,8 @@ class Parser:
             step.append(self._data_section())
 
         assert self.pop() == 'END-ISO-10303-21'
-        assert self.pop() == ';'
+        if self.pop() != ';':
+            raise ParseError('Missing ";" after END-ISO-10303-21.')
 
         return step
 
