@@ -1,7 +1,7 @@
 import pytest
 
 from steputils import p21
-from steputils.p21 import step_string_encoder, parameter_string, step_string_decoder
+from steputils.p21 import parameter_string
 
 
 def test_enum():
@@ -87,19 +87,6 @@ def test_complex_entity_instance():
     assert str(instance) == "#100=(TEST(1,2,'hello')TEST2(3,4,'greetings'));\n"
 
 
-def test_string_encoder():
-    assert step_string_encoder('ABC') == 'ABC'
-    assert step_string_encoder('"') == '"'
-    assert step_string_encoder("'") == "''"
-    assert step_string_encoder('\'') == '\'\''
-    assert step_string_encoder('\\') == '\\\\'
-    assert step_string_encoder('ABCÄ') == 'ABC\\X2\\00C4\\X0\\'
-    assert step_string_encoder('ABCÄÖ') == 'ABC\\X2\\00C400D6\\X0\\'
-    assert step_string_encoder('CÄÖC') == 'C\\X2\\00C400D6\\X0\\C'
-    assert step_string_encoder('CÄ\\ÖC') == 'C\\X2\\00C4\\X0\\\\\\\\X2\\00D6\\X0\\C'
-    assert step_string_encoder('CÄ\'ÖC') == 'C\\X2\\00C4\\X0\\\'\'\\X2\\00D6\\X0\\C'
-
-
 def test_parameter_to_string():
     assert parameter_string(p21.unset_parameter('*')) == "*"
     # Untyped strings will always be quoted!!!
@@ -122,41 +109,6 @@ def test_parameter_list_to_string():
     assert parameter_string(p21.parameter_list([123, 456]) == "(123,456)")
     assert parameter_string((123, (456, (789, '10')))) == "(123,(456,(789,'10')))"
     assert parameter_string((123, None, 456)) == "(123,$,456)", 'None should be unset parameter'
-
-
-def test_string_decoder():
-    assert step_string_decoder('ABC') == 'ABC'
-    assert step_string_decoder("\"") == "\""
-    assert step_string_decoder("'") == "'"
-    assert step_string_decoder("''") == "''", "Apostrophe decoding has to be done by the lexer."
-    assert step_string_decoder("x''x") == "x''x"
-    assert step_string_decoder("x\"x") == "x\"x"
-    assert step_string_decoder("\\\\") == "\\"
-    assert step_string_decoder("x\\\\x") == "x\\x"
-    assert step_string_decoder('ABC\\X2\\00C4\\X0\\') == 'ABCÄ'
-    assert step_string_decoder('ABC\\X2\\00C400D6\\X0\\') == 'ABCÄÖ'
-    assert step_string_decoder('C\\X2\\00C400D6\\X0\\C') == 'CÄÖC'
-    assert step_string_decoder('C\\X2\\00C4\\X0\\\\\\\\X2\\00D6\\X0\\C') == 'CÄ\\ÖC'
-    # does not decode escaped apostrophes '
-    assert step_string_decoder('C\\X2\\00C4\\X0\\\'\'\\X2\\00D6\\X0\\C') == 'CÄ\'\'ÖC'
-
-
-def test_extended_string_decoderx2():
-    assert step_string_decoder("\\X2\\00E4\\X0\\") == '\u00E4'
-
-
-def test_extended_string_decoder_multi_x2():
-    assert step_string_decoder("\\X2\\00E400E4\\X0\\") == '\u00E4\u00E4'
-
-
-def test_extended_string_decoder_x4():
-    assert step_string_decoder("\\X4\\000000E4\\X0\\") == '\u00E4'
-
-
-def test_extended_string_decoder_error():
-    # invalid count of hex chars
-    pytest.raises(p21.StringDecodingError, step_string_decoder, "\\X2\\0E4\\X0\\")
-    pytest.raises(p21.StringDecodingError, step_string_decoder, "\\X4\\00000E4\\X0\\")
 
 
 if __name__ == '__main__':

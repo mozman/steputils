@@ -9,12 +9,15 @@ from collections import OrderedDict, ChainMap
 from io import StringIO
 import re
 
+from .exceptions import ParseError, StepFileStructureError
+from .strings import step_encoder, step_decoder, StringBuffer, EOF
+
 __all__ = [
     'timestamp', 'is_string', 'is_integer', 'is_real', 'is_binary', 'is_reference', 'is_keyword', 'is_enum',
     'is_unset_parameter', 'is_typed_parameter', 'is_parameter_list', 'is_entity', 'is_simple_entity_instance',
     'is_complex_entity_instance', 'keyword', 'reference', 'enum', 'binary', 'unset_parameter',
     'parameter_list', 'simple_entity_instance', 'simple_instance', 'complex_entity_instance', 'new_step_file',
-    'load', 'loads', 'readfile', 'STEP_FILE_ENCODING', 'ParseError', 'StepFileStructureError',
+    'load', 'loads', 'readfile', 'STEP_FILE_ENCODING',
 ]
 
 # ISO 10303-21-2016 allows UTF-8 encoding, prior versions of the standard used used IOS-8859-1 encoding, but
@@ -22,7 +25,6 @@ __all__ = [
 STEP_FILE_ENCODING = 'utf-8'
 END_OF_INSTANCE = ';\n'
 
-EOF = '\a'
 BACKSLASH = '\\'
 APOSTROPHE = "'"
 SPECIAL = '!"*$%&.#+,-()?/:;<=>@[]{|}^`~'
@@ -41,15 +43,7 @@ REFERENCE = re.compile(r"[#]\d+")
 KEYWORD = re.compile(r"(?:!|)[A-Z_][0-9A-Za-z_]*")  # allow lowercase letters
 
 
-class ParseError(Exception):
-    pass
-
-
 class StringDecodingError(ParseError):
-    pass
-
-
-class StepFileStructureError(Exception):
     pass
 
 
@@ -454,7 +448,7 @@ def _to_unicode(s, l, t) -> str:
 
 
 def quoted_string(s: str) -> str:
-    return f"'{step_string_encoder(s)}'"
+    return f"'{step_encoder(s)}'"
 
 
 def parameter_string(p) -> str:
@@ -473,121 +467,9 @@ def parameter_string(p) -> str:
     return str(p)
 
 
-HEX_16BIT = "{:04X}"
-HEX_32BIT = "{:08X}"
-EXT_START_16 = '\\X2\\'
-EXT_START_32 = '\\X4\\'
-EXT_END = "\\X0\\"
-EXT_ENCODING = {
-    16: HEX_16BIT,
-    32: HEX_32BIT,
-}
-
-
-def step_string_encoder(s: str) -> str:
-    buffer = []
-    encoding = 0  # 0 for no encoding, 16 for 16bit encoding, 32 for 32bit encoding
-    for char in s:
-        value = ord(char)
-        if value < 127:  # just ASCII code
-            if encoding:  # stop extended encoding
-                buffer.append(EXT_END)
-                encoding = 0
-            if char == '\\':  # escaping backslash
-                char = '\\\\'
-            elif char == "'":  # escaping apostrophe
-                char = "''"
-            buffer.append(char)
-        else:  # value > 126
-            if not encoding:  # start new extended character sequence
-                if value < 65536:  # 16bit character
-                    encoding = 16
-                    buffer.append(EXT_START_16)
-                else:  # 32bit character
-                    encoding = 32
-                    buffer.append(EXT_START_32)
-            elif value >= 65536 and encoding == 16:
-                # already extended 16bit encoding, but 32bit encoding is required
-                # stop 16bit encoding
-                buffer.append(EXT_END)
-                # and start 32bit encoding
-                encoding = 32
-                buffer.append(EXT_START_32)
-            buffer.append(EXT_ENCODING[encoding].format(value))
-    if encoding:
-        buffer.append(EXT_END)
-    return ''.join(buffer)
-
-
-# control_directive = page | alphabet | extended2 | extended4 | arbitrary .
-# page = '\S\'  character  - not supported
-# alphabet = '\P' upper '\'  - not supported
-# arbitrary = '\X\' hex_one - not supported
-# extended2 ='\X2\' HEX_16BIT { HEX_16BIT } EXT_END
-# extended2 ='\X4\' HEX_32BIT { HEX_32BIT } EXT_END
-
-EXT_MATCH = re.compile(r'\\(X[24])\\([0-9A-F]+)\\X0\\')
-
-
-def _decode_bytes(ext_type: str, hexstr: str) -> str:
-    if ext_type == 'X2':
-        hex_char_count = 4
-    else:
-        hex_char_count = 8
-    length = len(hexstr)
-    if length % hex_char_count:
-        raise StringDecodingError
-    chars = []
-    start = 0
-
-    while start < length:
-        char = chr(int(hexstr[start:start + hex_char_count], 16))
-        chars.append(char)
-        start += hex_char_count
-    return ''.join(chars)
-
-
-def step_string_decoder(s: str) -> str:
-    origin = s
-    while True:
-        r = EXT_MATCH.search(s)
-        if r is None:
-            break
-        try:
-            decoded_chars = _decode_bytes(r[1], r[2])
-        except StringDecodingError:
-            raise StringDecodingError(f'Invalid extended encoding in string "{origin}".')
-        s = s.replace(r[0], decoded_chars)
-    return s.replace('\\\\', '\\')
-
-
-class Buffer:
-    def __init__(self, buffer: str):
-        self._buffer = buffer
-        self._cursor = 0
-        self.line_number = 1
-
-    def look(self, n=0):
-        try:
-            return self._buffer[self._cursor + n]
-        except IndexError:
-            self._cursor = len(self._buffer)
-            return EOF
-
-    def get(self):
-        value = self.look()
-        if value == '\n':
-            self.line_number += 1
-        self._cursor += 1
-        return value
-
-    def skip(self, n=1):
-        self._cursor += n
-
-
 class Lexer:
     def __init__(self, s: str):
-        self.buffer = Buffer(s)
+        self.buffer = StringBuffer(s)
 
     def __iter__(self):
         return self.parse()
@@ -614,7 +496,7 @@ class Lexer:
             elif current in FIRST_KEYWORD_CHAR:
                 yield Keyword(self.keyword())
             elif current == APOSTROPHE:
-                yield step_string_decoder(self.string())  # str
+                yield step_decoder(self.string())  # str
             elif current == '#':
                 yield Reference(self.reference())
             elif current == '!':

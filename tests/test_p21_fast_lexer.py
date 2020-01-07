@@ -5,22 +5,6 @@ import pytest
 from steputils import p21
 
 
-def test_buffer():
-    b = p21.Buffer('test')
-    assert b.look() == 't'
-    assert b.look(1) == 'e'
-    assert b.get() == 't'
-    assert b.look() == 'e'
-    assert b.get() == 'e'
-    assert b.get() == 's'
-    assert b.get() == 't'
-    assert b.get() == p21.EOF
-    assert b.get() == p21.EOF
-    assert b.get() == p21.EOF
-    assert b.look() == p21.EOF
-    assert b.look(3) == p21.EOF
-
-
 def test_lexer_skip_whitespace():
     l = p21.Lexer('  ;  \n  ;  ')
     assert list(l) == [';', ';']
