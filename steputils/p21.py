@@ -42,6 +42,8 @@ ENUMERATION = re.compile(r'\.[A-Z_][A-Z0-9_]*\.')
 REFERENCE = re.compile(r"[#]\d+")
 KEYWORD = re.compile(r"(?:!|)[A-Z_][0-9A-Za-z_]*")  # allow lowercase letters
 
+PARAM_TERMINATOR = ',)'  # one of them has to follow EVERY parameter
+
 
 class StringDecodingError(ParseError):
     pass
@@ -318,8 +320,6 @@ class StepFile:
 
     def __init__(self):
         self.header = HeaderSection()
-        # multiple data sections only supported by ISO 10303-21:2002
-        # most files in the wild, don't use multiple data sections!
         self.data: List[DataSection] = list()
         self._linked_data_sections: ChainMap = None
 
@@ -480,6 +480,11 @@ class Lexer:
         return self.buffer.line_number
 
     def parse(self) -> Iterable[str]:
+        def check_valid_terminator():
+            c = self.buffer.look()
+            if c not in PARAM_TERMINATOR and c > ' ':  # space, \t or \n also terminates parameters
+                raise ParseError(f'Expected parameter terminator "," or ")" in line {self.buffer.line_number}.')
+
         current = self.buffer.look()
         while current != EOF:
             if current <= ' ':
@@ -498,16 +503,20 @@ class Lexer:
                 yield Keyword(self.keyword())
             elif current == APOSTROPHE:
                 yield step_decoder(self.string())  # str
+                check_valid_terminator()
             elif current == '#':
                 yield Reference(self.reference())
             elif current == '!':
                 yield UserKeyword(self.keyword())
             elif current in FIRST_NUMBER_CHARS:
                 yield self.number()  # int or float
+                check_valid_terminator()
             elif current == '.' and self.buffer.look(1) in FIRST_ENUM_CHARS:
                 yield Enumeration(self.enum())
+                check_valid_terminator()
             elif current == '"' and self.buffer.look(1) in '0123':
                 yield self.binary()  # int
+                check_valid_terminator()
             else:
                 raise ParseError(f'Unexpected character {current} in line {self.buffer.line_number}.')
             current = self.buffer.look()
@@ -621,7 +630,7 @@ PARAMETER_TYPES = {int, float, str, Enumeration, UnsetParameter, Reference, Type
 
 class Parser:
     def __init__(self, lexer):
-        self.tokens = list(lexer)
+        self.tokens = list(lexer.parse())
         self.tokens.reverse()  # popping values from start to end
         self.current_instance = None
 
@@ -639,6 +648,8 @@ class Parser:
             raise ParseError('Unexpected end of file.')
 
     def _keyword(self):
+        # Lexer accepts invalid keywords if they are a valid reference e.g. "#1=#100(100);"
+        # -> parser check is required
         if KEYWORD.fullmatch(self.lookahead):
             return self.pop()
         else:
@@ -686,7 +697,8 @@ class Parser:
                 self.pop()
                 return ParameterList(params)
             elif self.pop() != ',':
-                raise ParseError(f'Expected "," between parameters in parameter list in instance: {self.current_instance}.')
+                raise ParseError(
+                    f'Expected "," between parameters in parameter list in instance: {self.current_instance}.')
 
     def _entity(self) -> Entity:
         name = self._keyword()
