@@ -380,22 +380,20 @@ stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | escape_stmt 
 # Start
 syntax = OneOrMore(schema_decl)
 
+
+remark_tag = '"' + simple_id + ZeroOrMore('.' + simple_id) + '"'
+tail_remark = Combine('--' + OneOrMore(remark_tag) + LineEnd()).setName("Tail Remark")
+
 # Replaced by the 'comments' rule
-# remark_ref = attribute_ref | constant_ref | entity_ref | enumeration_ref | function_ref | parameter_ref \
-#              | procedure_ref | rule_label_ref | rule_ref | schema_ref | subtype_constraint_ref \
-#              | type_label_ref | type_ref | variable_ref
-#
-# remark_tag = '"' + remark_ref + ZeroOrMore('.' + remark_ref) + '"'
-#
 # embedded_remark = Forward()
 # embedded_remark <<= ('(*' + OneOrMore(remark_tag) + ZeroOrMore(
 #     OneOrMore(not_paren_star) | lparen_then_not_lparen_star | OneOrMore(
 #         '*') | not_rparen_star_then_rparen | embedded_remark) + '*)')
 #
-# tail_remark = '--' + OneOrMore(remark_tag) + LineEnd()
 # remark = embedded_remark | tail_remark
 
 #          Combine(Regex(r"/_\*(?:[^*]|_\*(?!_/))*") + '*/').setName("C style comment")
 comments = Combine(Regex(r"\(\*(?:[^*]|\(*(?!\)))*") + '*)').setName("Express Comment")
 
 syntax.ignore(comments)
+syntax.ignore(tail_remark)
