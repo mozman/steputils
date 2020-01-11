@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 def get_version():
     v = {}
     # do not import steputils, because required packages may not be installed yet
-    for line in open('steputils/version.py').readlines():
+    for line in open('./src/steputils/version.py').readlines():
         if line.strip().startswith('__version__'):
             exec(line, v)
             return v['__version__']
@@ -41,8 +41,8 @@ setup(
     download_url='https://pypi.org/project/steputils/',
     author_email='me@mozman.at',
     python_requires='>=3.6',
-    packages=find_packages(),
-    zip_safe=True,
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     provides=['steputils'],
     install_requires=['pyparsing'],
     setup_requires=['wheel'],

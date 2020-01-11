@@ -6,7 +6,7 @@
 build/*
 dist/*
 .idea/*
-steputils.egg-info/*
+/src/steputils.egg-info/*
 data/p21examples/*/*.stp
 data/p21examples/*/*.ifc
 docs/build/*
