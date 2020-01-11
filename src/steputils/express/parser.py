@@ -158,15 +158,9 @@ built_in_function = (ABS | ACOS | ASIN | ATAN | BLENGTH | COS | EXISTS | EXP | F
 built_in_procedure = INSERT | REMOVE.addParseAction(lambda s, l, t: TBuiltInProcedure(t[0]))
 
 bit = Char('01')
-binary_literal = Word('%', '01')
-
 digit = Char('0123456789')
 digits = Word('0123456789')
 sign = Char('+-')
-
-integer_literal = pyparsing_common.signed_integer
-real_literal = pyparsing_common.real
-
 encoded_character = Word(hexnums, exact=8)
 
 
@@ -174,14 +168,18 @@ def _to_unicode_str(s, l, t):
     return ''.join(chr(int(c, 16)) for c in t)
 
 
-encoded_string_literal = Suppress('"') + OneOrMore(encoded_character).addParseAction(_to_unicode_str) + Suppress('"')
-logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(lambda s, l, t: TLogicalLiteral(t[0]))
-simple_string_literal = sglQuotedString.copy()
+binary_literal = Word('%', '01').addParseAction(lambda s, l, t: int(t[0][1:], 2)).setName(
+    'BinaryLiteral')  # convert to int
+integer_literal = pyparsing_common.signed_integer('IntegerLiteral')  # as int
+real_literal = pyparsing_common.sci_real('RealLiteral')  # as float
+encoded_string_literal = Suppress('"') + OneOrMore(encoded_character).addParseAction(_to_unicode_str).setName(
+    'EncodedStringLiteral') + Suppress('"')
+logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(lambda s, l, t: TLogicalLiteral(t[0])).setName(
+    'LogicalLiteral')
+simple_string_literal = sglQuotedString('StringLiteral')
 simple_string_literal.addParseAction(lambda s, l, t: TStringLiteral(t[0][1:-1]))  # remove quotes
-
 string_literal = simple_string_literal | encoded_string_literal
-literal = binary_literal | logical_literal | integer_literal | real_literal | string_literal
-schema_version_id = string_literal
+literal = binary_literal | logical_literal | real_literal | integer_literal | string_literal
 
 # replaced by sglQuotedString
 # letter = Char(ascii_letters)
@@ -195,13 +193,11 @@ schema_version_id = string_literal
 # lparen_then_not_lparen_star = OneOrMore('(') + OneOrMore(not_lparen_star)
 # not_rparen_star_then_rparen = OneOrMore(not_rparen_star) + OneOrMore(')')
 
-simple_id = Word(ascii_letters, ascii_letters + '0123456789_')
+schema_version_id = string_literal('SchemaVersionID')
+simple_id = Word(ascii_letters, ascii_letters + '0123456789_').setName('SimpleID')
 attribute_id = simple_id
 constant_id = simple_id
 entity_id = simple_id
-attribute_ref = attribute_id
-constant_ref = constant_id
-entity_ref = entity_id
 enumeration_id = simple_id
 function_id = simple_id
 parameter_id = simple_id
@@ -215,6 +211,9 @@ type_id = simple_id
 variable_id = simple_id
 rename_id = constant_id | entity_id | function_id | procedure_id | type_id
 
+attribute_ref = attribute_id
+constant_ref = constant_id
+entity_ref = entity_id
 enumeration_ref = enumeration_id
 function_ref = function_id
 parameter_ref = parameter_id
@@ -227,14 +226,14 @@ type_label_ref = type_label_id
 type_ref = type_id
 variable_ref = variable_id
 general_ref = parameter_ref | variable_ref
+resource_ref = constant_ref | entity_ref | function_ref | procedure_ref | type_ref
+
 named_types = entity_ref | type_ref
-named_type_or_rename = named_types + Optional(AS + (entity_id | type_id))
 attribute_qualifier = '.' + attribute_ref
 enumeration_reference = Optional(type_ref + '.') + enumeration_ref
-resource_ref = constant_ref | entity_ref | function_ref | procedure_ref | type_ref
 resource_or_rename = resource_ref + Optional(AS + rename_id)
 constant_factor = built_in_constant | constant_ref
-
+named_type_or_rename = named_types + Optional(AS + (entity_id | type_id))
 population = entity_ref
 group_qualifier = '\\' + entity_ref
 type_label = type_label_id | type_label_ref
@@ -246,12 +245,12 @@ null_stmt = Char(';')
 skip_stmt = SKIP + ';'
 escape_stmt = ESCAPE + ';'
 
-add_like_op = Char('+-') | OR | XOR
-interval_op = Char('<') | '<='
-multiplication_like_op = Char('*/|') | DIV | MOD | AND
-rel_op = oneOf('< > <= >= <> = :<>: :=:')
-rel_op_extended = rel_op | IN | LIKE
-unary_op = sign | NOT
+add_like_op = (Char('+-') | OR | XOR).setName('add like operand')
+interval_op = oneOf('< <=').setName('interval operand')
+multiplication_like_op = (Char('*/|') | DIV | MOD | AND).setName('multiplication like operand')
+rel_op = oneOf('< > <= >= <> = :<>: :=:').setName('relation operand')
+rel_op_extended = (rel_op | IN | LIKE).setName('extended relation operand')
+unary_op = (sign | NOT).setName('unary operand')
 
 simple_factor = Forward()
 factor = simple_factor + Optional('**' + simple_factor)
@@ -261,18 +260,18 @@ numeric_expression = simple_expression
 precision_spec = numeric_expression
 
 index = numeric_expression
-index_1 = index
-index_2 = index
+index_1 = index('index_1')
+index_2 = index('index_2')
 index_qualifier = '[' + index_1 + Optional(':' + index_2) + ']'
 width = numeric_expression
 width_spec = '(' + width + ')' + Optional(FIXED)
 expression = simple_expression + Optional(rel_op_extended + simple_expression)
 
-bound_1 = numeric_expression
-bound_2 = numeric_expression
+bound_1 = numeric_expression('bound_1')
+bound_2 = numeric_expression('bound_2')
 bound_spec = '[' + bound_1 + ':' + bound_2 + ']'
 
-case_label = expression
+case_label = expression('case label')
 aggregate_source = simple_expression
 interval_high = simple_expression
 interval_item = simple_expression
@@ -377,10 +376,10 @@ procedure_call_stmt = (built_in_procedure | procedure_ref) + Optional(actual_par
 procedure_head = PROCEDURE + procedure_id + Optional(
     '(' + Optional(VAR) + formal_parameter + ZeroOrMore(';' + Optional(VAR) + formal_parameter) + ')') + ';'
 procedure_decl = procedure_head + algorithm_head + ZeroOrMore(stmt) + END_PROCEDURE + ';'
-where_clause = WHERE + domain_rule + ';' + ZeroOrMore(domain_rule + ';')
+where_clause = WHERE + OneOrMore(domain_rule + ';', stopOn=END_TYPE)
 type_decl = TYPE + type_id + '=' + underlying_type + ';' + Optional(where_clause) + END_TYPE + ';'
-qualifiable_factor = attribute_ref | constant_factor | function_call | general_ref | population
-primary = literal | (qualifiable_factor + ZeroOrMore(qualifier))
+qualifiable_factor = function_call | constant_factor | general_ref | population | attribute_ref
+primary = (qualifiable_factor + ZeroOrMore(qualifier)) | literal
 query_expression = QUERY + '(' + variable_id + '<*' + aggregate_source + '|' + logical_expression + ')'
 function_head = FUNCTION + function_id + Optional(
     '(' + formal_parameter + ZeroOrMore(';' + formal_parameter) + ')') + ':' + parameter_type + ';'
@@ -406,11 +405,11 @@ schema_body = ZeroOrMore(interface_specification) + Optional(constant_decl) + Ze
 schema_decl = SCHEMA + schema_id + Optional(schema_version_id) + ';' + schema_body + END_SCHEMA + ';'
 
 # Resolving forward declarations
-simple_factor <<= aggregate_initializer | entity_constructor | enumeration_reference | interval | query_expression | (
-        Optional(unary_op) + ('(' + expression + ')' | primary))
+simple_factor <<= (Optional(unary_op) + ('(' + expression + ')' | primary)) | \
+                  aggregate_initializer | entity_constructor | enumeration_reference | interval | query_expression
 
 declaration <<= entity_decl | function_decl | procedure_decl | subtype_constraint_decl | type_decl
-stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | escape_stmt | if_stmt | null_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt
+stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | if_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt | escape_stmt | null_stmt
 
 # Start
 syntax = OneOrMore(schema_decl)
