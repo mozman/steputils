@@ -1,3 +1,4 @@
+
 STEPutils
 =========
 
@@ -46,11 +47,11 @@ or from source:
 Documentation
 -------------
 
-https://steputils.readthedocs.io/
+https://steputils.readthedocs.io
 
 Contribution
 ------------
 
 The source code of STEPutils can be found at __GitHub__, target your pull requests to the `master` branch:
 
-http://github.com/mozman/steputils.git
+http://github.com/mozman/steputils

@@ -5,135 +5,157 @@
 from string import ascii_letters
 from pyparsing import *
 
-ABS = CaselessKeyword('abs')
-ABSTRACT = CaselessKeyword('abstract')
-ACOS = CaselessKeyword('acos')
-AGGREGATE = CaselessKeyword('aggregate')
-ALIAS = CaselessKeyword('alias')
-AND = CaselessKeyword('and')
-ANDOR = CaselessKeyword('andor')
-ARRAY = CaselessKeyword('array')
-AS = CaselessKeyword('as')
-ASIN = CaselessKeyword('asin')
-ATAN = CaselessKeyword('atan')
-BAG = CaselessKeyword('bag')
-BASED_ON = CaselessKeyword('based_on')
-BEGIN = CaselessKeyword('begin')
-BINARY = CaselessKeyword('binary')
-BLENGTH = CaselessKeyword('blength')
-BOOLEAN = CaselessKeyword('boolean')
-BY = CaselessKeyword('by')
-CASE = CaselessKeyword('case')
-CONSTANT = CaselessKeyword('constant')
-CONST_E = CaselessKeyword('const_e')
-COS = CaselessKeyword('cos')
-DERIVE = CaselessKeyword('derive')
-DIV = CaselessKeyword('div')
-ELSE = CaselessKeyword('else')
-END = CaselessKeyword('end')
-END_ALIAS = CaselessKeyword('end_alias')
-END_CASE = CaselessKeyword('end_case')
-END_CONSTANT = CaselessKeyword('end_constant')
-END_ENTITY = CaselessKeyword('end_entity')
-END_FUNCTION = CaselessKeyword('end_function')
-END_IF = CaselessKeyword('end_if')
-END_LOCAL = CaselessKeyword('end_local')
-END_PROCEDURE = CaselessKeyword('end_procedure')
-END_REPEAT = CaselessKeyword('end_repeat')
-END_RULE = CaselessKeyword('end_rule')
-END_SCHEMA = CaselessKeyword('end_schema')
-END_SUBTYPE_CONSTRAINT = CaselessKeyword('end_subtype_constraint')
-END_TYPE = CaselessKeyword('end_type')
-ENTITY = CaselessKeyword('entity')
-ENUMERATION = CaselessKeyword('enumeration')
-ESCAPE = CaselessKeyword('escape')
-EXISTS = CaselessKeyword('exists')
-EXTENSIBLE = CaselessKeyword('extensible')
-EXP = CaselessKeyword('exp')
-FALSE = CaselessKeyword('false')
-FIXED = CaselessKeyword('fixed')
-FOR = CaselessKeyword('for')
-FORMAT = CaselessKeyword('format')
-FROM = CaselessKeyword('from')
-FUNCTION = CaselessKeyword('function')
-GENERIC = CaselessKeyword('generic')
-GENERIC_ENTITY = CaselessKeyword('generic_entity')
-HIBOUND = CaselessKeyword('hibound')
-HIINDEX = CaselessKeyword('hiindex')
-IF = CaselessKeyword('if')
-IN = CaselessKeyword('in')
-INSERT = CaselessKeyword('insert')
-INTEGER = CaselessKeyword('integer')
-INVERSE = CaselessKeyword('inverse')
-LENGTH = CaselessKeyword('length')
-LIKE = CaselessKeyword('like')
-LIST = CaselessKeyword('list')
-LOBOUND = CaselessKeyword('lobound')
-LOCAL = CaselessKeyword('local')
-LOG = CaselessKeyword('log')
-LOG10 = CaselessKeyword('log10')
-LOG2 = CaselessKeyword('log2')
-LOGICAL = CaselessKeyword('logical')
-LOINDEX = CaselessKeyword('loindex')
-MOD = CaselessKeyword('mod')
-NOT = CaselessKeyword('not')
-NUMBER = CaselessKeyword('number')
-NVL = CaselessKeyword('nvl')
-ODD = CaselessKeyword('odd')
-OF = CaselessKeyword('of')
-ONEOF = CaselessKeyword('oneof')
-OPTIONAL = CaselessKeyword('optional')
-OR = CaselessKeyword('or')
-OTHERWISE = CaselessKeyword('otherwise')
-PI = CaselessKeyword('pi')
-PROCEDURE = CaselessKeyword('procedure')
-QUERY = CaselessKeyword('query')
-REAL = CaselessKeyword('real')
-REFERENCE = CaselessKeyword('reference')
-REMOVE = CaselessKeyword('remove')
-RENAMED = CaselessKeyword('renamed')
-REPEAT = CaselessKeyword('repeat')
-RETURN = CaselessKeyword('return')
-ROLESOF = CaselessKeyword('rolesof')
-RULE = CaselessKeyword('rule')
-SCHEMA = CaselessKeyword('schema')
-SELECT = CaselessKeyword('select')
-SELF = CaselessKeyword('self')
-SET = CaselessKeyword('set')
-SIN = CaselessKeyword('sin')
-SIZEOF = CaselessKeyword('sizeof')
-SKIP = CaselessKeyword('skip')
-SQRT = CaselessKeyword('sqrt')
-STRING = CaselessKeyword('string')
-SUBTYPE = CaselessKeyword('subtype')
-SUBTYPE_CONSTRAINT = CaselessKeyword('subtype_constraint')
-SUPERTYPE = CaselessKeyword('supertype')
-TAN = CaselessKeyword('tan')
-THEN = CaselessKeyword('then')
-TO = CaselessKeyword('to')
-TOTAL_OVER = CaselessKeyword('total_over')
-TRUE = CaselessKeyword('true')
-TYPE = CaselessKeyword('type')
-TYPEOF = CaselessKeyword('typeof')
-UNIQUE = CaselessKeyword('unique')
-UNKNOWN = CaselessKeyword('unknown')
-UNTIL = CaselessKeyword('until')
-USE = CaselessKeyword('use')
-USEDIN = CaselessKeyword('usedin')
-VALUE = CaselessKeyword('value')
-VALUE_IN = CaselessKeyword('value_in')
-VALUE_UNIQUE = CaselessKeyword('value_unique')
-VAR = CaselessKeyword('var')
-WHERE = CaselessKeyword('where')
-WHILE = CaselessKeyword('while')
-WITH = CaselessKeyword('with')
-XOR = CaselessKeyword('xor')
 
-built_in_constant = CONST_E | PI | SELF | '?'
-built_in_function = ABS | ACOS | ASIN | ATAN | BLENGTH | COS | EXISTS | EXP | FORMAT | HIBOUND | HIINDEX | LENGTH \
-                    | LOBOUND | LOINDEX | LOG2 | LOG10 | LOG | NVL | ODD | ROLESOF | SIN | SIZEOF | SQRT | TAN \
-                    | TYPEOF | USEDIN | VALUE_IN | VALUE_UNIQUE | VALUE
-built_in_procedure = INSERT | REMOVE
+class TStringLiteral(str):
+    pass
+
+
+class TLogicalLiteral(str):
+    pass
+
+
+class TBuiltInConstant(str):
+    pass
+
+
+class TBuiltInFunction(str):
+    pass
+
+
+class TBuiltInProcedure(str):
+    pass
+
+
+ABS = Keyword('ABS')
+ABSTRACT = Keyword('ABSTRACT')
+ACOS = Keyword('ACOS')
+AGGREGATE = Keyword('AGGREGATE')
+ALIAS = Keyword('ALIAS')
+AND = Keyword('AND')
+ANDOR = Keyword('ANDOR')
+ARRAY = Keyword('ARRAY')
+AS = Keyword('AS')
+ASIN = Keyword('ASIN')
+ATAN = Keyword('ATAN')
+BAG = Keyword('BAG')
+BASED_ON = Keyword('BASED_ON')
+BEGIN = Keyword('BEGIN')
+BINARY = Keyword('BINARY')
+BLENGTH = Keyword('BLENGTH')
+BOOLEAN = Keyword('BOOLEAN')
+BY = Keyword('BY')
+CASE = Keyword('CASE')
+CONSTANT = Keyword('CONSTANT')
+CONST_E = Keyword('CONST_E')
+COS = Keyword('COS')
+DERIVE = Keyword('DERIVE')
+DIV = Keyword('DIV')
+ELSE = Keyword('ELSE')
+END = Keyword('END')
+END_ALIAS = Keyword('END_ALIAS')
+END_CASE = Keyword('END_CASE')
+END_CONSTANT = Keyword('END_CONSTANT')
+END_ENTITY = Keyword('END_ENTITY')
+END_FUNCTION = Keyword('END_FUNCTION')
+END_IF = Keyword('END_IF')
+END_LOCAL = Keyword('END_LOCAL')
+END_PROCEDURE = Keyword('END_PROCEDURE')
+END_REPEAT = Keyword('END_REPEAT')
+END_RULE = Keyword('END_RULE')
+END_SCHEMA = Keyword('END_SCHEMA')
+END_SUBTYPE_CONSTRAINT = Keyword('END_SUBTYPE_CONSTRAINT')
+END_TYPE = Keyword('END_TYPE')
+ENTITY = Keyword('ENTITY')
+ENUMERATION = Keyword('ENUMERATION')
+ESCAPE = Keyword('ESCAPE')
+EXISTS = Keyword('EXISTS')
+EXTENSIBLE = Keyword('EXTENSIBLE')
+EXP = Keyword('EXP')
+FALSE = Keyword('FALSE')
+FIXED = Keyword('FIXED')
+FOR = Keyword('FOR')
+FORMAT = Keyword('FORMAT')
+FROM = Keyword('FROM')
+FUNCTION = Keyword('FUNCTION')
+GENERIC = Keyword('GENERIC')
+GENERIC_ENTITY = Keyword('GENERIC_ENTITY')
+HIBOUND = Keyword('HIBOUND')
+HIINDEX = Keyword('HIINDEX')
+IF = Keyword('IF')
+IN = Keyword('IN')
+INSERT = Keyword('INSERT')
+INTEGER = Keyword('INTEGER')
+INVERSE = Keyword('INVERSE')
+LENGTH = Keyword('LENGTH')
+LIKE = Keyword('LIKE')
+LIST = Keyword('LIST')
+LOBOUND = Keyword('LOBOUND')
+LOCAL = Keyword('LOCAL')
+LOG = Keyword('LOG')
+LOG10 = Keyword('LOG10')
+LOG2 = Keyword('LOG2')
+LOGICAL = Keyword('LOGICAL')
+LOINDEX = Keyword('LOINDEX')
+MOD = Keyword('MOD')
+NOT = Keyword('NOT')
+NUMBER = Keyword('NUMBER')
+NVL = Keyword('NVL')
+ODD = Keyword('ODD')
+OF = Keyword('OF')
+ONEOF = Keyword('ONEOF')
+OPTIONAL = Keyword('OPTIONAL')
+OR = Keyword('OR')
+OTHERWISE = Keyword('OTHERWISE')
+PI = Keyword('PI')
+PROCEDURE = Keyword('PROCEDURE')
+QUERY = Keyword('QUERY')
+REAL = Keyword('REAL')
+REFERENCE = Keyword('REFERENCE')
+REMOVE = Keyword('REMOVE')
+RENAMED = Keyword('RENAMED')
+REPEAT = Keyword('REPEAT')
+RETURN = Keyword('RETURN')
+ROLESOF = Keyword('ROLESOF')
+RULE = Keyword('RULE')
+SCHEMA = Keyword('SCHEMA')
+SELECT = Keyword('SELECT')
+SELF = Keyword('SELF')
+SET = Keyword('SET')
+SIN = Keyword('SIN')
+SIZEOF = Keyword('SIZEOF')
+SKIP = Keyword('SKIP')
+SQRT = Keyword('SQRT')
+STRING = Keyword('STRING')
+SUBTYPE = Keyword('SUBTYPE')
+SUBTYPE_CONSTRAINT = Keyword('SUBTYPE_CONSTRAINT')
+SUPERTYPE = Keyword('SUPERTYPE')
+TAN = Keyword('TAN')
+THEN = Keyword('THEN')
+TO = Keyword('TO')
+TOTAL_OVER = Keyword('TOTAL_OVER')
+TRUE = Keyword('TRUE')
+TYPE = Keyword('TYPE')
+TYPEOF = Keyword('TYPEOF')
+UNIQUE = Keyword('UNIQUE')
+UNKNOWN = Keyword('UNKNOWN')
+UNTIL = Keyword('UNTIL')
+USE = Keyword('USE')
+USEDIN = Keyword('USEDIN')
+VALUE = Keyword('VALUE')
+VALUE_IN = Keyword('VALUE_IN')
+VALUE_UNIQUE = Keyword('VALUE_UNIQUE')
+VAR = Keyword('VAR')
+WHERE = Keyword('WHERE')
+WHILE = Keyword('WHILE')
+WITH = Keyword('WITH')
+XOR = Keyword('XOR')
+
+built_in_constant = (CONST_E | PI | SELF | '?').addParseAction(lambda s, l, t: TBuiltInConstant(t[0]))
+built_in_function = (ABS | ACOS | ASIN | ATAN | BLENGTH | COS | EXISTS | EXP | FORMAT | HIBOUND | HIINDEX | LENGTH
+                     | LOBOUND | LOINDEX | LOG2 | LOG10 | LOG | NVL | ODD | ROLESOF | SIN | SIZEOF | SQRT | TAN
+                     | TYPEOF | USEDIN | VALUE_IN | VALUE_UNIQUE | VALUE).addParseAction(
+    lambda s, l, t: TBuiltInFunction(t[0]))
+built_in_procedure = INSERT | REMOVE.addParseAction(lambda s, l, t: TBuiltInProcedure(t[0]))
 
 bit = Char('01')
 binary_literal = Word('%', '01')
@@ -142,27 +164,36 @@ digit = Char('0123456789')
 digits = Word('0123456789')
 sign = Char('+-')
 
-integer_literal = digits
+integer_literal = pyparsing_common.signed_integer
 real_literal = pyparsing_common.real
 
 encoded_character = Word(hexnums, exact=8)
-encoded_string_literal = '"' + OneOrMore(encoded_character) + '"'
-logical_literal = FALSE | TRUE | UNKNOWN
-simple_string_literal = sglQuotedString
+
+
+def _to_unicode_str(s, l, t):
+    return ''.join(chr(int(c, 16)) for c in t)
+
+
+encoded_string_literal = Suppress('"') + OneOrMore(encoded_character).addParseAction(_to_unicode_str) + Suppress('"')
+logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(lambda s, l, t: TLogicalLiteral(t[0]))
+simple_string_literal = sglQuotedString.copy()
+simple_string_literal.addParseAction(lambda s, l, t: TStringLiteral(t[0][1:-1]))  # remove quotes
+
 string_literal = simple_string_literal | encoded_string_literal
-literal = binary_literal | logical_literal | real_literal | string_literal
+literal = binary_literal | logical_literal | integer_literal | real_literal | string_literal
 schema_version_id = string_literal
 
-letter = Char(ascii_letters)
-not_paren_star_quote_special = Char('!"#$%&+,-./:;<=>?@[\\]^_‘{|}~')  # special char ‘ ???
-not_paren_star_special = not_paren_star_quote_special | "'"
-not_paren_star = letter | digit | not_paren_star_special
-not_lparen_star = not_paren_star | ')'
-not_rparen_star = not_paren_star | '('
-not_quote = not_paren_star_quote_special | letter | digit | Char('()*')
-special = not_paren_star_quote_special | Char("()*’")
-lparen_then_not_lparen_star = OneOrMore('(') + OneOrMore(not_lparen_star)
-not_rparen_star_then_rparen = OneOrMore(not_rparen_star) + OneOrMore(')')
+# replaced by sglQuotedString
+# letter = Char(ascii_letters)
+# not_paren_star_quote_special = Char('!"#$%&+,-./:;<=>?@[\\]^_‘{|}~')  # special char ‘ ???
+# not_paren_star_special = not_paren_star_quote_special | "'"
+# not_paren_star = letter | digit | not_paren_star_special
+# not_lparen_star = not_paren_star | ')'
+# not_rparen_star = not_paren_star | '('
+# not_quote = not_paren_star_quote_special | letter | digit | Char('()*')
+# special = not_paren_star_quote_special | Char("()*’")
+# lparen_then_not_lparen_star = OneOrMore('(') + OneOrMore(not_lparen_star)
+# not_rparen_star_then_rparen = OneOrMore(not_rparen_star) + OneOrMore(')')
 
 simple_id = Word(ascii_letters, ascii_letters + '0123456789_')
 attribute_id = simple_id
@@ -228,6 +259,7 @@ term = factor + ZeroOrMore(multiplication_like_op + factor)
 simple_expression = term + ZeroOrMore(add_like_op + term)
 numeric_expression = simple_expression
 precision_spec = numeric_expression
+
 index = numeric_expression
 index_1 = index
 index_2 = index
@@ -235,9 +267,11 @@ index_qualifier = '[' + index_1 + Optional(':' + index_2) + ']'
 width = numeric_expression
 width_spec = '(' + width + ')' + Optional(FIXED)
 expression = simple_expression + Optional(rel_op_extended + simple_expression)
+
 bound_1 = numeric_expression
 bound_2 = numeric_expression
 bound_spec = '[' + bound_1 + ':' + bound_2 + ']'
+
 case_label = expression
 aggregate_source = simple_expression
 interval_high = simple_expression
@@ -374,12 +408,12 @@ schema_decl = SCHEMA + schema_id + Optional(schema_version_id) + ';' + schema_bo
 # Resolving forward declarations
 simple_factor <<= aggregate_initializer | entity_constructor | enumeration_reference | interval | query_expression | (
         Optional(unary_op) + ('(' + expression + ')' | primary))
+
 declaration <<= entity_decl | function_decl | procedure_decl | subtype_constraint_decl | type_decl
 stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | escape_stmt | if_stmt | null_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt
 
 # Start
 syntax = OneOrMore(schema_decl)
-
 
 remark_tag = '"' + simple_id + ZeroOrMore('.' + simple_id) + '"'
 tail_remark = Combine('--' + OneOrMore(remark_tag) + LineEnd()).setName("Tail Remark")

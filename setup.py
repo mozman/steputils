@@ -4,17 +4,15 @@
 # License: MIT License
 import os
 from setuptools import setup, find_packages
+
+
 # setuptools docs: https://setuptools.readthedocs.io/en/latest/setuptools.html
 
-
 def get_version():
+    # do not import package, because required packages may not be installed yet
     v = {}
-    # do not import steputils, because required packages may not be installed yet
-    for line in open('./src/steputils/version.py').readlines():
-        if line.strip().startswith('__version__'):
-            exec(line, v)
-            return v['__version__']
-    raise IOError('__version__ string not found')
+    exec(open('./src/steputils/version.py').read(), v)
+    return v['__version__']
 
 
 def read(fname, until=""):
@@ -25,6 +23,7 @@ def read(fname, until=""):
                 last_index = index
                 break
         return "".join(lines[:last_index])
+
     try:
         with open(os.path.join(os.path.dirname(__file__), fname)) as f:
             return read_until(f.readlines()) if until else f.read()
@@ -37,9 +36,15 @@ setup(
     version=get_version(),
     description='A Python package to read/write STEP data files.',
     author='Manfred Moitzi',
-    url='https://steputils.mozman.at',
-    download_url='https://pypi.org/project/steputils/',
     author_email='me@mozman.at',
+    url='http://github.com/mozman/steputils',
+    download_url='https://pypi.org/project/steputils/',
+    project_urls={
+        'Documentation': 'https://steputils.readthedocs.io',
+        'Wiki': 'https://github.com/mozman/steputils/wiki',
+        'Source': 'http://github.com/mozman/steputils',
+        'Bug Tracker': 'https://github.com/mozman/steputils/issues',
+    },
     python_requires='>=3.6',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -48,7 +53,7 @@ setup(
     setup_requires=['wheel'],
     tests_require=['pytest'],
     keywords=['IFC4', 'CAD', 'STEP'],
-    long_description=read('README.md')+read('NEWS.md'),
+    long_description=read('README.md') + read('NEWS.md'),
     long_description_content_type="text/markdown",
     platforms="OS Independent",
     license="MIT License",
