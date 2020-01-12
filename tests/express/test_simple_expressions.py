@@ -7,7 +7,8 @@ from steputils.express.parser import (
     list_type, bound_spec, array_type, index_qualifier, simple_expression, string_literal,
     aggregate_initializer, real_literal, interval, entity_constructor, primary,
     simple_factor, expression, integer_literal, ast, enumeration_type, underlying_type,
-    select_type, comments, tail_remark,
+    select_type, comments, tail_remark, query_expression, aggregate_source, qualified_attribute,
+    attribute_qualifier,
 )
 from steputils.express.ast import AST
 
@@ -140,6 +141,50 @@ def test_simple_factor():
     assert str(r) == "ABS ( SELF )"
     r = AST(simple_factor.parseString("ABS(SELF[2])"))
     assert str(r) == "ABS ( SELF [ 2 ] )"
+
+
+def test_sizeof_expr():
+    r = AST(expression.parseString(r"SIZEOF(a)"))
+    assert str(r) == "SIZEOF ( a )"
+
+
+def test_aggregate_source():
+    r = AST(aggregate_source.parseString("b | 1"))
+    assert str(r) == "b | 1"
+
+
+def test_query_expr():
+    r = AST(query_expression.parseString("QUERY(a <* b | 1 = 1)"))
+    assert str(r) == "QUERY ( a <* b | 1 = 1 )"
+
+
+def test_attr_qualifier():
+    r = AST(attribute_qualifier.parseString(".Outer.CfsFaces"))
+    assert str(r) == ". Outer . CfsFaces"
+
+
+def test_qualified_attr():
+    r = AST(qualified_attribute.parseString(r"SELF\IfcManifoldSolidBrep.Outer.CfsFaces"))
+    assert str(r) == r"SELF \ IfcManifoldSolidBrep . Outer . CfsFaces"
+
+
+def test_query_expr_2():
+    r = AST(query_expression.parseString(r"QUERY(Afs <* SELF\IfcManifoldSolidBrep.Outer.CfsFaces | "
+                                         r"(NOT ('IFC4X2.IFCADVANCEDFACE' IN TYPEOF(Afs))))"))
+    assert str(r) == r"QUERY ( Afs <* SELF \ IfcManifoldSolidBrep . Outer . CfsFaces | " \
+                     r"( NOT ( IFC4X2.IFCADVANCEDFACE IN TYPEOF ( Afs ) ) ) )"
+
+
+def test_complex_expr_1():
+    r = AST(expression.parseString(r"SIZEOF(a) = 0"))
+    assert str(r) == r"SIZEOF ( a ) = 0"
+
+
+def test_complex_expr_2():
+    r = AST(expression.parseString(r"SIZEOF(QUERY(Afs <* SELF\IfcManifoldSolidBrep.Outer.CfsFaces | "
+                                   r"(NOT ('IFC4X2.IFCADVANCEDFACE' IN TYPEOF(Afs))))) = 0"))
+    assert str(r) == r"SIZEOF ( QUERY ( Afs <* SELF \ IfcManifoldSolidBrep . Outer . CfsFaces | " \
+                     r"( NOT ( IFC4X2.IFCADVANCEDFACE IN TYPEOF ( Afs ) ) ) ) ) = 0"
 
 
 def test_comments():

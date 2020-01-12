@@ -209,7 +209,9 @@ general_ref = parameter_ref | variable_ref
 resource_ref = constant_ref | entity_ref | function_ref | procedure_ref | type_ref
 
 named_types = entity_ref | type_ref
-attribute_qualifier = '.' + attribute_ref
+
+# TODO: attribute_qualifier - added OneOrMore() reason: query_expression
+attribute_qualifier = OneOrMore('.' + attribute_ref)
 enumeration_reference = Optional(type_ref + '.') + enumeration_ref
 resource_or_rename = resource_ref + Optional(AS + rename_id)
 constant_factor = built_in_constant | constant_ref
@@ -218,7 +220,7 @@ population = entity_ref
 group_qualifier = '\\' + entity_ref
 type_label = type_label_id | type_label_ref
 qualified_attribute = SELF + group_qualifier + attribute_qualifier
-referenced_attribute = attribute_ref | qualified_attribute
+referenced_attribute = qualified_attribute | attribute_ref
 unique_rule = Optional(rule_label_id + ':') + referenced_attribute + ZeroOrMore(',' + referenced_attribute)
 
 null_stmt = Char(';')
@@ -315,14 +317,14 @@ select_type = Optional(EXTENSIBLE + Optional(GENERIC_ENTITY)) + SELECT + Optiona
 constructed_types = enumeration_type | select_type
 underlying_type = constructed_types | concrete_types
 
-supertype_term = entity_ref | one_of | ('(' + supertype_expression + ')')
+supertype_term = one_of | ('(' + supertype_expression + ')') | entity_ref
 supertype_factor = supertype_term + ZeroOrMore(AND + supertype_term)
 supertype_expression <<= supertype_factor + ZeroOrMore(ANDOR + supertype_factor)
 subtype_constraint = OF + '(' + supertype_expression + ')'
 
 supertype_rule = SUPERTYPE + subtype_constraint
 abstract_supertype_declaration = ABSTRACT + SUPERTYPE + Optional(subtype_constraint)
-supertype_constraint = abstract_entity_declaration | abstract_supertype_declaration | supertype_rule
+supertype_constraint = abstract_supertype_declaration | abstract_entity_declaration | supertype_rule
 subsuper = Optional(supertype_constraint) + Optional(subtype_declaration)
 subtype_constraint_head = SUBTYPE_CONSTRAINT + subtype_constraint_id + FOR + entity_ref + ';'
 total_over = TOTAL_OVER + '(' + entity_ref + ZeroOrMore(',' + entity_ref) + ')' + ';'
@@ -356,11 +358,19 @@ procedure_call_stmt = (built_in_procedure | procedure_ref) + Optional(actual_par
 procedure_head = PROCEDURE + procedure_id + Optional(
     '(' + Optional(VAR) + formal_parameter + ZeroOrMore(';' + Optional(VAR) + formal_parameter) + ')') + ';'
 procedure_decl = procedure_head + algorithm_head + ZeroOrMore(stmt) + END_PROCEDURE + ';'
+
+# Different where clauses required, because parser need the stopOn argument!
 where_clause = WHERE + OneOrMore(domain_rule + ';', stopOn=END_TYPE)
+entity_where_clause = WHERE + OneOrMore(domain_rule + ';', stopOn=END_ENTITY)
+rule_where_clause = WHERE + OneOrMore(domain_rule + ';', stopOn=END_RULE)
+
 type_decl = TYPE + type_id + '=' + underlying_type + ';' + Optional(where_clause) + END_TYPE + ';'
 qualifiable_factor = function_call | constant_factor | general_ref | population | attribute_ref
 primary = (qualifiable_factor + ZeroOrMore(qualifier)) | literal
-query_expression = QUERY + '(' + variable_id + '<*' + aggregate_source + '|' + logical_expression + ')'
+
+# TODO: restore original expression
+# query_expression = QUERY + '(' + variable_id + '<*' + aggregate_source + '|' + logical_expression + ')'
+query_expression = QUERY + '(' + variable_id + '<*' + referenced_attribute + '|' + logical_expression + ')'
 function_head = FUNCTION + function_id + Optional(
     '(' + formal_parameter + ZeroOrMore(';' + formal_parameter) + ')') + ':' + parameter_type + ';'
 function_decl = function_head + algorithm_head + OneOrMore(stmt) + END_FUNCTION + ';'
@@ -371,10 +381,10 @@ inverse_clause = INVERSE + OneOrMore(inverse_attr)
 entity_constructor = entity_ref + '(' + Optional(expression + ZeroOrMore(',' + expression)) + ')'
 entity_head = ENTITY + entity_id + subsuper + ';'
 entity_body = ZeroOrMore(explicit_attr) + Optional(derive_clause) + Optional(inverse_clause) + Optional(
-    unique_clause) + Optional(where_clause)
+    unique_clause) + Optional(entity_where_clause)
 entity_decl = entity_head + entity_body + END_ENTITY + ';'
 rule_head = RULE + rule_id + FOR + '(' + entity_ref + ZeroOrMore(',' + entity_ref) + ')' + ';'
-rule_decl = rule_head + algorithm_head + ZeroOrMore(stmt) + where_clause + END_RULE + ';'
+rule_decl = rule_head + algorithm_head + ZeroOrMore(stmt) + rule_where_clause + END_RULE + ';'
 
 reference_clause = REFERENCE + FROM + schema_ref + Optional(
     '(' + resource_or_rename + ZeroOrMore(',' + resource_or_rename) + ')') + ';'
@@ -385,8 +395,8 @@ schema_body = ZeroOrMore(interface_specification) + Optional(constant_decl) + Ze
 schema_decl = SCHEMA + schema_id + Optional(schema_version_id) + ';' + schema_body + END_SCHEMA + ';'
 
 # Resolving forward declarations
-simple_factor <<= entity_constructor | (Optional(unary_op) + ('(' + expression + ')' | primary)) | \
-                  aggregate_initializer | enumeration_reference | interval | query_expression
+simple_factor <<= entity_constructor | query_expression | (Optional(unary_op) + ('(' + expression + ')' | primary)) | \
+                  aggregate_initializer | enumeration_reference | interval
 
 declaration <<= entity_decl | function_decl | procedure_decl | subtype_constraint_decl | type_decl
 stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | if_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt | escape_stmt | null_stmt

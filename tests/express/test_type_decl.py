@@ -76,6 +76,22 @@ def test_where_clause_5():
     assert str(r) == "WHERE MinutesInRange : ABS ( SELF [ 2 ] ) < 60 ;"
 
 
+def test_where_clause_6():
+    r = AST(where_clause.parseString("WHERE WR1 : (Role <> IfcRoleEnum.USERDEFINED) OR "
+                                     " ((Role = IfcRoleEnum.USERDEFINED) AND EXISTS(SELF.UserDefinedRole));"))
+    assert str(r) == "WHERE WR1 : ( Role <> IfcRoleEnum . USERDEFINED ) OR ( ( Role = IfcRoleEnum . USERDEFINED ) AND " \
+                     "EXISTS ( SELF . UserDefinedRole ) ) ;"
+
+
+def test_where_clause_7():
+    r = AST(where_clause.parseString(
+        r"WHERE HasAdvancedFaces : SIZEOF(QUERY(Afs <* SELF\IfcManifoldSolidBrep.Outer.CfsFaces | "
+        r"(NOT ('IFC4X2.IFCADVANCEDFACE' IN TYPEOF(Afs))))) = 0;"
+    ))
+    assert str(r) == r"WHERE HasAdvancedFaces : SIZEOF ( QUERY ( Afs <* SELF \ IfcManifoldSolidBrep . Outer . CfsFaces | " \
+                     "( NOT ( IFC4X2.IFCADVANCEDFACE IN TYPEOF ( Afs ) ) ) ) ) = 0 ;"
+
+
 def test_where_rule_0():
     r = AST(type_decl.parseString("TYPE XType = INTEGER; WHERE SELF > 0; END_TYPE;"))
     assert str(r) == "TYPE XType = INTEGER ; WHERE SELF > 0 ; END_TYPE ;"
