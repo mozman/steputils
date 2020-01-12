@@ -394,8 +394,11 @@ stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | if_stmt | pr
 # Start
 syntax = OneOrMore(schema_decl)
 
-remark_tag = '"' + simple_id + ZeroOrMore('.' + simple_id) + '"'
-tail_remark = Combine('--' + OneOrMore(remark_tag) + LineEnd()).setName("Tail Remark")
+# White space enabled for detecting tail remarks
+spaces = Suppress(ZeroOrMore(White(' \t')))
+remark_tag = spaces + simple_id + ZeroOrMore('.' + simple_id)
+tail_remark = ('--' + OneOrMore(remark_tag) + spaces + Suppress(LineEnd())).setName("Tail Remark")
+tail_remark.leaveWhitespace()
 
 # Replaced by the 'comments' rule
 # embedded_remark = Forward()
@@ -406,7 +409,7 @@ tail_remark = Combine('--' + OneOrMore(remark_tag) + LineEnd()).setName("Tail Re
 # remark = embedded_remark | tail_remark
 
 #          Combine(Regex(r"/_\*(?:[^*]|_\*(?!_/))*") + '*/').setName("C style comment")
-comments = Combine(Regex(r"\(\*(?:[^*]|\(*(?!\)))*") + '*)').setName("Express Comment")
+comments = Combine(Regex(r"\(\*(?:[^*]|\*(?!\)))*") + '*)').setName("Express Comment")
 
 syntax.ignore(comments)
 syntax.ignore(tail_remark)

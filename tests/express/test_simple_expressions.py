@@ -7,7 +7,7 @@ from steputils.express.parser import (
     list_type, bound_spec, array_type, index_qualifier, simple_expression, string_literal,
     aggregate_initializer, real_literal, interval, entity_constructor, primary,
     simple_factor, expression, integer_literal, ast, enumeration_type, underlying_type,
-    select_type,
+    select_type, comments, tail_remark,
 )
 from steputils.express.ast import AST
 
@@ -136,6 +136,25 @@ def test_simple_factor():
     assert str(r) == "ABS ( SELF )"
     r = AST(simple_factor.parseString("ABS(SELF[2])"))
     assert str(r) == "ABS ( SELF [ 2 ] )"
+
+
+def test_comments():
+    assert str(AST(comments.parseString("(* comment  *)"))) == '(* comment  *)'
+    assert str(AST(comments.parseString("(* comment * *)"))) == '(* comment * *)'
+    assert str(AST(comments.parseString("(** comment **)"))) == '(** comment **)'
+    assert str(AST(comments.parseString("(** (* comment **)"))) == '(** (* comment **)'
+
+
+def test_tail_remark():
+    assert str(AST(tail_remark.parseString("-- approved_item \n"))) == '-- approved_item'
+    assert str(AST(tail_remark.parseString("-- approved_item.test \n next line"))) == '-- approved_item . test'
+
+
+def test_ignore_tail_remark():
+    expr_test = simple_expression('TEST')
+    expr_test.ignore(tail_remark)
+    assert str(AST(expr_test.parseString(" 1 + 1 -- approved_item \n xxx"))) == '1 + 1'
+    assert str(AST(expr_test.parseString(" 1 + 1 -- approved_item simple.name \n END_TYPE;"))) == '1 + 1'
 
 
 if __name__ == '__main__':
