@@ -1,12 +1,11 @@
 # Copyright (c) 2020 Manfred Moitzi
 # License: MIT License
 import pytest
-from steputils.express.parser import entity_decl, supertype_constraint, one_of, supertype_rule, where_clause
-from steputils.express.ast import AST
+from steputils.express.parser import entity_decl, supertype_constraint, one_of, supertype_rule, Tokens
 
 
 def test_simple_entity_decl():
-    e = AST(entity_decl.parseString("""  
+    e = Tokens(entity_decl.parseString("""  
     ENTITY action;
         name          : label;
         description   : text;
@@ -17,7 +16,7 @@ def test_simple_entity_decl():
 
 
 def test_simple_entity_decl_2():
-    e = AST(entity_decl.parseString("""
+    e = Tokens(entity_decl.parseString("""
     ENTITY IfcActor
         SUPERTYPE OF (ONEOF(IfcOccupant))
         SUBTYPE OF (IfcObject);
@@ -47,7 +46,7 @@ def test_simple_entity_decl_2():
 
 
 def test_simple_entity_decl_3():
-    e = AST(entity_decl.parseString("""
+    e = Tokens(entity_decl.parseString("""
     ENTITY IfcActorRole;
         Role : IfcRoleEnum;
         UserDefinedRole : OPTIONAL IfcLabel;
@@ -61,7 +60,7 @@ def test_simple_entity_decl_3():
 
 
 def test_simple_entity_decl_4():
-    e = AST(entity_decl.parseString("""
+    e = Tokens(entity_decl.parseString("""
     ENTITY IfcAddress
         ABSTRACT SUPERTYPE OF (ONEOF
             (IfcPostalAddress
@@ -83,7 +82,7 @@ def test_simple_entity_decl_4():
 
 
 def test_simple_entity_decl_5():
-    e = AST(entity_decl.parseString(r"""
+    e = Tokens(entity_decl.parseString(r"""
     ENTITY IfcAdvancedBrep
         SUPERTYPE OF (ONEOF
             (IfcAdvancedBrepWithVoids))
@@ -98,7 +97,7 @@ def test_simple_entity_decl_5():
 
 
 def test_simple_entity_decl_6():
-    e = AST(entity_decl.parseString(r"""
+    e = Tokens(entity_decl.parseString(r"""
     ENTITY IfcAdvancedBrepWithVoids
         SUBTYPE OF (IfcAdvancedBrep);
         Voids : SET [1:?] OF IfcClosedShell;
@@ -114,17 +113,17 @@ def test_simple_entity_decl_6():
 
 
 def test_one_of():
-    r = AST(one_of.parseString("ONEOF(IfcOccupant)"))
+    r = Tokens(one_of.parseString("ONEOF(IfcOccupant)"))
     assert str(r) == "ONEOF ( IfcOccupant )"
 
 
 def test_supertype_rule():
-    s = AST(supertype_rule.parseString("SUPERTYPE OF (ONEOF(IfcOccupant))"))
+    s = Tokens(supertype_rule.parseString("SUPERTYPE OF (ONEOF(IfcOccupant))"))
     assert str(s) == "SUPERTYPE OF ( ONEOF ( IfcOccupant ) )"
 
 
 def test_supertype_constraint():
-    s = AST(supertype_constraint.parseString("SUPERTYPE OF (ONEOF(IfcOccupant))"))
+    s = Tokens(supertype_constraint.parseString("SUPERTYPE OF (ONEOF(IfcOccupant))"))
     assert str(s) == "SUPERTYPE OF ( ONEOF ( IfcOccupant ) )"
 
 

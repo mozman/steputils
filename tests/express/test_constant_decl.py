@@ -2,12 +2,11 @@
 # License: MIT License
 
 import pytest
-from steputils.express.parser import constant_decl
-from steputils.express.ast import AST
+from steputils.express.parser import constant_decl, Tokens
 
 
 def test_typedef_real():
-    c = AST(constant_decl.parseString("""
+    c = Tokens(constant_decl.parseString("""
     CONSTANT
     dummy_gri : geometric_representation_item := representation_item('') ||
                 geometric_representation_item();

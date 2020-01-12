@@ -3,6 +3,8 @@
 # License: MIT License
 
 from string import ascii_letters
+from typing import Iterable
+
 from pyparsing import *
 from . import ast
 
@@ -425,3 +427,38 @@ comments = Combine(Regex(r"\(\*(?:[^*]|\*(?!\)))*") + '*)').setName("Express Com
 
 syntax.ignore(comments)
 syntax.ignore(tail_remark)
+
+
+class Tokens:
+    """ Helper class for testing. """
+    def __init__(self, it: Iterable):
+        self._tokens = tuple(it)
+
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return self._tokens == other.nodes
+        # compare with iterable of string tokens, just for testing
+        elif isinstance(other, Iterable):
+            return tuple(self.string_tokens) == tuple(other)
+        else:
+            return NotImplemented
+
+    def __hash__(self):
+        return hash(self._tokens)
+
+    def __len__(self):
+        return len(self._tokens)
+
+    def __getitem__(self, item):
+        return self._tokens[item]
+
+    def __str__(self):
+        return ' '.join(self.string_tokens)
+
+    @property
+    def string_tokens(self) -> Iterable:
+        for t in self._tokens:
+            if hasattr(t, 'string_tokens'):
+                yield from t.string_tokens
+            else:
+                yield str(t)
