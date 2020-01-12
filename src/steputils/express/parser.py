@@ -4,27 +4,7 @@
 
 from string import ascii_letters
 from pyparsing import *
-
-
-class TStringLiteral(str):
-    pass
-
-
-class TLogicalLiteral(str):
-    pass
-
-
-class TBuiltInConstant(str):
-    pass
-
-
-class TBuiltInFunction(str):
-    pass
-
-
-class TBuiltInProcedure(str):
-    pass
-
+from . import ast
 
 ABS = Keyword('ABS')
 ABSTRACT = Keyword('ABSTRACT')
@@ -150,12 +130,12 @@ WHILE = Keyword('WHILE')
 WITH = Keyword('WITH')
 XOR = Keyword('XOR')
 
-built_in_constant = (CONST_E | PI | SELF | '?').addParseAction(lambda s, l, t: TBuiltInConstant(t[0]))
+built_in_constant = (CONST_E | PI | SELF | '?').addParseAction(lambda s, l, t: ast.BuiltInConstant(t[0]))
 built_in_function = (ABS | ACOS | ASIN | ATAN | BLENGTH | COS | EXISTS | EXP | FORMAT | HIBOUND | HIINDEX | LENGTH
                      | LOBOUND | LOINDEX | LOG2 | LOG10 | LOG | NVL | ODD | ROLESOF | SIN | SIZEOF | SQRT | TAN
                      | TYPEOF | USEDIN | VALUE_IN | VALUE_UNIQUE | VALUE).addParseAction(
-    lambda s, l, t: TBuiltInFunction(t[0]))
-built_in_procedure = INSERT | REMOVE.addParseAction(lambda s, l, t: TBuiltInProcedure(t[0]))
+    lambda s, l, t: ast.BuiltInFunction(t[0]))
+built_in_procedure = INSERT | REMOVE.addParseAction(lambda s, l, t: ast.BuiltInProcedure(t[0]))
 
 bit = Char('01')
 digit = Char('0123456789')
@@ -174,10 +154,10 @@ integer_literal = pyparsing_common.signed_integer('IntegerLiteral')  # as int
 real_literal = pyparsing_common.sci_real('RealLiteral')  # as float
 encoded_string_literal = Suppress('"') + OneOrMore(encoded_character).addParseAction(_to_unicode_str).setName(
     'EncodedStringLiteral') + Suppress('"')
-logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(lambda s, l, t: TLogicalLiteral(t[0])).setName(
+logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(lambda s, l, t: ast.LogicalLiteral(t[0])).setName(
     'LogicalLiteral')
 simple_string_literal = sglQuotedString('StringLiteral')
-simple_string_literal.addParseAction(lambda s, l, t: TStringLiteral(t[0][1:-1]))  # remove quotes
+simple_string_literal.addParseAction(lambda s, l, t: ast.StringLiteral(t[0][1:-1]))  # remove quotes
 string_literal = simple_string_literal | encoded_string_literal
 literal = binary_literal | logical_literal | real_literal | integer_literal | string_literal
 
