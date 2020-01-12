@@ -1,29 +1,24 @@
 # Copyright (c) 2020 Manfred Moitzi
 # License: MIT License
 import pytest
-from steputils.express.ast import TypeDecl, WhereClause
+from steputils.express.ast import TypeDecl, WhereClause, DomainRule, Expression, Type
 
 
 def test_ast_node():
-    w = WhereClause(('WHERE', 'SELF', '>', 0, ';'))
-    assert type(w[3]) is int
-    assert len(w) == 5
-    assert str(w) == "WHERE SELF > 0 ;"
-    assert repr(w) == "WhereClause(('WHERE', 'SELF', '>', 0, ';'))"
+    r1 = DomainRule(None, Expression('<', 'SELF', 0))
+    r2 = DomainRule('WR2', Expression('=', 'x', 1))
+    w = WhereClause(rules=[r1, r2])
+    assert len(w) == 2
+    assert str(w) == "WHERE(SELF < 0;WR2: x = 1)"
 
 
 def test_ast_tree():
-    w = WhereClause(('WHERE', 'SELF', '>', 0, ';'))
-    t = TypeDecl(('TYPE', 'XType', '=', 'INTEGER', ';', w, 'END_TYPE', ';'))
-    assert len(t) == 8
+    r1 = DomainRule(None, Expression('<', 'SELF', 0))
+    r2 = DomainRule('WR2', Expression('=', 'x', 1))
+    w = WhereClause(rules=[r1, r2])
 
-    assert t == [
-        'TYPE', 'XType', '=', 'INTEGER', ';',
-        'WHERE', 'SELF', '>', '0', ';', 'END_TYPE', ';'
-    ]
-    assert str(t) == "TYPE XType = INTEGER ; WHERE SELF > 0 ; END_TYPE ;"
-    assert repr(
-        t) == "TypeDecl(('TYPE', 'XType', '=', 'INTEGER', ';', WhereClause(('WHERE', 'SELF', '>', 0, ';')), 'END_TYPE', ';'))"
+    t = TypeDecl('XType', Type('INT'), w)
+    assert str(t) == "TYPE XType = INT WHERE(SELF < 0;WR2: x = 1)"
 
 
 if __name__ == '__main__':

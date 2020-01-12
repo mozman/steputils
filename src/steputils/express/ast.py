@@ -1,74 +1,84 @@
 # Created: 12.01.2020
 # Copyright (c) 2020 Manfred Moitzi
 # License: MIT License
-from collections.abc import Iterable
-
-
-class StringLiteral(str):
-    pass
-
-
-class LogicalLiteral(str):
-    pass
-
-
-class BuiltInConstant(str):
-    pass
-
-
-class BuiltInFunction(str):
-    pass
-
-
-class BuiltInProcedure(str):
-    pass
+from typing import Iterable, Optional
 
 
 class AST:
-    def __init__(self, it: Iterable):
-        self.nodes = tuple(it)
+    pass
 
-    def __eq__(self, other):
-        if type(other) == type(self):
-            return self.nodes == other.nodes
-        # compare with iterable of string tokens, just for testing
-        elif isinstance(other, Iterable):
-            return tuple(self.string_tokens) == tuple(other)
-        else:
-            return NotImplemented
 
-    def __hash__(self):
-        return hash(self.nodes)
-
-    def __len__(self):
-        return len(self.nodes)
-
-    def __getitem__(self, item):
-        return self.nodes[item]
+class Value(AST):
+    def __init__(self, value):
+        self.value = value
 
     def __str__(self):
-        return ' '.join(self.string_tokens)
-
-    def __repr__(self):
-        content = ', '.join(repr(t) for t in self.nodes)
-        return f"{self.__class__.__name__}(({content}))"
-
-    @property
-    def string_tokens(self) -> Iterable:
-        for t in self.nodes:
-            if hasattr(t, 'string_tokens'):
-                yield from t.string_tokens
-            else:
-                yield str(t)
+        return str(self.value)
 
 
-class SimpleFactor(AST):
+class StringLiteral(Value):
     pass
 
 
-class TypeDecl(AST):
+class LogicalLiteral(Value):
     pass
+
+
+class BuiltInConstant(Value):
+    pass
+
+
+class BuiltInFunction(Value):
+    pass
+
+
+class BuiltInProcedure(Value):
+    pass
+
+
+class Type(Value):
+    pass
+
+
+class Expression(AST):
+    def __init__(self, op, left, right):
+        self.operand = op
+        self.left = left
+        self.right = right
+
+    def __str__(self):
+        return f"{self.left} {self.operand} {self.right}"
+
+
+class DomainRule(AST):
+    def __init__(self, name: Optional[str], rule: Expression):
+        self.name = name
+        self.rule = rule
+
+    def __str__(self):
+        if self.name is not None:
+            return f"{self.name}: {self.rule}"
+        else:
+            return str(self.rule)
 
 
 class WhereClause(AST):
-    pass
+    def __init__(self, rules: Iterable[DomainRule]):
+        self.rules = list(rules)
+
+    def __len__(self):
+        return len(self.rules)
+
+    def __str__(self):
+        rules = ';'.join(str(r) for r in self.rules)
+        return f"WHERE({rules})"
+
+
+class TypeDecl(AST):
+    def __init__(self, type_id: str, underlying_type: Type, where_clause: WhereClause):
+        self.type_id = type_id
+        self.under_lying_type = underlying_type
+        self.where_clause = where_clause
+
+    def __str__(self):
+        return f"TYPE {self.type_id} = {self.under_lying_type} {self.where_clause}"
