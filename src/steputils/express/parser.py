@@ -227,7 +227,7 @@ escape_stmt = ESCAPE + ';'
 
 add_like_op = (Char('+-') | OR | XOR).setName('add like operand')
 interval_op = oneOf('< <=').setName('interval operand')
-multiplication_like_op = (Char('*/|') | DIV | MOD | AND).setName('multiplication like operand')
+multiplication_like_op = ('||' | Char('*/|') | DIV | MOD | AND).setName('multiplication like operand')
 rel_op = oneOf('< > <= >= <> = :<>: :=:').setName('relation operand')
 rel_op_extended = (rel_op | IN | LIKE).setName('extended relation operand')
 unary_op = (sign | NOT).setName('unary operand')
@@ -313,7 +313,7 @@ select_list = '(' + named_types + ZeroOrMore(',' + named_types) + ')'
 select_extension = BASED_ON + type_ref + Optional(WITH + select_list)
 select_type = Optional(EXTENSIBLE + Optional(GENERIC_ENTITY)) + SELECT + Optional(select_list | select_extension)
 constructed_types = enumeration_type | select_type
-underlying_type =  constructed_types | concrete_types
+underlying_type = constructed_types | concrete_types
 
 supertype_term = entity_ref | one_of | ('(' + supertype_expression + ')')
 supertype_factor = supertype_term + ZeroOrMore(AND + supertype_term)
@@ -385,8 +385,8 @@ schema_body = ZeroOrMore(interface_specification) + Optional(constant_decl) + Ze
 schema_decl = SCHEMA + schema_id + Optional(schema_version_id) + ';' + schema_body + END_SCHEMA + ';'
 
 # Resolving forward declarations
-simple_factor <<= (Optional(unary_op) + ('(' + expression + ')' | primary)) | \
-                  aggregate_initializer | entity_constructor | enumeration_reference | interval | query_expression
+simple_factor <<= entity_constructor | (Optional(unary_op) + ('(' + expression + ')' | primary)) | \
+                  aggregate_initializer | enumeration_reference | interval | query_expression
 
 declaration <<= entity_decl | function_decl | procedure_decl | subtype_constraint_decl | type_decl
 stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | if_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt | escape_stmt | null_stmt

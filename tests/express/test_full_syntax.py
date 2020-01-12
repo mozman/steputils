@@ -28,7 +28,7 @@ def test_ifc4x2_schema(ifc4):
     syntax.parseString(ifc4)
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.skipif(not os.path.exists(AP203),
                     reason=f"Required data file '{AP203}' not found. (Not included in PyPI distributions)")
 def test_ap203_schema(ap203):

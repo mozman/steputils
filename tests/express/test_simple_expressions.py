@@ -123,6 +123,8 @@ def test_interval():
 
 
 def test_entity_constructor():
+    r = AST(entity_constructor.parseString("test()"))
+    assert str(r) == "test ( )"
     r = AST(entity_constructor.parseString("ABS(100)"))
     assert str(r) == "ABS ( 100 )"
     r = AST(entity_constructor.parseString("ABS(SELF)"))
@@ -130,6 +132,8 @@ def test_entity_constructor():
 
 
 def test_simple_factor():
+    r = AST(simple_factor.parseString("test()"))
+    assert str(r) == "test ( )"
     r = AST(simple_factor.parseString("ABS(100)"))
     assert str(r) == "ABS ( 100 )"
     r = AST(simple_factor.parseString("ABS(SELF)"))
