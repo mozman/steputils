@@ -210,7 +210,7 @@ resource_ref = constant_ref | entity_ref | function_ref | procedure_ref | type_r
 
 named_types = entity_ref | type_ref
 
-# TODO: attribute_qualifier - added OneOrMore() reason: query_expression
+# TODO: attribute_qualifier - added OneOrMore() reason: query_expression (SELF\aaa.bbb.ccc.eee)
 attribute_qualifier = OneOrMore('.' + attribute_ref)
 enumeration_reference = Optional(type_ref + '.') + enumeration_ref
 resource_or_rename = resource_ref + Optional(AS + rename_id)
@@ -368,9 +368,12 @@ type_decl = TYPE + type_id + '=' + underlying_type + ';' + Optional(where_clause
 qualifiable_factor = function_call | constant_factor | general_ref | population | attribute_ref
 primary = (qualifiable_factor + ZeroOrMore(qualifier)) | literal
 
-# TODO: restore original expression
-# query_expression = QUERY + '(' + variable_id + '<*' + aggregate_source + '|' + logical_expression + ')'
-query_expression = QUERY + '(' + variable_id + '<*' + referenced_attribute + '|' + logical_expression + ')'
+# TODO: restore original expression (_aggregate_source) ???
+# original: query_expression = QUERY + '(' + variable_id + '<*' + aggregate_source + '|' + logical_expression + ')'
+# aggregate_source = simple_expression
+expr_or_primary = Optional(unary_op) + ('(' + expression + ')' | primary)
+aggregate_source_ = qualified_attribute | primary | expr_or_primary
+query_expression = QUERY + '(' + variable_id + '<*' + aggregate_source_ + '|' + logical_expression + ')'
 function_head = FUNCTION + function_id + Optional(
     '(' + formal_parameter + ZeroOrMore(';' + formal_parameter) + ')') + ':' + parameter_type + ';'
 function_decl = function_head + algorithm_head + OneOrMore(stmt) + END_FUNCTION + ';'
@@ -395,8 +398,7 @@ schema_body = ZeroOrMore(interface_specification) + Optional(constant_decl) + Ze
 schema_decl = SCHEMA + schema_id + Optional(schema_version_id) + ';' + schema_body + END_SCHEMA + ';'
 
 # Resolving forward declarations
-simple_factor <<= entity_constructor | query_expression | (Optional(unary_op) + ('(' + expression + ')' | primary)) | \
-                  aggregate_initializer | enumeration_reference | interval
+simple_factor <<= entity_constructor | query_expression | expr_or_primary | aggregate_initializer | enumeration_reference | interval
 
 declaration <<= entity_decl | function_decl | procedure_decl | subtype_constraint_decl | type_decl
 stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | if_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt | escape_stmt | null_stmt

@@ -97,6 +97,22 @@ def test_simple_entity_decl_5():
     assert len(e) == 51
 
 
+def test_simple_entity_decl_6():
+    e = AST(entity_decl.parseString(r"""
+    ENTITY IfcAdvancedBrepWithVoids
+        SUBTYPE OF (IfcAdvancedBrep);
+        Voids : SET [1:?] OF IfcClosedShell;
+        WHERE
+            VoidsHaveAdvancedFaces : SIZEOF (QUERY (Vsh <* Voids |
+                SIZEOF (QUERY (Afs <* Vsh.CfsFaces |
+                (NOT ('IFC4X2.IFCADVANCEDFACE' IN TYPEOF(Afs)))
+                )) = 0
+                )) = 0;
+    END_ENTITY;
+    """))
+    assert len(e) == 62
+
+
 def test_one_of():
     r = AST(one_of.parseString("ONEOF(IfcOccupant)"))
     assert str(r) == "ONEOF ( IfcOccupant )"

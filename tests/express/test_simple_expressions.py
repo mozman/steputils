@@ -7,7 +7,7 @@ from steputils.express.parser import (
     list_type, bound_spec, array_type, index_qualifier, simple_expression, string_literal,
     aggregate_initializer, real_literal, interval, entity_constructor, primary,
     simple_factor, expression, integer_literal, ast, enumeration_type, underlying_type,
-    select_type, comments, tail_remark, query_expression, aggregate_source, qualified_attribute,
+    select_type, comments, tail_remark, query_expression, aggregate_source_, qualified_attribute,
     attribute_qualifier,
 )
 from steputils.express.ast import AST
@@ -149,8 +149,16 @@ def test_sizeof_expr():
 
 
 def test_aggregate_source():
-    r = AST(aggregate_source.parseString("b | 1"))
-    assert str(r) == "b | 1"
+    r = AST(aggregate_source_.parseString("AAA"))
+    assert str(r) == "AAA"
+    r = AST(aggregate_source_.parseString("AAA.bbb"))
+    assert str(r) == "AAA . bbb"
+    r = AST(aggregate_source_.parseString("AAA.bbb.ccc"))
+    assert str(r) == "AAA . bbb . ccc"
+    r = AST(aggregate_source_.parseString(r"SELF\AAA.bbb"))
+    assert str(r) == r"SELF \ AAA . bbb"
+    r = AST(aggregate_source_.parseString(r"SELF\AAA.bbb.ccc"))
+    assert str(r) == r"SELF \ AAA . bbb . ccc"
 
 
 def test_query_expr():
@@ -173,6 +181,13 @@ def test_query_expr_2():
                                          r"(NOT ('IFC4X2.IFCADVANCEDFACE' IN TYPEOF(Afs))))"))
     assert str(r) == r"QUERY ( Afs <* SELF \ IfcManifoldSolidBrep . Outer . CfsFaces | " \
                      r"( NOT ( IFC4X2.IFCADVANCEDFACE IN TYPEOF ( Afs ) ) ) )"
+
+
+def test_query_expr_3():
+    r = AST(query_expression.parseString("QUERY (Vsh <* Voids | SIZEOF (QUERY (Afs <* Vsh.CfsFaces | "
+                                         "(NOT ('IFC4X2.IFCADVANCEDFACE' IN TYPEOF(Afs)))  )) = 0))"))
+    assert str(r) == "QUERY ( Vsh <* Voids | SIZEOF ( QUERY ( Afs <* Vsh . CfsFaces | ( NOT ( IFC4X2.IFCADVANCEDFACE IN " \
+                     "TYPEOF ( Afs ) ) ) ) ) = 0 )"
 
 
 def test_complex_expr_1():
