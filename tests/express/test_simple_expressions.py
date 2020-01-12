@@ -6,7 +6,8 @@ import pytest
 from steputils.express.parser import (
     list_type, bound_spec, array_type, index_qualifier, simple_expression, string_literal,
     aggregate_initializer, real_literal, interval, entity_constructor, primary,
-    simple_factor, expression, integer_literal, ast,
+    simple_factor, expression, integer_literal, ast, enumeration_type, underlying_type,
+    select_type,
 )
 from steputils.express.ast import AST
 
@@ -72,6 +73,21 @@ def test_aggregate_init():
     assert r[3] == 100
     assert type(r[3]) is int
     assert r[4] == ']'
+
+
+def test_enumeration():
+    e = AST(enumeration_type.parseString("ENUMERATION OF (EMAIL, FAX ,PHONE ,POST,VERBAL,USERDEFINED,NOTDEFINED);"))
+    assert str(e) == "ENUMERATION OF ( EMAIL , FAX , PHONE , POST , VERBAL , USERDEFINED , NOTDEFINED )"
+
+
+def test_underlying_type_enum():
+    e = AST(underlying_type.parseString("ENUMERATION OF (EMAIL, FAX ,PHONE ,POST,VERBAL,USERDEFINED,NOTDEFINED);"))
+    assert str(e) == "ENUMERATION OF ( EMAIL , FAX , PHONE , POST , VERBAL , USERDEFINED , NOTDEFINED )"
+
+
+def test_select():
+    t = AST(select_type.parseString("SELECT (IfcDerivedMeasureValue, IfcMeasureValue, IfcSimpleValue)"))
+    assert str(t) == "SELECT ( IfcDerivedMeasureValue , IfcMeasureValue , IfcSimpleValue )"
 
 
 def test_array():

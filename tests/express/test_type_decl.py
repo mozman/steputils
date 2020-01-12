@@ -16,6 +16,34 @@ def test_typedef_list():
     assert str(r) == 'TYPE IfcArcIndex = LIST [ 3 : 3 ] OF IfcPositiveInteger ; END_TYPE ;'
 
 
+def test_typedef_enum():
+    t = AST(type_decl.parseString("""
+    TYPE IfcActionRequestTypeEnum = ENUMERATION OF
+        (EMAIL,
+        FAX,
+        PHONE,
+        POST,
+        VERBAL,
+        USERDEFINED,
+        NOTDEFINED);
+    END_TYPE;
+    """))
+    assert str(t) == "TYPE IfcActionRequestTypeEnum = ENUMERATION OF " \
+                     "( EMAIL , FAX , PHONE , POST , VERBAL , USERDEFINED , NOTDEFINED ) ; " \
+                     "END_TYPE ;"
+
+
+def test_typedef_select():
+    t = AST(type_decl.parseString("""
+    TYPE IfcValue = SELECT (
+        IfcDerivedMeasureValue,
+        IfcMeasureValue,
+        IfcSimpleValue);
+    END_TYPE;
+    """))
+    assert str(t) == "TYPE IfcValue = SELECT ( IfcDerivedMeasureValue , IfcMeasureValue , IfcSimpleValue ) ; END_TYPE ;"
+
+
 def test_where_clause_0():
     r = AST(where_clause.parseString("WHERE SELF > 0;"))
     assert str(r) == "WHERE SELF > 0 ;"

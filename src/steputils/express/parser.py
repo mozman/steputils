@@ -313,7 +313,7 @@ select_list = '(' + named_types + ZeroOrMore(',' + named_types) + ')'
 select_extension = BASED_ON + type_ref + Optional(WITH + select_list)
 select_type = Optional(EXTENSIBLE + Optional(GENERIC_ENTITY)) + SELECT + Optional(select_list | select_extension)
 constructed_types = enumeration_type | select_type
-underlying_type = concrete_types | constructed_types
+underlying_type =  constructed_types | concrete_types
 
 supertype_term = entity_ref | one_of | ('(' + supertype_expression + ')')
 supertype_factor = supertype_term + ZeroOrMore(AND + supertype_term)
