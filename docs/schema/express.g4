@@ -270,7 +270,7 @@ factor :
     simple_factor ( '**' simple_factor )? ;
 
 formal_parameter :
-    parameter_id ( ',' parameter_id )? ':' parameter_type ;
+    parameter_id ( ',' parameter_id )* ':' parameter_type ;
 
 function_call :
     ( built_in_function | function_ref ) actual_parameter_list? ;
@@ -393,7 +393,7 @@ local_decl :
     LOCAL local_variable+ END_LOCAL ';' ;
 
 local_variable :
-    variable_id ( ',' variable_id )* ':' parameter_type ( '::' expression )? ';' ;
+    variable_id ( ',' variable_id )* ':' parameter_type ( ':=' expression )? ';' ;
 
 logical_expression :
     expression ;
@@ -456,7 +456,7 @@ precision_spec :
 
 primary
     : literal
-    | ( qualifiable_factor ( qualifier )* )
+    | ( qualifiable_factor qualifier* )
     ;
 
 procedure_call_stmt :
@@ -595,7 +595,8 @@ set_type :
 simple_expression :
     term (add_like_op term )* ;
 
-simple_factor : aggregate_initializer
+simple_factor
+    : aggregate_initializer
     | entity_constructor
     | enumeration_reference
     | interval
@@ -861,18 +862,13 @@ WHERE : 'WHERE' ;
 WHILE : 'WHILE' ;
 WITH : 'WITH' ;
 XOR : 'XOR' ;
-BIT : [0-1] ;
-DIGIT : [0-9] ;
-DIGITS : [0-9]+ ;
-LETTER : [a-zA-Z];
 BINARY_LITERAL : '%' [01]+ ;
 ENCODED_STRING_LITERAL : '"' [0-9a-fA-F]+ '"' ;
-INTEGER_LITERAL : '-'? DIGITS ;
-REAL_LITERAL : '-'? DIGITS '.' DIGIT* (('e'|'E') ('+'|'-') DIGITS)? ;
-SIMPLE_ID : LETTER (LETTER | DIGIT | '_' )* ;
+INTEGER_LITERAL : [0-9]+ ;
+REAL_LITERAL : INTEGER_LITERAL | ([0-9]+ '.' [0-9]* (('e'|'E') [+-]? [0-9]+)?) ;
+SIMPLE_ID : [a-zA-Z] ([a-zA-Z0-9_])* ;
 QUOTECHAR : '\'';
 SIMPLE_STRING_LITERAL : QUOTECHAR .*? QUOTECHAR ;
-SIGN : '+' | '-' ;
 COMMENTS : '(*' .*? '*)' -> skip ;
 TAIL_REMARK : '--' .*? [\r\n]+ -> skip;
 WS : [ \t\r\n]+ -> skip ;
