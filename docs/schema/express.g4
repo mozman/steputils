@@ -1,811 +1,742 @@
 /*
+Created: 2020-01-13
+Copyright (c) 2020 Manfred Moitzi
 License: MIT License
-Based on: https://github.com/hypar-io/IFC-gen/blob/IFC4/grammar/Express.g4
-Author: Ian Keough
+Based on: iso-10303-11--2004.bnf
 Author: mozman <me@mozman.at>
 
 */
 
 grammar express;
 
-actualParams
-	: '(' ('--' SimpleId)? parameter (',' ('--' SimpleId)? parameter)* ')' // IFC Named parameters. Ex: -- Axis1 IfcRepresentationItem() || IfcGeometricRepresentationItem() || IfcDirection([-1., 0.])
-	;
+attribute_ref :
+    attribute_id ;
 
-aggregateExpr
-	: expression
-	;
+constant_ref :
+    constant_id ;
 
-aggregateLiteral
-	: '[' element (',' element)* ']'
-	;
+entity_ref :
+    entity_id ;
 
-aggregateType
-	: AGGREGATE (':' typeLabel)? OF allTypeSel
-	;
+enumeration_ref :
+    enumeration_id ;
 
-aliasDef
-	: SimpleId
-	;
+function_ref :
+    function_id ;
 
-aliasRef
-	: SimpleId
-	;
+parameter_ref :
+    parameter_id ;
 
-aliasStmt
-	: ALIAS aliasDef FOR varRef ';' stmts END_ALIAS ';'
-	;
+procedure_ref :
+    procedure_id ;
 
-allTypeSel
-	: aggregateType
-	| conformantType
-	| simpleType
-	| namedType
-	| pseudoType
-	;
+rule_label_ref :
+    rule_label_id ;
 
-arrayType
-	: ARRAY boundSpec OF OPTIONAL? UNIQUE? collectionTypeSel
-	;
+rule_ref :
+    rule_id ;
 
-assignmentStmt
-	: varRef ':=' (expression|derivedPath|'[]') ';' // IFC Allow assignment of derived path value. Ex: V1  := IfcNormalise(Arg1)\IfcDirection.DirectionRatios;
-													// IFC Allow assignment of empty array. Ex: Surfs := [];
-	;
+schema_ref :
+    schema_id ;
 
-attrDef
-	: SimpleId
-	| Path // IFC: Paths were not supported here.
-	;
+subtype_constraint_ref :
+    subtype_constraint_id ;
 
-attributes
-	: explicitClause* deriveClause* inverseClause*
-	;
+type_label_ref :
+    type_label_id ;
 
-attrRef
-	: SimpleId
-	| Path // IFC: Ex: U[2].DirectionRatios[1] := -U[2].DirectionRatios[1];
-	;
+type_ref :
+    type_id ;
 
-bagType
-	: BAG boundSpec? OF collectionTypeSel
-	;
+variable_ref :
+    variable_id ;
 
-binaryType
-	: BINARY ('(' width ')' FIXED?)?
-	;
+abstract_entity_declaration :
+    ABSTRACT ;
 
-booleanType
-	: BOOLEAN
-	;
+abstract_supertype :
+    ABSTRACT SUPERTYPE ';' ;
 
-bound1
-	: numberExpr
-	;
+abstract_supertype_declaration :
+    ABSTRACT SUPERTYPE subtype_constraint?  ;
 
-bound2
-	: numberExpr
-	;
+actual_parameter_list :
+    '(' parameter ( ',' parameter )* ')' ;
 
-boundSpec
-	: '[' bound1 ':' bound2 ']'
-	;
+add_like_op
+    : '+'
+    | '-'
+    | OR
+    | XOR
+    ;
 
-caseAction
-	: caseLabel (',' caseLabel)* ':' stmt
-	;
+aggregate_initializer :
+    '[' (element ( ',' element )* )? ']' ;
 
-caseBody
-	: caseAction* otherAction?
-	;
+aggregate_source :
+    simple_expression ;
 
-caseLabel	
-	: expression
-	;
+aggregate_type :
+    AGGREGATE ( ':' type_label )? OF parameter_type ;
 
-caseStmt
-	: CASE selector OF caseBody END_CASE ';'
-	;
+aggregation_types
+    : array_type
+    | bag_type
+    | list_type
+    | set_type
+    ;
 
-choice
-	: ONEOF '(' supertypeExpr (',' supertypeExpr)* ')'
-	;
+algorithm_head :
+    declaration* constant_decl? local_decl? ;
 
-collectionType
-	: arrayType
-	| bagType
-	| listType
-	| setType
-	;
+alias_stmt :
+    ALIAS variable_id FOR general_ref qualifier* ';' stmt+ END_ALIAS ';' ;
 
-collectionTypeSel
-	: collectionType
-	| namedType
-	| simpleType
-	| genericType // IFC Generic types in collections. Ex: ARRAY [Low1:U1] OF ARRAY [Low2:U2] OF GENERIC : T
-	;
+array_type :
+    ARRAY bound_spec OF OPTIONAL? UNIQUE? instantiable_type ;
 
-compoundStmt
-	: BEGIN stmts END ';'
-	;
+assignment_stmt :
+    general_ref qualifier* ':=' expression ';' ;
 
-conformantArray
-	: ARRAY OF OPTIONAL? UNIQUE? allTypeSel
-	;
+attribute_decl
+    : attribute_id
+    | redeclared_attribute
+    ;
 
-conformantBag
-	: BAG OF allTypeSel
-	;
+attribute_id :
+    SIMPLE_ID ;
 
-conformantList
-	: LIST OF UNIQUE? allTypeSel
-	;
+attribute_qualifier :
+    '.' attribute_ref ;
 
-conformantSet
-	: SET OF allTypeSel
-	;
+bag_type :
+    BAG bound_spec? OF instantiable_type ;
 
-conformantType
-	: conformantArray
-	| conformantBag
-	| conformantList
-	| conformantSet
-	;
+binary_type :
+    BINARY width_spec? ;
 
-constantDecl
-	: CONSTANT constBody* END_CONSTANT ';'
-	;
+boolean_type :
+    BOOLEAN ;
 
-constantRef
-	: SimpleId
-	;
+bound_1 :
+    numeric_expression ;
 
-constBody
-	: constDef ':' collectionTypeSel init ';'
-	;
+bound_2 :
+    numeric_expression ;
 
-constDef
-	: SimpleId
-	;
+bound_spec :
+    '[' bound_1 ':' bound_2 ']' ;
 
-constRef
-	: constDef
-	| stdConst
-	;
+built_in_constant
+    : CONST_E
+    | PI
+    | SELF
+    | '?'
+    ;
+
+built_in_function
+    : ABS
+    | ACOS
+    | ASIN
+    | ATAN
+    | BLENGTH
+    | COS
+    | EXISTS
+    | EXP
+    | FORMAT
+    | HIBOUND
+    | HIINDEX
+    | LENGTH
+    | LOBOUND
+    | LOINDEX
+    | LOG
+    | LOG2
+    | LOG10
+    | NVL
+    | ODD
+    | ROLESOF
+    | SIN
+    | SIZEOF
+    | SQRT
+    | TAN
+    | TYPEOF
+    | USEDIN
+    | VALUE
+    | VALUE_IN
+    | VALUE_UNIQUE
+    ;
+
+built_in_procedure
+    : INSERT
+    | REMOVE
+    ;
+
+case_action :
+    case_label ( ',' case_label )* ':' stmt ;
+
+case_label :
+    expression ;
+
+case_stmt :
+    CASE selector OF  case_action* (OTHERWISE ':' stmt)? END_CASE ';' ;
+
+compound_stmt :
+    BEGIN stmt+ END ';' ;
+
+concrete_types
+    : aggregation_types
+    | simple_types
+    | type_ref
+    ;
+
+constant_body :
+    constant_id ':' instantiable_type ':=' expression ';' ;
+
+constant_decl :
+    CONSTANT constant_body+ END_CONSTANT ';' ;
+
+constant_factor
+    : built_in_constant
+    | constant_ref
+    ;
+
+constant_id : SIMPLE_ID ;
+
+constructed_types
+    : enumeration_type
+    | select_type
+    ;
 
 declaration
-	: entityDecl
-	| functionDecl
-	| procedureDecl
-	| typeDecl
-	;
+    : entity_decl
+    | function_decl
+    | procedure_decl
+    | subtype_constraint_decl
+    | type_decl
+    ;
 
-deriveClause
-	: DERIVE derivedAttr+
-	;
+derived_attr :
+    attribute_decl ':' parameter_type ':=' expression ';' ;
 
-deriveDef
-	: attrDef ':' collectionTypeSel init ';'
-	;
+derive_clause :
+    DERIVE derived_attr+ ;
 
-derivedAttr
-	: deriveDef
-	| derivedRedef
-	;
+domain_rule :
+    (rule_label_id ':')? expression ;
 
-derivedRedef
-	: attrRef ':' collectionTypeSel init ';'
-	;
+element :
+    expression ( ':' repetition )? ;
 
-// IFC Ex: IfcNormalise(IfcCrossProduct(D1,D2))\IfcVector.Orientation
-// This is a path whose first fragment is an expression, and whose
-// second fragment is a path to the property on the resulting object.
-derivedPath
-	: expression '\\' Path
-	;
+entity_body :
+    explicit_attr* derive_clause? inverse_clause? unique_clause? where_clause? ;
 
-domainRule
-	: labelDef ':' logicalExpr
-	;
+entity_constructor :
+    entity_ref '(' ( expression ( ',' expression )* )? ')' ;
 
-domainRules
-	: WHERE (domainRule ';')+
-	;
+entity_decl :
+    entity_head entity_body END_ENTITY ';' ;
 
-element
-	: expression ':' repetition
-	| StringLiteral // IFC: Ex: ['thing1','thing2']
-	| RealLiteral // IFC: Ex: [0.0,1.0]
-	| expression // IFC expressions in aggregate literals.
-	| derivedPath // IFC derived paths in aggregate literals.
-	;
+entity_head :
+    ENTITY entity_id subsuper ';' ;
 
-embeddedRemark
-	: '(*' (embeddedRemark|remarkStuff)* '*)'
-	;
+entity_id :
+    SIMPLE_ID ;
 
-entityBody
-	: attributes localRules
-	;
+enumeration_extension :
+    BASED_ON type_ref ( WITH enumeration_items )? ;
 
-entityDecl
-	: entityHead entityBody END_ENTITY ';'
-	;
+enumeration_id :
+    SIMPLE_ID ;
 
-entityDef
-	: SimpleId
-	;
+enumeration_items :
+    '(' enumeration_id ( ',' enumeration_id )* ')' ;
 
-entityHead
-	: ENTITY entityDef subSuper ';'
-	;
+enumeration_reference :
+    ( type_ref '.' )? enumeration_ref ;
 
-entityLiteral
-	: entityRef '(' (expression (',' expression)*)? ')'
-	;
+enumeration_type :
+    EXTENSIBLE? ENUMERATION ( ( OF enumeration_items ) | enumeration_extension )? ;
 
-entityRef
-	: SimpleId
-	;
+escape_stmt :
+    ESCAPE ';' ;
 
-enumDef
-	: SimpleId
-	;
+explicit_attr :
+    attribute_decl ( ',' attribute_decl )? ':' OPTIONAL? parameter_type ';' ;
 
-enumRef
-	: (typeRef '.')? enumDef
-	;
+expression :
+    simple_expression ( rel_op_extended simple_expression )? ;
 
-enumType
-	: ENUMERATION OF '(' enumValues ')'
-	;
+factor :
+    simple_factor ( '**' simple_factor )? ;
 
-enumValues
-	: enumDef (',' enumDef)*
-	;
+formal_parameter :
+    parameter_id ( ',' parameter_id )? ':' parameter_type ;
 
-escapeStmt
-	: ESCAPE ';'
-	;
+function_call :
+    ( built_in_function | function_ref ) actual_parameter_list? ;
 
-explDef
-	: attrDef (',' attrDef)* ':' OPTIONAL? collectionTypeSel ';'
-	;
+function_decl :
+    function_head algorithm_head stmt+  END_FUNCTION ';' ;
 
-explicitClause
-	: explDef
-	| explRedef
-	;
+function_head :
+    FUNCTION function_id ( '(' formal_parameter ( ';' formal_parameter )* ')' )? ':' parameter_type ';' ;
 
-explRedef
-	: attrRef ':' OPTIONAL? collectionTypeSel ';'
-	;
+function_id :
+    SIMPLE_ID ;
 
-expression
-	: simpleExpr (('<'|'>'|'<='|'>='|'<>'|'='|':<>:'|':=:'|IN|LIKE) simpleExpr)?
-	;
+generalized_types
+    : aggregate_type
+    | general_aggregation_types
+    | generic_entity_type
+    | generic_type
+    ;
 
-factor
-	: simpleFactor ('**' simpleFactor)?
-	;
+general_aggregation_types
+    : general_array_type
+    | general_bag_type
+    | general_list_type
+    | general_set_type
+    ;
 
-formalParam
-	: paramDef (',' paramDef)* ':' returnTypeChoice //IFC parameter type can be collection. Ex: UnitElements : SET [1:?] OF IfcDerivedUnitElement
-	;
+general_array_type : ARRAY bound_spec? OF OPTIONAL? UNIQUE? parameter_type ;
 
-formalParams	
-	: '(' formalParam (';' formalParam)* ')'
-	;
+general_bag_type : BAG bound_spec? OF parameter_type ;
 
-funcDef
-	: SimpleId
-	;
+general_list_type : LIST bound_spec? OF UNIQUE? parameter_type ;
 
-funcHead
-	: FUNCTION funcDef formalParams* ':' returnTypeChoice ';' // IFC allow list, array, and set types.
-	;
+general_ref
+    : parameter_ref
+    | variable_ref
+    ;
 
-returnTypeChoice
-	: allTypeSel
-	| collectionType
-	;
+general_set_type :
+    SET bound_spec? OF parameter_type ;
 
-funcRef
-	: (funcDef|stdFunc) actualParams
-	;
+generic_entity_type :
+    GENERIC_ENTITY ( ':' type_label )? ;
 
-functionDecl
-	: funcHead prolog stmts END_FUNCTION ';'
-	;
+generic_type :
+    GENERIC ( ':' type_label )? ;
 
-genericType
-	: GENERIC (':' typeLabel)?
-	;
+group_qualifier :
+    '\\' entity_ref ;
 
-ifStmt
-	: IF expression THEN stmts (ELSE stmts)? END_IF ';'
-	;
+if_stmt :
+    IF logical_expression THEN stmt+ ( ELSE stmt+ )? END_IF ';' ;
 
-importEntity
-	: entityRef (AS entityDef)?
-	;
+increment :
+    numeric_expression ;
 
-importItem
-	: importRef (AS aliasDef)?
-	;
+increment_control :
+    variable_id ':=' bound_1 TO bound_2 ( BY increment )? ;
 
-importList
-	: '(' importItem (',' importItem)* ')'
-	;
+index :
+    numeric_expression ;
 
-importRef
-	: constantRef
-	| entityRef
-	| funcRef
-	| procRef
-	| typeRef
-	;
-incr
-	: numberExpr
-	;
+index_1 :
+    index ;
 
-incrementControl
-	: varDef ':=' bound1 TO bound2 (BY incr)?
-	;
+index_2 :
+    index ;
 
-init
-	: ':=' (expression | '[]' | UNKNOWN)	// IFC Empty collection initialization. Ex: NamedUnitNames : SET OF IfcUnitEnum := [];
-											// IFC Allow assignment to UNKNOWN. Ex: P : LOGICAL := UNKNOWN;
+index_qualifier :
+    '[' index_1 ( ':' index_2 )? ']' ;
 
-	;
+instantiable_type
+    : concrete_types
+    | entity_ref
+    ;
 
-integerType
-	: INTEGER
-	;
+integer_type :
+    INTEGER ;
 
-interfaceSpecification
-	: referenceClause
-	| useClause
-	;
+interface_specification
+    : reference_clause
+    | use_clause
+    ;
 
-interval
-	: '{' simpleExpr ('<'|'<=') simpleExpr ('<'|'<=') simpleExpr '}'
-	;
+interval :
+    '{' interval_low interval_op interval_item interval_op interval_high '}' ;
 
-inverseAttr
-	: inverseDef
-	| inverseRedef
-	;
+interval_high :
+    simple_expression ;
 
-inverseClause
-	: INVERSE inverseAttr*
-	;
+interval_item :
+    simple_expression ;
 
-inverseDef
-	: attrDef ':' inverseType FOR attrRef ';'
-	;
+interval_low :
+    simple_expression ;
 
-inverseRedef
-	: attrRef ';' inverseType FOR attrRef ';'
-	;
+interval_op
+    : '<'
+    | '<='
+    ;
 
-inverseType
-	: ((SET|BAG) boundSpec? OF)? entityRef
-	;
+inverse_attr :
+    attribute_decl ':' ( ( SET | BAG ) bound_spec? OF )? entity_ref FOR ( entity_ref '.' )? attribute_ref ';' ;
 
-labelDef
-	: SimpleId
-	;
+inverse_clause :
+    INVERSE inverse_attr+ ;
 
-listType
-	: LIST boundSpec? OF UNIQUE? collectionTypeSel
-	;
+list_type :
+    LIST bound_spec? OF UNIQUE? instantiable_type ;
 
 literal
-	: BinaryLiteral
-	| IntegerLiteral
-	| LogicalLiteral
-	| RealLiteral
-	| StringLiteral
-	| aggregateLiteral
-	| entityLiteral
-	;
+    : BINARY_LITERAL
+    | logical_literal
+    | REAL_LITERAL
+    | INTEGER_LITERAL
+    | string_literal
+    ;
 
-localDecl
-	: LOCAL localVar* END_LOCAL ';'
-	;
+local_decl :
+    LOCAL local_variable+ END_LOCAL ';' ;
 
-localRules
-	: uniqueRules? domainRules?
-	;
+local_variable :
+    variable_id ( ',' variable_id )* ':' parameter_type ( '::' expression )? ';' ;
 
-localVar
-	: varDef (',' varDef)* ':' (collectionTypeSel|conformantType) init? ';' // IFC Conformant types as local variables. Ex: NamedUnitNames : SET OF IfcUnitEnum := [];
-	;
+logical_expression :
+    expression ;
 
-logicalExpr
-	: expression
-	;
+logical_literal
+    : FALSE
+    | TRUE
+    | UNKNOWN
+    ;
 
-logicalType
-	: LOGICAL
-	;
+logical_type :
+    LOGICAL ;
 
-namedType
-	: entityRef
-	| typeRef
-	;
+multiplication_like_op
+    : '*'
+    | '/'
+    | DIV
+    | MOD
+    | AND
+    | '||'
+    ;
 
-nullStmt
-	: ';'
-	;
+named_types
+    : entity_ref
+    | type_ref
+    ;
 
-numberExpr
-	: simpleExpr
-	;
+named_type_or_rename :
+    named_types ( AS ( entity_id | type_id ) )? ;
 
-numberType
-	: NUMBER
-	;
+null_stmt :
+    ';' ;
 
-otherAction
-	: OTHERWISE ':' stmt
-	;
+number_type :
+    NUMBER ;
 
-paramDef
-	: SimpleId
-	;
+numeric_expression :
+    simple_expression ;
 
-parameter
-	: expression
-	;
+one_of :
+    ONEOF '(' supertype_expression ( ',' supertype_expression )* ')' ;
 
-paramRef
-	: SimpleId
-	;
+parameter :
+    expression ;
 
-precisionSpec
-	: numberExpr
-	;
+parameter_id :
+    SIMPLE_ID ;
 
-procCallStmt
-	: procRef ';'
-	;
+parameter_type
+    : generalized_types
+    | named_types
+    | simple_types
+    ;
 
-procDef
-	: SimpleId
-	;
+population :
+    entity_ref ;
 
-procedureDecl
-	: procHead prolog stmts END_PROCEDURE ';'
-	;
+precision_spec :
+    numeric_expression ;
 
-procHead
-	: PROCEDURE procDef varParams? ';'
-	;
+primary
+    : literal
+    | ( qualifiable_factor ( qualifier )* )
+    ;
 
-procRef
-	: (procDef|stdProc) actualParams
-	;
+procedure_call_stmt :
+    ( built_in_procedure | procedure_ref ) actual_parameter_list+ ';' ;
 
-prolog
-	: declaration* constantDecl? localDecl?
-	;
+procedure_decl :
+    procedure_head algorithm_head stmt* END_PROCEDURE ';' ;
 
-pseudoType
-	: aggregateType
-	| genericType
-	;
+procedure_head :
+    PROCEDURE procedure_id ( '(' VAR? formal_parameter ( ';' VAR? formal_parameter )* ')' )? ';' ;
+
+procedure_id :
+    SIMPLE_ID ;
+
+qualifiable_factor
+    : attribute_ref
+    | constant_factor
+    | function_call
+    | general_ref
+    | population
+    ;
+
+qualified_attribute :
+    SELF group_qualifier attribute_qualifier ;
 
 qualifier
-	: (('.' attrRef)|subscript)*
-	;
+    : attribute_qualifier
+    | group_qualifier
+    | index_qualifier
+    ;
 
-queryAssignment
-	: varDef '<*' aggregateExpr
-	;
+query_expression :
+    QUERY '(' variable_id '<*' aggregate_source '|' logical_expression ')' ;
 
-queryExpr
-	: QUERY '(' queryAssignment '|' queryScan ')'
-	;
+real_type :
+    REAL ( '(' precision_spec ')' )? ;
 
-queryScan
-	: logicalExpr
-	;
+redeclared_attribute :
+    qualified_attribute ( RENAMED attribute_id )? ;
 
-realType
-	: REAL ('(' precisionSpec ')')?
-	;
+referenced_attribute
+    : attribute_ref
+    | qualified_attribute
+    ;
 
-referenceClause
-	: REFERENCE FROM schemaRef importList? ';'
-	;
+reference_clause :
+    REFERENCE FROM schema_ref ( '(' resource_or_rename ( ',' resource_or_rename )* ')' )? ';' ;
 
-referencedAttr
-	: attrRef
-	;
+rel_op
+    : '<'
+    | '>'
+    | '<='
+    | '>='
+    | '<>'
+    | '='
+    | ':<>:'
+    | ':=:'
+    ;
 
-remark
-	: embeddedRemark
-	| tailRemark
-	;
+rel_op_extended
+    : rel_op
+    | IN
+    | LIKE
+    ;
 
-remarkStuff
-	:.
-	;
+rename_id
+    : constant_id
+    | entity_id
+    | function_id
+    | procedure_id
+    | type_id
+    ;
 
-repeatControl
-	: incrementControl? whileControl? untilControl?
-	;
+repeat_control :
+    increment_control? while_control? until_control? ;
 
-repeateStmt
-	: REPEAT repeatControl ';' stmts END_REPEAT ';'
-	;
+repeat_stmt :
+    REPEAT repeat_control ';' stmt+ END_REPEAT ';' ;
 
-repetition
-	: numberExpr
-	;
+repetition :
+    numeric_expression ;
 
-returnStmt
-	: RETURN ('(' expression ')')? ';'
-	| RETURN ('(' UNKNOWN ')')? ';'	// IFC Ex: RETURN (UNKNOWN);
-	;
+resource_or_rename :
+    resource_ref ( AS rename_id )? ;
 
-ruleDecl
-	: ruleHead prolog stmts? domainRules END_RULE ';' // IFC Statements are optional in rules.
-	;
+resource_ref
+    : constant_ref
+    | entity_ref
+    | function_ref
+    | procedure_ref
+    | type_ref
+    ;
 
-ruleDef
-	: SimpleId
-	;
+return_stmt :
+    RETURN ( '(' expression ')' )? ';' ;
 
-ruleHead
-	: RULE ruleDef FOR ruleList ';'
-	;
+rule_decl :
+    rule_head algorithm_head stmt* where_clause END_RULE ';' ;
 
-ruleList
-	: '(' entityRef (',' entityRef)* ')'
-	;
+rule_head :
+    RULE rule_id FOR '(' entity_ref ( ',' entity_ref )* ')' ';' ;
 
-schemaBody
-	: interfaceSpecification* constantDecl? (declaration|ruleDecl)*
-	;
+rule_id :
+    SIMPLE_ID ;
 
-schemaDecl
-	: SCHEMA SchemaDef ';' schemaBody END_SCHEMA ';'
-	;
+rule_label_id :
+    SIMPLE_ID ;
 
-schemaRef
-	: SimpleId
-	;
+schema_body :
+    interface_specification* constant_decl? ( declaration | rule_decl )* ;
 
-selector
-	: expression
-	;
+schema_decl :
+    SCHEMA schema_id schema_version_id? ';' schema_body END_SCHEMA ';' ;
 
-selectType
-	: SELECT '(' selectValues ')'
-	;
+schema_id :
+    SIMPLE_ID ;
 
-selectValues
-	:  namedType (',' namedType)*
-	;
+schema_version_id :
+    string_literal ;
 
-setType
-	: SET boundSpec OF collectionTypeSel
-	;
+selector :
+    expression ;
 
-simpleExpr
-	: term (('+'|'-'|OR|XOR) term)*
-	;
+select_extension :
+    BASED_ON type_ref ( WITH select_list )? ;
 
-simpleFactor
-	: (Path|literal|varRef|interval|queryExpr|'(' expression ')'|unaryOp simpleFactor) // IFC: Attribute values as factors. See Path.
-	;
+select_list :
+    '(' named_types ( ',' named_types )* ')' ;
 
-simpleType
-	: binaryType
-	| booleanType
-	| integerType
-	| logicalType
-	| numberType
-	| realType
-	| stringType
-	;
+select_type :
+    ( EXTENSIBLE GENERIC_ENTITY? )? SELECT ( select_list | select_extension )? ;
 
-skipStmt
-	: SKIP2 ';'
-	;
+set_type :
+    SET bound_spec? OF instantiable_type ;
 
-stdConst	
-	: CONST_E
-	| PI
-	| SELF
-	| '?'
-	;
+simple_expression :
+    term (add_like_op term )* ;
 
-stdFunc
-	: ABS
-	| ACOS
-	| ASIN
-	| ATAN
-	| BLENGTH
-	| COS
-	| EXISTS
-	| EXP
-	| FORMAT
-	| HIBOUND
-	| HIINDEX
-	| LENGTH
-	| LOBOUND
-	| LOINDEX
-	| LOG
-	| LOG2
-	| LOG10
-	| NVL
-	| ODD
-	| ROLESOF
-	| SIN
-	| SIZEOF
-	| SQRT
-	| TAN
-	| TYPEOF
-	| USEDIN
-	| VALUE
-	;
+simple_factor : aggregate_initializer
+    | entity_constructor
+    | enumeration_reference
+    | interval
+    | query_expression
+    | ( unary_op? ( '(' expression ')' | primary ) ) ;
 
-stdProc
-	: INSERT
-	| REMOVE
-	;
+simple_types
+    : binary_type
+    | boolean_type
+    | integer_type
+    | logical_type
+    | number_type
+    | real_type
+    | string_type
+    ;
 
-stmt
-	: aliasStmt
-	| assignmentStmt
-	| caseStmt
-	| compoundStmt
-	| escapeStmt
-	| ifStmt
-	| nullStmt
-	| procCallStmt
-	| repeateStmt
-	| returnStmt
-	| skipStmt
-	;
+skip_stmt :
+    SKIP_ ';' ;
 
-stmts
-	: stmt stmt*
-	;
+stmt : alias_stmt
+    | assignment_stmt
+    | case_stmt
+    | compound_stmt
+    | escape_stmt
+    | if_stmt
+    | null_stmt
+    | procedure_call_stmt
+    | repeat_stmt
+    | return_stmt
+    | skip_stmt ;
 
-stringType
-	: STRING ('(' width ')' FIXED?)?
-	;
+string_literal
+    : SIMPLE_STRING_LITERAL
+    | ENCODED_STRING_LITERAL
+    ;
 
-subSuper
-	: supertypeDecl? subtypeDecl?
-	;
+string_type :
+    STRING width_spec? ;
 
-subscript
-	: ('[' numberExpr ']'|'[' numberExpr ':' numberExpr ']')
-	;
+subsuper :
+    supertype_constraint? subtype_declaration? ;
 
-subtypeDecl
-	: SUBTYPE OF '(' entityRef (',' entityRef)* ')'
-	;
+subtype_constraint :
+    OF '(' supertype_expression ')' ;
 
-supertypeDecl
-	: (ABSTRACT SUPERTYPE | ABSTRACT? SUPERTYPE OF '(' supertypeExpr ')')
-	;
+subtype_constraint_body :
+    abstract_supertype? total_over? ( supertype_expression ';' )? ;
 
-supertypeExpr
-	: supertypeFactor ((AND|ANDOR) supertypeFactor)*
-	;
+subtype_constraint_decl :
+    subtype_constraint_head subtype_constraint_body END_SUBTYPE_CONSTRAINT ';' ;
 
-supertypeFactor
-	: entityRef
-	| choice
-	| '(' supertypeExpr ')'
-	;
+subtype_constraint_head :
+    SUBTYPE_CONSTRAINT subtype_constraint_id FOR entity_ref ';' ;
 
-tailRemark
-	: '--' remarkStuff*
-	;
+subtype_constraint_id :
+    SIMPLE_ID ;
 
-term
-	: factor (('*'|'/'|DIV|MOD|AND|'||') factor)*
-	| TRUE	// IFC Allow TRUE and FALSE Ex: Result : BOOLEAN := TRUE;
-	| FALSE
-	| Path
-	| arrayType
-	;
+subtype_declaration :
+    SUBTYPE OF '(' entity_ref ( ',' entity_ref )* ')' ;
 
-typeBody
-	: typeDef '=' typeSel ';' domainRules?
-	;
+supertype_constraint
+    : abstract_entity_declaration
+    | abstract_supertype_declaration
+    | supertype_rule
+    ;
 
-typeDecl
-	: TYPE typeBody END_TYPE ';'
-	;
+supertype_expression :
+    supertype_factor ( ANDOR supertype_factor )* ;
 
-typeDef
-	: SimpleId
-	;
+supertype_factor :
+    supertype_term ( AND supertype_term )* ;
 
-typeLabel
-	: SimpleId
-	;
+supertype_rule :
+    SUPERTYPE subtype_constraint ;
 
-typeRef
-	: SimpleId
-	;
+supertype_term
+    : entity_ref
+    | one_of
+    | '(' supertype_expression ')'
+    ;
 
-typeSel
-	: collectionType
-	| namedType
-	| simpleType
-	| enumType
-	| selectType
-	;
+syntax :
+    schema_decl+ ;
 
-unaryOp
-	: '+'
-	| '-'
-	| NOT
-	;
+term :
+    factor ( multiplication_like_op factor )* ;
 
-uniqueRule
-	: labelDef ':' referencedAttr (',' referencedAttr)*
-	;
+total_over :
+    TOTAL_OVER '(' entity_ref ( ',' entity_ref )* ')' ';' ;
 
-uniqueRules
-	: UNIQUE uniqueRule ';' (uniqueRule ';')*
-	;
+type_decl :
+    TYPE type_id '=' underlying_type ';' where_clause? END_TYPE ';' ;
 
-untilControl
-	: UNTIL logicalExpr
-	;
+type_id :
+    SIMPLE_ID ;
 
-useClause
-	: USE FROM schemaRef useList? ';'
-	;
+type_label
+    : type_label_id
+    | type_label_ref
+    ;
 
-useList
-	: '(' importEntity (',' importEntity)* ')'
-	;
+type_label_id :
+    SIMPLE_ID ;
 
-varDef
-	: SimpleId
-	;
+unary_op
+    : '+'
+    | '-'
+    | NOT
+    ;
 
-varParam
-	: VAR formalParam
-	;
+underlying_type
+    : concrete_types
+    | constructed_types
+    ;
 
-varParams
-	: '(' varParam (';' varParam)* ')'
-	;
+unique_clause :
+    UNIQUE (unique_rule ';')+ ;
 
-varRef
-	: varDef qualifier
-	| aliasRef qualifier
-	| attrRef qualifier
-	| constRef qualifier
-	| entityRef
-	| enumRef
-	| funcRef qualifier
-	| paramRef qualifier
-	| procRef
-	;
+unique_rule :
+    ( rule_label_id ':' )? referenced_attribute ( ',' referenced_attribute )* ;
 
-whileControl
-	: WHILE logicalExpr
-	;
+until_control :
+    UNTIL logical_expression ;
 
-width
-	: numberExpr
-	;
+use_clause :
+    USE FROM schema_ref ( '(' named_type_or_rename ( ',' named_type_or_rename )* ')' )? ';' ;
 
-// Lexer
+variable_id :
+    SIMPLE_ID ;
+
+where_clause :
+    WHERE (domain_rule ';')+ ;
+
+while_control :
+    WHILE logical_expression ;
+
+width :
+    numeric_expression ;
+
+width_spec :
+    '(' width ')' FIXED? ;
 
 ABS : 'ABS' ;
 ABSTRACT : 'ABSTRACT' ;
@@ -819,6 +750,7 @@ AS : 'AS' ;
 ASIN : 'ASIN' ;
 ATAN : 'ATAN' ;
 BAG : 'BAG' ;
+BASED_ON : 'BASED_ON' ;
 BEGIN : 'BEGIN' ;
 BINARY : 'BINARY' ;
 BLENGTH : 'BLENGTH' ;
@@ -840,48 +772,48 @@ END_FUNCTION : 'END_FUNCTION' ;
 END_IF : 'END_IF' ;
 END_LOCAL : 'END_LOCAL' ;
 END_PROCEDURE : 'END_PROCEDURE' ;
-END_RULE : 'END_RULE' ;
 END_REPEAT : 'END_REPEAT' ;
+END_RULE : 'END_RULE' ;
 END_SCHEMA : 'END_SCHEMA' ;
-END_TYPE : 'END_TYPE';
+END_SUBTYPE_CONSTRAINT : 'END_SUBTYPE_CONSTRAINT' ;
+END_TYPE : 'END_TYPE' ;
 ENTITY : 'ENTITY' ;
 ENUMERATION : 'ENUMERATION' ;
 ESCAPE : 'ESCAPE' ;
 EXISTS : 'EXISTS' ;
+EXTENSIBLE : 'EXTENSIBLE' ;
 EXP : 'EXP' ;
-FALSE : 'FALSE';
-FIXED : 'FIXED';
+FALSE : 'FALSE' ;
+FIXED : 'FIXED' ;
 FOR : 'FOR' ;
 FORMAT : 'FORMAT' ;
 FROM : 'FROM' ;
 FUNCTION : 'FUNCTION' ;
-GENERIC 
-	: 'GENERIC' 
-	| 'Generic' 
-	;
+GENERIC : 'GENERIC' ;
+GENERIC_ENTITY : 'GENERIC_ENTITY' ;
 HIBOUND : 'HIBOUND' ;
 HIINDEX : 'HIINDEX' ;
 IF : 'IF' ;
 IN : 'IN' ;
 INSERT : 'INSERT' ;
-INVERSE : 'INVERSE' ;
 INTEGER : 'INTEGER' ;
+INVERSE : 'INVERSE' ;
 LENGTH : 'LENGTH' ;
 LIKE : 'LIKE' ;
 LIST : 'LIST' ;
-LOCAL : 'LOCAL' ;
-LOGICAL : 'LOGICAL' ;
 LOBOUND : 'LOBOUND' ;
-LOINDEX : 'LOINDEX' ;
+LOCAL : 'LOCAL' ;
 LOG : 'LOG' ;
-LOG2 : 'LOG2' ;
 LOG10 : 'LOG10' ;
+LOG2 : 'LOG2' ;
+LOGICAL : 'LOGICAL' ;
+LOINDEX : 'LOINDEX' ;
 MOD : 'MOD' ;
 NOT : 'NOT' ;
 NUMBER : 'NUMBER' ;
 NVL : 'NVL' ;
 ODD : 'ODD' ;
-OF : 'OF' | 'Of' ; // IFC Inconsistent capitalization. Ex: (UnitElements : SET [1:?] Of IfcDerivedUnitElement)
+OF : 'OF' ;
 ONEOF : 'ONEOF' ;
 OPTIONAL : 'OPTIONAL' ;
 OR : 'OR' ;
@@ -892,6 +824,7 @@ QUERY : 'QUERY' ;
 REAL : 'REAL' ;
 REFERENCE : 'REFERENCE' ;
 REMOVE : 'REMOVE' ;
+RENAMED : 'RENAMED' ;
 REPEAT : 'REPEAT' ;
 RETURN : 'RETURN' ;
 ROLESOF : 'ROLESOF' ;
@@ -902,14 +835,16 @@ SELF : 'SELF' ;
 SET : 'SET' ;
 SIN : 'SIN' ;
 SIZEOF : 'SIZEOF' ;
-SKIP2 : 'SKIP' ;
+SKIP_ : 'SKIP' ;
 SQRT : 'SQRT' ;
 STRING : 'STRING' ;
 SUBTYPE : 'SUBTYPE' ;
+SUBTYPE_CONSTRAINT : 'SUBTYPE_CONSTRAINT' ;
 SUPERTYPE : 'SUPERTYPE' ;
 TAN : 'TAN' ;
 THEN : 'THEN' ;
 TO : 'TO' ;
+TOTAL_OVER : 'TOTAL_OVER' ;
 TRUE : 'TRUE' ;
 TYPE : 'TYPE' ;
 TYPEOF : 'TYPEOF' ;
@@ -919,99 +854,25 @@ UNTIL : 'UNTIL' ;
 USE : 'USE' ;
 USEDIN : 'USEDIN' ;
 VALUE : 'VALUE' ;
+VALUE_IN : 'VALUE_IN' ;
+VALUE_UNIQUE : 'VALUE_UNIQUE' ;
 VAR : 'VAR' ;
 WHERE : 'WHERE' ;
 WHILE : 'WHILE' ;
-XOR : 'XOR';
-
-SchemaDef
-	: SimpleId
-	;
-
-SimpleId
-	: Letter (Letter|Digit|'_')*
-	;
-
-fragment
-PathFragment
-	: SimpleId ('.' SimpleId | IndexExpr)*
-	;
-
-// IFC Added to support indexing operationg Ex: Knots[i-1]
-fragment
-IndexExpr
-	: SimpleId '[' (SimpleId|IntegerLiteral) (('+'|'-') (SimpleId|IntegerLiteral))* ']'
-	;
-
-Path
-	: SELF
-	| SELF '\\' PathFragment // IFC: Ex: SELF\IfcEdgeLoop.EdgeList
-	| PathFragment ('\\' PathFragment)* // IFC: Ex: ElpFbnds.Bound\IfcEdgeLoop.EdgeList
-	;
-
-IntegerLiteral
-	: '-'? Digits
-	;
-
-BinaryLiteral
-	: '%' ('0'|'1') ('0'|'1')*
-	;
-
-LogicalLiteral
-	: FALSE
-	| TRUE
-	| UNKNOWN
-	;
-
-RealLiteral
-	: '-'? Digits '.' Digits* (('e'|'E') ('+'|'-') Digits)? // IFC: Scientific 'E' was not supported.
-	;
-
-fragment
-Digit
-    : [0-9]
-    ;
-
-Digits
-	: [0-9]+
-	;
-
-Letter
-	: [a-zA-Z]
-	;
-
-Character
-	: Digit
-	| Letter
-	;
-
-QuoteChar 
-	: '\'';
-
-fragment
-SpaceChar 
-	: ' ' 
-	;
-
-StringLiteral
-	: QuoteChar .*? QuoteChar 
-	;
-
-NewlineChar 
-	: [\r\n]+ -> skip ;
-
-WS 
-	: [ \t\r\n]+ -> skip ;
-
-Comments 
-	: '(*' .*? '*)' -> skip ;
-
-// IFC: Skip rules
-// Rules
-//	: 'RULE ' SimpleId .*? 'END_RULE;' -> skip ;
-
-// Functons
-//	: 'FUNCTION' .*? 'END_FUNCTION;' -> skip;
-
-
-
+WITH : 'WITH' ;
+XOR : 'XOR' ;
+BIT : [0-1] ;
+DIGIT : [0-9] ;
+DIGITS : [0-9]+ ;
+LETTER : [a-zA-Z];
+BINARY_LITERAL : '%' [01]+ ;
+ENCODED_STRING_LITERAL : '"' [0-9a-fA-F]+ '"' ;
+INTEGER_LITERAL : '-'? DIGITS ;
+REAL_LITERAL : '-'? DIGITS '.' DIGIT* (('e'|'E') ('+'|'-') DIGITS)? ;
+SIMPLE_ID : LETTER (LETTER | DIGIT | '_' )* ;
+QUOTECHAR : '\'';
+SIMPLE_STRING_LITERAL : QUOTECHAR .*? QUOTECHAR ;
+SIGN : '+' | '-' ;
+COMMENTS : '(*' .*? '*)' -> skip ;
+TAIL_REMARK : '--' .*? [\r\n]+ -> skip;
+WS : [ \t\r\n]+ -> skip ;

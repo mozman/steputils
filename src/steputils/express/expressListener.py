@@ -8,336 +8,444 @@ else:
 # This class defines a complete listener for a parse tree produced by expressParser.
 class expressListener(ParseTreeListener):
 
-    # Enter a parse tree produced by expressParser#actualParams.
-    def enterActualParams(self, ctx:expressParser.ActualParamsContext):
+    # Enter a parse tree produced by expressParser#attribute_ref.
+    def enterAttribute_ref(self, ctx:expressParser.Attribute_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#actualParams.
-    def exitActualParams(self, ctx:expressParser.ActualParamsContext):
+    # Exit a parse tree produced by expressParser#attribute_ref.
+    def exitAttribute_ref(self, ctx:expressParser.Attribute_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#aggregateExpr.
-    def enterAggregateExpr(self, ctx:expressParser.AggregateExprContext):
+    # Enter a parse tree produced by expressParser#constant_ref.
+    def enterConstant_ref(self, ctx:expressParser.Constant_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#aggregateExpr.
-    def exitAggregateExpr(self, ctx:expressParser.AggregateExprContext):
+    # Exit a parse tree produced by expressParser#constant_ref.
+    def exitConstant_ref(self, ctx:expressParser.Constant_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#aggregateLiteral.
-    def enterAggregateLiteral(self, ctx:expressParser.AggregateLiteralContext):
+    # Enter a parse tree produced by expressParser#entity_ref.
+    def enterEntity_ref(self, ctx:expressParser.Entity_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#aggregateLiteral.
-    def exitAggregateLiteral(self, ctx:expressParser.AggregateLiteralContext):
+    # Exit a parse tree produced by expressParser#entity_ref.
+    def exitEntity_ref(self, ctx:expressParser.Entity_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#aggregateType.
-    def enterAggregateType(self, ctx:expressParser.AggregateTypeContext):
+    # Enter a parse tree produced by expressParser#enumeration_ref.
+    def enterEnumeration_ref(self, ctx:expressParser.Enumeration_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#aggregateType.
-    def exitAggregateType(self, ctx:expressParser.AggregateTypeContext):
+    # Exit a parse tree produced by expressParser#enumeration_ref.
+    def exitEnumeration_ref(self, ctx:expressParser.Enumeration_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#aliasDef.
-    def enterAliasDef(self, ctx:expressParser.AliasDefContext):
+    # Enter a parse tree produced by expressParser#function_ref.
+    def enterFunction_ref(self, ctx:expressParser.Function_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#aliasDef.
-    def exitAliasDef(self, ctx:expressParser.AliasDefContext):
+    # Exit a parse tree produced by expressParser#function_ref.
+    def exitFunction_ref(self, ctx:expressParser.Function_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#aliasRef.
-    def enterAliasRef(self, ctx:expressParser.AliasRefContext):
+    # Enter a parse tree produced by expressParser#parameter_ref.
+    def enterParameter_ref(self, ctx:expressParser.Parameter_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#aliasRef.
-    def exitAliasRef(self, ctx:expressParser.AliasRefContext):
+    # Exit a parse tree produced by expressParser#parameter_ref.
+    def exitParameter_ref(self, ctx:expressParser.Parameter_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#aliasStmt.
-    def enterAliasStmt(self, ctx:expressParser.AliasStmtContext):
+    # Enter a parse tree produced by expressParser#procedure_ref.
+    def enterProcedure_ref(self, ctx:expressParser.Procedure_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#aliasStmt.
-    def exitAliasStmt(self, ctx:expressParser.AliasStmtContext):
+    # Exit a parse tree produced by expressParser#procedure_ref.
+    def exitProcedure_ref(self, ctx:expressParser.Procedure_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#allTypeSel.
-    def enterAllTypeSel(self, ctx:expressParser.AllTypeSelContext):
+    # Enter a parse tree produced by expressParser#rule_label_ref.
+    def enterRule_label_ref(self, ctx:expressParser.Rule_label_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#allTypeSel.
-    def exitAllTypeSel(self, ctx:expressParser.AllTypeSelContext):
+    # Exit a parse tree produced by expressParser#rule_label_ref.
+    def exitRule_label_ref(self, ctx:expressParser.Rule_label_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#arrayType.
-    def enterArrayType(self, ctx:expressParser.ArrayTypeContext):
+    # Enter a parse tree produced by expressParser#rule_ref.
+    def enterRule_ref(self, ctx:expressParser.Rule_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#arrayType.
-    def exitArrayType(self, ctx:expressParser.ArrayTypeContext):
+    # Exit a parse tree produced by expressParser#rule_ref.
+    def exitRule_ref(self, ctx:expressParser.Rule_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#assignmentStmt.
-    def enterAssignmentStmt(self, ctx:expressParser.AssignmentStmtContext):
+    # Enter a parse tree produced by expressParser#schema_ref.
+    def enterSchema_ref(self, ctx:expressParser.Schema_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#assignmentStmt.
-    def exitAssignmentStmt(self, ctx:expressParser.AssignmentStmtContext):
+    # Exit a parse tree produced by expressParser#schema_ref.
+    def exitSchema_ref(self, ctx:expressParser.Schema_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#attrDef.
-    def enterAttrDef(self, ctx:expressParser.AttrDefContext):
+    # Enter a parse tree produced by expressParser#subtype_constraint_ref.
+    def enterSubtype_constraint_ref(self, ctx:expressParser.Subtype_constraint_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#attrDef.
-    def exitAttrDef(self, ctx:expressParser.AttrDefContext):
+    # Exit a parse tree produced by expressParser#subtype_constraint_ref.
+    def exitSubtype_constraint_ref(self, ctx:expressParser.Subtype_constraint_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#attributes.
-    def enterAttributes(self, ctx:expressParser.AttributesContext):
+    # Enter a parse tree produced by expressParser#type_label_ref.
+    def enterType_label_ref(self, ctx:expressParser.Type_label_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#attributes.
-    def exitAttributes(self, ctx:expressParser.AttributesContext):
+    # Exit a parse tree produced by expressParser#type_label_ref.
+    def exitType_label_ref(self, ctx:expressParser.Type_label_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#attrRef.
-    def enterAttrRef(self, ctx:expressParser.AttrRefContext):
+    # Enter a parse tree produced by expressParser#type_ref.
+    def enterType_ref(self, ctx:expressParser.Type_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#attrRef.
-    def exitAttrRef(self, ctx:expressParser.AttrRefContext):
+    # Exit a parse tree produced by expressParser#type_ref.
+    def exitType_ref(self, ctx:expressParser.Type_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#bagType.
-    def enterBagType(self, ctx:expressParser.BagTypeContext):
+    # Enter a parse tree produced by expressParser#variable_ref.
+    def enterVariable_ref(self, ctx:expressParser.Variable_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#bagType.
-    def exitBagType(self, ctx:expressParser.BagTypeContext):
+    # Exit a parse tree produced by expressParser#variable_ref.
+    def exitVariable_ref(self, ctx:expressParser.Variable_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#binaryType.
-    def enterBinaryType(self, ctx:expressParser.BinaryTypeContext):
+    # Enter a parse tree produced by expressParser#abstract_entity_declaration.
+    def enterAbstract_entity_declaration(self, ctx:expressParser.Abstract_entity_declarationContext):
         pass
 
-    # Exit a parse tree produced by expressParser#binaryType.
-    def exitBinaryType(self, ctx:expressParser.BinaryTypeContext):
+    # Exit a parse tree produced by expressParser#abstract_entity_declaration.
+    def exitAbstract_entity_declaration(self, ctx:expressParser.Abstract_entity_declarationContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#booleanType.
-    def enterBooleanType(self, ctx:expressParser.BooleanTypeContext):
+    # Enter a parse tree produced by expressParser#abstract_supertype.
+    def enterAbstract_supertype(self, ctx:expressParser.Abstract_supertypeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#booleanType.
-    def exitBooleanType(self, ctx:expressParser.BooleanTypeContext):
+    # Exit a parse tree produced by expressParser#abstract_supertype.
+    def exitAbstract_supertype(self, ctx:expressParser.Abstract_supertypeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#bound1.
-    def enterBound1(self, ctx:expressParser.Bound1Context):
+    # Enter a parse tree produced by expressParser#abstract_supertype_declaration.
+    def enterAbstract_supertype_declaration(self, ctx:expressParser.Abstract_supertype_declarationContext):
         pass
 
-    # Exit a parse tree produced by expressParser#bound1.
-    def exitBound1(self, ctx:expressParser.Bound1Context):
+    # Exit a parse tree produced by expressParser#abstract_supertype_declaration.
+    def exitAbstract_supertype_declaration(self, ctx:expressParser.Abstract_supertype_declarationContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#bound2.
-    def enterBound2(self, ctx:expressParser.Bound2Context):
+    # Enter a parse tree produced by expressParser#actual_parameter_list.
+    def enterActual_parameter_list(self, ctx:expressParser.Actual_parameter_listContext):
         pass
 
-    # Exit a parse tree produced by expressParser#bound2.
-    def exitBound2(self, ctx:expressParser.Bound2Context):
+    # Exit a parse tree produced by expressParser#actual_parameter_list.
+    def exitActual_parameter_list(self, ctx:expressParser.Actual_parameter_listContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#boundSpec.
-    def enterBoundSpec(self, ctx:expressParser.BoundSpecContext):
+    # Enter a parse tree produced by expressParser#add_like_op.
+    def enterAdd_like_op(self, ctx:expressParser.Add_like_opContext):
         pass
 
-    # Exit a parse tree produced by expressParser#boundSpec.
-    def exitBoundSpec(self, ctx:expressParser.BoundSpecContext):
+    # Exit a parse tree produced by expressParser#add_like_op.
+    def exitAdd_like_op(self, ctx:expressParser.Add_like_opContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#caseAction.
-    def enterCaseAction(self, ctx:expressParser.CaseActionContext):
+    # Enter a parse tree produced by expressParser#aggregate_initializer.
+    def enterAggregate_initializer(self, ctx:expressParser.Aggregate_initializerContext):
         pass
 
-    # Exit a parse tree produced by expressParser#caseAction.
-    def exitCaseAction(self, ctx:expressParser.CaseActionContext):
+    # Exit a parse tree produced by expressParser#aggregate_initializer.
+    def exitAggregate_initializer(self, ctx:expressParser.Aggregate_initializerContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#caseBody.
-    def enterCaseBody(self, ctx:expressParser.CaseBodyContext):
+    # Enter a parse tree produced by expressParser#aggregate_source.
+    def enterAggregate_source(self, ctx:expressParser.Aggregate_sourceContext):
         pass
 
-    # Exit a parse tree produced by expressParser#caseBody.
-    def exitCaseBody(self, ctx:expressParser.CaseBodyContext):
+    # Exit a parse tree produced by expressParser#aggregate_source.
+    def exitAggregate_source(self, ctx:expressParser.Aggregate_sourceContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#caseLabel.
-    def enterCaseLabel(self, ctx:expressParser.CaseLabelContext):
+    # Enter a parse tree produced by expressParser#aggregate_type.
+    def enterAggregate_type(self, ctx:expressParser.Aggregate_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#caseLabel.
-    def exitCaseLabel(self, ctx:expressParser.CaseLabelContext):
+    # Exit a parse tree produced by expressParser#aggregate_type.
+    def exitAggregate_type(self, ctx:expressParser.Aggregate_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#caseStmt.
-    def enterCaseStmt(self, ctx:expressParser.CaseStmtContext):
+    # Enter a parse tree produced by expressParser#aggregation_types.
+    def enterAggregation_types(self, ctx:expressParser.Aggregation_typesContext):
         pass
 
-    # Exit a parse tree produced by expressParser#caseStmt.
-    def exitCaseStmt(self, ctx:expressParser.CaseStmtContext):
+    # Exit a parse tree produced by expressParser#aggregation_types.
+    def exitAggregation_types(self, ctx:expressParser.Aggregation_typesContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#choice.
-    def enterChoice(self, ctx:expressParser.ChoiceContext):
+    # Enter a parse tree produced by expressParser#algorithm_head.
+    def enterAlgorithm_head(self, ctx:expressParser.Algorithm_headContext):
         pass
 
-    # Exit a parse tree produced by expressParser#choice.
-    def exitChoice(self, ctx:expressParser.ChoiceContext):
+    # Exit a parse tree produced by expressParser#algorithm_head.
+    def exitAlgorithm_head(self, ctx:expressParser.Algorithm_headContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#collectionType.
-    def enterCollectionType(self, ctx:expressParser.CollectionTypeContext):
+    # Enter a parse tree produced by expressParser#alias_stmt.
+    def enterAlias_stmt(self, ctx:expressParser.Alias_stmtContext):
         pass
 
-    # Exit a parse tree produced by expressParser#collectionType.
-    def exitCollectionType(self, ctx:expressParser.CollectionTypeContext):
+    # Exit a parse tree produced by expressParser#alias_stmt.
+    def exitAlias_stmt(self, ctx:expressParser.Alias_stmtContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#collectionTypeSel.
-    def enterCollectionTypeSel(self, ctx:expressParser.CollectionTypeSelContext):
+    # Enter a parse tree produced by expressParser#array_type.
+    def enterArray_type(self, ctx:expressParser.Array_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#collectionTypeSel.
-    def exitCollectionTypeSel(self, ctx:expressParser.CollectionTypeSelContext):
+    # Exit a parse tree produced by expressParser#array_type.
+    def exitArray_type(self, ctx:expressParser.Array_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#compoundStmt.
-    def enterCompoundStmt(self, ctx:expressParser.CompoundStmtContext):
+    # Enter a parse tree produced by expressParser#assignment_stmt.
+    def enterAssignment_stmt(self, ctx:expressParser.Assignment_stmtContext):
         pass
 
-    # Exit a parse tree produced by expressParser#compoundStmt.
-    def exitCompoundStmt(self, ctx:expressParser.CompoundStmtContext):
+    # Exit a parse tree produced by expressParser#assignment_stmt.
+    def exitAssignment_stmt(self, ctx:expressParser.Assignment_stmtContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#conformantArray.
-    def enterConformantArray(self, ctx:expressParser.ConformantArrayContext):
+    # Enter a parse tree produced by expressParser#attribute_decl.
+    def enterAttribute_decl(self, ctx:expressParser.Attribute_declContext):
         pass
 
-    # Exit a parse tree produced by expressParser#conformantArray.
-    def exitConformantArray(self, ctx:expressParser.ConformantArrayContext):
+    # Exit a parse tree produced by expressParser#attribute_decl.
+    def exitAttribute_decl(self, ctx:expressParser.Attribute_declContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#conformantBag.
-    def enterConformantBag(self, ctx:expressParser.ConformantBagContext):
+    # Enter a parse tree produced by expressParser#attribute_id.
+    def enterAttribute_id(self, ctx:expressParser.Attribute_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#conformantBag.
-    def exitConformantBag(self, ctx:expressParser.ConformantBagContext):
+    # Exit a parse tree produced by expressParser#attribute_id.
+    def exitAttribute_id(self, ctx:expressParser.Attribute_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#conformantList.
-    def enterConformantList(self, ctx:expressParser.ConformantListContext):
+    # Enter a parse tree produced by expressParser#attribute_qualifier.
+    def enterAttribute_qualifier(self, ctx:expressParser.Attribute_qualifierContext):
         pass
 
-    # Exit a parse tree produced by expressParser#conformantList.
-    def exitConformantList(self, ctx:expressParser.ConformantListContext):
+    # Exit a parse tree produced by expressParser#attribute_qualifier.
+    def exitAttribute_qualifier(self, ctx:expressParser.Attribute_qualifierContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#conformantSet.
-    def enterConformantSet(self, ctx:expressParser.ConformantSetContext):
+    # Enter a parse tree produced by expressParser#bag_type.
+    def enterBag_type(self, ctx:expressParser.Bag_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#conformantSet.
-    def exitConformantSet(self, ctx:expressParser.ConformantSetContext):
+    # Exit a parse tree produced by expressParser#bag_type.
+    def exitBag_type(self, ctx:expressParser.Bag_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#conformantType.
-    def enterConformantType(self, ctx:expressParser.ConformantTypeContext):
+    # Enter a parse tree produced by expressParser#binary_type.
+    def enterBinary_type(self, ctx:expressParser.Binary_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#conformantType.
-    def exitConformantType(self, ctx:expressParser.ConformantTypeContext):
+    # Exit a parse tree produced by expressParser#binary_type.
+    def exitBinary_type(self, ctx:expressParser.Binary_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#constantDecl.
-    def enterConstantDecl(self, ctx:expressParser.ConstantDeclContext):
+    # Enter a parse tree produced by expressParser#boolean_type.
+    def enterBoolean_type(self, ctx:expressParser.Boolean_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#constantDecl.
-    def exitConstantDecl(self, ctx:expressParser.ConstantDeclContext):
+    # Exit a parse tree produced by expressParser#boolean_type.
+    def exitBoolean_type(self, ctx:expressParser.Boolean_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#constantRef.
-    def enterConstantRef(self, ctx:expressParser.ConstantRefContext):
+    # Enter a parse tree produced by expressParser#bound_1.
+    def enterBound_1(self, ctx:expressParser.Bound_1Context):
         pass
 
-    # Exit a parse tree produced by expressParser#constantRef.
-    def exitConstantRef(self, ctx:expressParser.ConstantRefContext):
+    # Exit a parse tree produced by expressParser#bound_1.
+    def exitBound_1(self, ctx:expressParser.Bound_1Context):
         pass
 
 
-    # Enter a parse tree produced by expressParser#constBody.
-    def enterConstBody(self, ctx:expressParser.ConstBodyContext):
+    # Enter a parse tree produced by expressParser#bound_2.
+    def enterBound_2(self, ctx:expressParser.Bound_2Context):
         pass
 
-    # Exit a parse tree produced by expressParser#constBody.
-    def exitConstBody(self, ctx:expressParser.ConstBodyContext):
+    # Exit a parse tree produced by expressParser#bound_2.
+    def exitBound_2(self, ctx:expressParser.Bound_2Context):
         pass
 
 
-    # Enter a parse tree produced by expressParser#constDef.
-    def enterConstDef(self, ctx:expressParser.ConstDefContext):
+    # Enter a parse tree produced by expressParser#bound_spec.
+    def enterBound_spec(self, ctx:expressParser.Bound_specContext):
         pass
 
-    # Exit a parse tree produced by expressParser#constDef.
-    def exitConstDef(self, ctx:expressParser.ConstDefContext):
+    # Exit a parse tree produced by expressParser#bound_spec.
+    def exitBound_spec(self, ctx:expressParser.Bound_specContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#constRef.
-    def enterConstRef(self, ctx:expressParser.ConstRefContext):
+    # Enter a parse tree produced by expressParser#built_in_constant.
+    def enterBuilt_in_constant(self, ctx:expressParser.Built_in_constantContext):
         pass
 
-    # Exit a parse tree produced by expressParser#constRef.
-    def exitConstRef(self, ctx:expressParser.ConstRefContext):
+    # Exit a parse tree produced by expressParser#built_in_constant.
+    def exitBuilt_in_constant(self, ctx:expressParser.Built_in_constantContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#built_in_function.
+    def enterBuilt_in_function(self, ctx:expressParser.Built_in_functionContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#built_in_function.
+    def exitBuilt_in_function(self, ctx:expressParser.Built_in_functionContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#built_in_procedure.
+    def enterBuilt_in_procedure(self, ctx:expressParser.Built_in_procedureContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#built_in_procedure.
+    def exitBuilt_in_procedure(self, ctx:expressParser.Built_in_procedureContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#case_action.
+    def enterCase_action(self, ctx:expressParser.Case_actionContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#case_action.
+    def exitCase_action(self, ctx:expressParser.Case_actionContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#case_label.
+    def enterCase_label(self, ctx:expressParser.Case_labelContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#case_label.
+    def exitCase_label(self, ctx:expressParser.Case_labelContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#case_stmt.
+    def enterCase_stmt(self, ctx:expressParser.Case_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#case_stmt.
+    def exitCase_stmt(self, ctx:expressParser.Case_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#compound_stmt.
+    def enterCompound_stmt(self, ctx:expressParser.Compound_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#compound_stmt.
+    def exitCompound_stmt(self, ctx:expressParser.Compound_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#concrete_types.
+    def enterConcrete_types(self, ctx:expressParser.Concrete_typesContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#concrete_types.
+    def exitConcrete_types(self, ctx:expressParser.Concrete_typesContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#constant_body.
+    def enterConstant_body(self, ctx:expressParser.Constant_bodyContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#constant_body.
+    def exitConstant_body(self, ctx:expressParser.Constant_bodyContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#constant_decl.
+    def enterConstant_decl(self, ctx:expressParser.Constant_declContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#constant_decl.
+    def exitConstant_decl(self, ctx:expressParser.Constant_declContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#constant_factor.
+    def enterConstant_factor(self, ctx:expressParser.Constant_factorContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#constant_factor.
+    def exitConstant_factor(self, ctx:expressParser.Constant_factorContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#constant_id.
+    def enterConstant_id(self, ctx:expressParser.Constant_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#constant_id.
+    def exitConstant_id(self, ctx:expressParser.Constant_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#constructed_types.
+    def enterConstructed_types(self, ctx:expressParser.Constructed_typesContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#constructed_types.
+    def exitConstructed_types(self, ctx:expressParser.Constructed_typesContext):
         pass
 
 
@@ -350,66 +458,30 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#deriveClause.
-    def enterDeriveClause(self, ctx:expressParser.DeriveClauseContext):
+    # Enter a parse tree produced by expressParser#derived_attr.
+    def enterDerived_attr(self, ctx:expressParser.Derived_attrContext):
         pass
 
-    # Exit a parse tree produced by expressParser#deriveClause.
-    def exitDeriveClause(self, ctx:expressParser.DeriveClauseContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#deriveDef.
-    def enterDeriveDef(self, ctx:expressParser.DeriveDefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#deriveDef.
-    def exitDeriveDef(self, ctx:expressParser.DeriveDefContext):
+    # Exit a parse tree produced by expressParser#derived_attr.
+    def exitDerived_attr(self, ctx:expressParser.Derived_attrContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#derivedAttr.
-    def enterDerivedAttr(self, ctx:expressParser.DerivedAttrContext):
+    # Enter a parse tree produced by expressParser#derive_clause.
+    def enterDerive_clause(self, ctx:expressParser.Derive_clauseContext):
         pass
 
-    # Exit a parse tree produced by expressParser#derivedAttr.
-    def exitDerivedAttr(self, ctx:expressParser.DerivedAttrContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#derivedRedef.
-    def enterDerivedRedef(self, ctx:expressParser.DerivedRedefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#derivedRedef.
-    def exitDerivedRedef(self, ctx:expressParser.DerivedRedefContext):
+    # Exit a parse tree produced by expressParser#derive_clause.
+    def exitDerive_clause(self, ctx:expressParser.Derive_clauseContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#derivedPath.
-    def enterDerivedPath(self, ctx:expressParser.DerivedPathContext):
+    # Enter a parse tree produced by expressParser#domain_rule.
+    def enterDomain_rule(self, ctx:expressParser.Domain_ruleContext):
         pass
 
-    # Exit a parse tree produced by expressParser#derivedPath.
-    def exitDerivedPath(self, ctx:expressParser.DerivedPathContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#domainRule.
-    def enterDomainRule(self, ctx:expressParser.DomainRuleContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#domainRule.
-    def exitDomainRule(self, ctx:expressParser.DomainRuleContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#domainRules.
-    def enterDomainRules(self, ctx:expressParser.DomainRulesContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#domainRules.
-    def exitDomainRules(self, ctx:expressParser.DomainRulesContext):
+    # Exit a parse tree produced by expressParser#domain_rule.
+    def exitDomain_rule(self, ctx:expressParser.Domain_ruleContext):
         pass
 
 
@@ -422,138 +494,111 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#embeddedRemark.
-    def enterEmbeddedRemark(self, ctx:expressParser.EmbeddedRemarkContext):
+    # Enter a parse tree produced by expressParser#entity_body.
+    def enterEntity_body(self, ctx:expressParser.Entity_bodyContext):
         pass
 
-    # Exit a parse tree produced by expressParser#embeddedRemark.
-    def exitEmbeddedRemark(self, ctx:expressParser.EmbeddedRemarkContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#entityBody.
-    def enterEntityBody(self, ctx:expressParser.EntityBodyContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#entityBody.
-    def exitEntityBody(self, ctx:expressParser.EntityBodyContext):
+    # Exit a parse tree produced by expressParser#entity_body.
+    def exitEntity_body(self, ctx:expressParser.Entity_bodyContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#entityDecl.
-    def enterEntityDecl(self, ctx:expressParser.EntityDeclContext):
+    # Enter a parse tree produced by expressParser#entity_constructor.
+    def enterEntity_constructor(self, ctx:expressParser.Entity_constructorContext):
         pass
 
-    # Exit a parse tree produced by expressParser#entityDecl.
-    def exitEntityDecl(self, ctx:expressParser.EntityDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#entityDef.
-    def enterEntityDef(self, ctx:expressParser.EntityDefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#entityDef.
-    def exitEntityDef(self, ctx:expressParser.EntityDefContext):
+    # Exit a parse tree produced by expressParser#entity_constructor.
+    def exitEntity_constructor(self, ctx:expressParser.Entity_constructorContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#entityHead.
-    def enterEntityHead(self, ctx:expressParser.EntityHeadContext):
+    # Enter a parse tree produced by expressParser#entity_decl.
+    def enterEntity_decl(self, ctx:expressParser.Entity_declContext):
         pass
 
-    # Exit a parse tree produced by expressParser#entityHead.
-    def exitEntityHead(self, ctx:expressParser.EntityHeadContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#entityLiteral.
-    def enterEntityLiteral(self, ctx:expressParser.EntityLiteralContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#entityLiteral.
-    def exitEntityLiteral(self, ctx:expressParser.EntityLiteralContext):
+    # Exit a parse tree produced by expressParser#entity_decl.
+    def exitEntity_decl(self, ctx:expressParser.Entity_declContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#entityRef.
-    def enterEntityRef(self, ctx:expressParser.EntityRefContext):
+    # Enter a parse tree produced by expressParser#entity_head.
+    def enterEntity_head(self, ctx:expressParser.Entity_headContext):
         pass
 
-    # Exit a parse tree produced by expressParser#entityRef.
-    def exitEntityRef(self, ctx:expressParser.EntityRefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#enumDef.
-    def enterEnumDef(self, ctx:expressParser.EnumDefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#enumDef.
-    def exitEnumDef(self, ctx:expressParser.EnumDefContext):
+    # Exit a parse tree produced by expressParser#entity_head.
+    def exitEntity_head(self, ctx:expressParser.Entity_headContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#enumRef.
-    def enterEnumRef(self, ctx:expressParser.EnumRefContext):
+    # Enter a parse tree produced by expressParser#entity_id.
+    def enterEntity_id(self, ctx:expressParser.Entity_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#enumRef.
-    def exitEnumRef(self, ctx:expressParser.EnumRefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#enumType.
-    def enterEnumType(self, ctx:expressParser.EnumTypeContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#enumType.
-    def exitEnumType(self, ctx:expressParser.EnumTypeContext):
+    # Exit a parse tree produced by expressParser#entity_id.
+    def exitEntity_id(self, ctx:expressParser.Entity_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#enumValues.
-    def enterEnumValues(self, ctx:expressParser.EnumValuesContext):
+    # Enter a parse tree produced by expressParser#enumeration_extension.
+    def enterEnumeration_extension(self, ctx:expressParser.Enumeration_extensionContext):
         pass
 
-    # Exit a parse tree produced by expressParser#enumValues.
-    def exitEnumValues(self, ctx:expressParser.EnumValuesContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#escapeStmt.
-    def enterEscapeStmt(self, ctx:expressParser.EscapeStmtContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#escapeStmt.
-    def exitEscapeStmt(self, ctx:expressParser.EscapeStmtContext):
+    # Exit a parse tree produced by expressParser#enumeration_extension.
+    def exitEnumeration_extension(self, ctx:expressParser.Enumeration_extensionContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#explDef.
-    def enterExplDef(self, ctx:expressParser.ExplDefContext):
+    # Enter a parse tree produced by expressParser#enumeration_id.
+    def enterEnumeration_id(self, ctx:expressParser.Enumeration_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#explDef.
-    def exitExplDef(self, ctx:expressParser.ExplDefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#explicitClause.
-    def enterExplicitClause(self, ctx:expressParser.ExplicitClauseContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#explicitClause.
-    def exitExplicitClause(self, ctx:expressParser.ExplicitClauseContext):
+    # Exit a parse tree produced by expressParser#enumeration_id.
+    def exitEnumeration_id(self, ctx:expressParser.Enumeration_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#explRedef.
-    def enterExplRedef(self, ctx:expressParser.ExplRedefContext):
+    # Enter a parse tree produced by expressParser#enumeration_items.
+    def enterEnumeration_items(self, ctx:expressParser.Enumeration_itemsContext):
         pass
 
-    # Exit a parse tree produced by expressParser#explRedef.
-    def exitExplRedef(self, ctx:expressParser.ExplRedefContext):
+    # Exit a parse tree produced by expressParser#enumeration_items.
+    def exitEnumeration_items(self, ctx:expressParser.Enumeration_itemsContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#enumeration_reference.
+    def enterEnumeration_reference(self, ctx:expressParser.Enumeration_referenceContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#enumeration_reference.
+    def exitEnumeration_reference(self, ctx:expressParser.Enumeration_referenceContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#enumeration_type.
+    def enterEnumeration_type(self, ctx:expressParser.Enumeration_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#enumeration_type.
+    def exitEnumeration_type(self, ctx:expressParser.Enumeration_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#escape_stmt.
+    def enterEscape_stmt(self, ctx:expressParser.Escape_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#escape_stmt.
+    def exitEscape_stmt(self, ctx:expressParser.Escape_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#explicit_attr.
+    def enterExplicit_attr(self, ctx:expressParser.Explicit_attrContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#explicit_attr.
+    def exitExplicit_attr(self, ctx:expressParser.Explicit_attrContext):
         pass
 
 
@@ -575,165 +620,228 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#formalParam.
-    def enterFormalParam(self, ctx:expressParser.FormalParamContext):
+    # Enter a parse tree produced by expressParser#formal_parameter.
+    def enterFormal_parameter(self, ctx:expressParser.Formal_parameterContext):
         pass
 
-    # Exit a parse tree produced by expressParser#formalParam.
-    def exitFormalParam(self, ctx:expressParser.FormalParamContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#formalParams.
-    def enterFormalParams(self, ctx:expressParser.FormalParamsContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#formalParams.
-    def exitFormalParams(self, ctx:expressParser.FormalParamsContext):
+    # Exit a parse tree produced by expressParser#formal_parameter.
+    def exitFormal_parameter(self, ctx:expressParser.Formal_parameterContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#funcDef.
-    def enterFuncDef(self, ctx:expressParser.FuncDefContext):
+    # Enter a parse tree produced by expressParser#function_call.
+    def enterFunction_call(self, ctx:expressParser.Function_callContext):
         pass
 
-    # Exit a parse tree produced by expressParser#funcDef.
-    def exitFuncDef(self, ctx:expressParser.FuncDefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#funcHead.
-    def enterFuncHead(self, ctx:expressParser.FuncHeadContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#funcHead.
-    def exitFuncHead(self, ctx:expressParser.FuncHeadContext):
+    # Exit a parse tree produced by expressParser#function_call.
+    def exitFunction_call(self, ctx:expressParser.Function_callContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#returnTypeChoice.
-    def enterReturnTypeChoice(self, ctx:expressParser.ReturnTypeChoiceContext):
+    # Enter a parse tree produced by expressParser#function_decl.
+    def enterFunction_decl(self, ctx:expressParser.Function_declContext):
         pass
 
-    # Exit a parse tree produced by expressParser#returnTypeChoice.
-    def exitReturnTypeChoice(self, ctx:expressParser.ReturnTypeChoiceContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#funcRef.
-    def enterFuncRef(self, ctx:expressParser.FuncRefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#funcRef.
-    def exitFuncRef(self, ctx:expressParser.FuncRefContext):
+    # Exit a parse tree produced by expressParser#function_decl.
+    def exitFunction_decl(self, ctx:expressParser.Function_declContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#functionDecl.
-    def enterFunctionDecl(self, ctx:expressParser.FunctionDeclContext):
+    # Enter a parse tree produced by expressParser#function_head.
+    def enterFunction_head(self, ctx:expressParser.Function_headContext):
         pass
 
-    # Exit a parse tree produced by expressParser#functionDecl.
-    def exitFunctionDecl(self, ctx:expressParser.FunctionDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#genericType.
-    def enterGenericType(self, ctx:expressParser.GenericTypeContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#genericType.
-    def exitGenericType(self, ctx:expressParser.GenericTypeContext):
+    # Exit a parse tree produced by expressParser#function_head.
+    def exitFunction_head(self, ctx:expressParser.Function_headContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#ifStmt.
-    def enterIfStmt(self, ctx:expressParser.IfStmtContext):
+    # Enter a parse tree produced by expressParser#function_id.
+    def enterFunction_id(self, ctx:expressParser.Function_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#ifStmt.
-    def exitIfStmt(self, ctx:expressParser.IfStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#importEntity.
-    def enterImportEntity(self, ctx:expressParser.ImportEntityContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#importEntity.
-    def exitImportEntity(self, ctx:expressParser.ImportEntityContext):
+    # Exit a parse tree produced by expressParser#function_id.
+    def exitFunction_id(self, ctx:expressParser.Function_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#importItem.
-    def enterImportItem(self, ctx:expressParser.ImportItemContext):
+    # Enter a parse tree produced by expressParser#generalized_types.
+    def enterGeneralized_types(self, ctx:expressParser.Generalized_typesContext):
         pass
 
-    # Exit a parse tree produced by expressParser#importItem.
-    def exitImportItem(self, ctx:expressParser.ImportItemContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#importList.
-    def enterImportList(self, ctx:expressParser.ImportListContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#importList.
-    def exitImportList(self, ctx:expressParser.ImportListContext):
+    # Exit a parse tree produced by expressParser#generalized_types.
+    def exitGeneralized_types(self, ctx:expressParser.Generalized_typesContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#importRef.
-    def enterImportRef(self, ctx:expressParser.ImportRefContext):
+    # Enter a parse tree produced by expressParser#general_aggregation_types.
+    def enterGeneral_aggregation_types(self, ctx:expressParser.General_aggregation_typesContext):
         pass
 
-    # Exit a parse tree produced by expressParser#importRef.
-    def exitImportRef(self, ctx:expressParser.ImportRefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#incr.
-    def enterIncr(self, ctx:expressParser.IncrContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#incr.
-    def exitIncr(self, ctx:expressParser.IncrContext):
+    # Exit a parse tree produced by expressParser#general_aggregation_types.
+    def exitGeneral_aggregation_types(self, ctx:expressParser.General_aggregation_typesContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#incrementControl.
-    def enterIncrementControl(self, ctx:expressParser.IncrementControlContext):
+    # Enter a parse tree produced by expressParser#general_array_type.
+    def enterGeneral_array_type(self, ctx:expressParser.General_array_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#incrementControl.
-    def exitIncrementControl(self, ctx:expressParser.IncrementControlContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#init.
-    def enterInit(self, ctx:expressParser.InitContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#init.
-    def exitInit(self, ctx:expressParser.InitContext):
+    # Exit a parse tree produced by expressParser#general_array_type.
+    def exitGeneral_array_type(self, ctx:expressParser.General_array_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#integerType.
-    def enterIntegerType(self, ctx:expressParser.IntegerTypeContext):
+    # Enter a parse tree produced by expressParser#general_bag_type.
+    def enterGeneral_bag_type(self, ctx:expressParser.General_bag_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#integerType.
-    def exitIntegerType(self, ctx:expressParser.IntegerTypeContext):
+    # Exit a parse tree produced by expressParser#general_bag_type.
+    def exitGeneral_bag_type(self, ctx:expressParser.General_bag_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#interfaceSpecification.
-    def enterInterfaceSpecification(self, ctx:expressParser.InterfaceSpecificationContext):
+    # Enter a parse tree produced by expressParser#general_list_type.
+    def enterGeneral_list_type(self, ctx:expressParser.General_list_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#interfaceSpecification.
-    def exitInterfaceSpecification(self, ctx:expressParser.InterfaceSpecificationContext):
+    # Exit a parse tree produced by expressParser#general_list_type.
+    def exitGeneral_list_type(self, ctx:expressParser.General_list_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#general_ref.
+    def enterGeneral_ref(self, ctx:expressParser.General_refContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#general_ref.
+    def exitGeneral_ref(self, ctx:expressParser.General_refContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#general_set_type.
+    def enterGeneral_set_type(self, ctx:expressParser.General_set_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#general_set_type.
+    def exitGeneral_set_type(self, ctx:expressParser.General_set_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#generic_entity_type.
+    def enterGeneric_entity_type(self, ctx:expressParser.Generic_entity_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#generic_entity_type.
+    def exitGeneric_entity_type(self, ctx:expressParser.Generic_entity_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#generic_type.
+    def enterGeneric_type(self, ctx:expressParser.Generic_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#generic_type.
+    def exitGeneric_type(self, ctx:expressParser.Generic_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#group_qualifier.
+    def enterGroup_qualifier(self, ctx:expressParser.Group_qualifierContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#group_qualifier.
+    def exitGroup_qualifier(self, ctx:expressParser.Group_qualifierContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#if_stmt.
+    def enterIf_stmt(self, ctx:expressParser.If_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#if_stmt.
+    def exitIf_stmt(self, ctx:expressParser.If_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#increment.
+    def enterIncrement(self, ctx:expressParser.IncrementContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#increment.
+    def exitIncrement(self, ctx:expressParser.IncrementContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#increment_control.
+    def enterIncrement_control(self, ctx:expressParser.Increment_controlContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#increment_control.
+    def exitIncrement_control(self, ctx:expressParser.Increment_controlContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#index.
+    def enterIndex(self, ctx:expressParser.IndexContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#index.
+    def exitIndex(self, ctx:expressParser.IndexContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#index_1.
+    def enterIndex_1(self, ctx:expressParser.Index_1Context):
+        pass
+
+    # Exit a parse tree produced by expressParser#index_1.
+    def exitIndex_1(self, ctx:expressParser.Index_1Context):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#index_2.
+    def enterIndex_2(self, ctx:expressParser.Index_2Context):
+        pass
+
+    # Exit a parse tree produced by expressParser#index_2.
+    def exitIndex_2(self, ctx:expressParser.Index_2Context):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#index_qualifier.
+    def enterIndex_qualifier(self, ctx:expressParser.Index_qualifierContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#index_qualifier.
+    def exitIndex_qualifier(self, ctx:expressParser.Index_qualifierContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#instantiable_type.
+    def enterInstantiable_type(self, ctx:expressParser.Instantiable_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#instantiable_type.
+    def exitInstantiable_type(self, ctx:expressParser.Instantiable_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#integer_type.
+    def enterInteger_type(self, ctx:expressParser.Integer_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#integer_type.
+    def exitInteger_type(self, ctx:expressParser.Integer_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#interface_specification.
+    def enterInterface_specification(self, ctx:expressParser.Interface_specificationContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#interface_specification.
+    def exitInterface_specification(self, ctx:expressParser.Interface_specificationContext):
         pass
 
 
@@ -746,66 +854,66 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#inverseAttr.
-    def enterInverseAttr(self, ctx:expressParser.InverseAttrContext):
+    # Enter a parse tree produced by expressParser#interval_high.
+    def enterInterval_high(self, ctx:expressParser.Interval_highContext):
         pass
 
-    # Exit a parse tree produced by expressParser#inverseAttr.
-    def exitInverseAttr(self, ctx:expressParser.InverseAttrContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#inverseClause.
-    def enterInverseClause(self, ctx:expressParser.InverseClauseContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#inverseClause.
-    def exitInverseClause(self, ctx:expressParser.InverseClauseContext):
+    # Exit a parse tree produced by expressParser#interval_high.
+    def exitInterval_high(self, ctx:expressParser.Interval_highContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#inverseDef.
-    def enterInverseDef(self, ctx:expressParser.InverseDefContext):
+    # Enter a parse tree produced by expressParser#interval_item.
+    def enterInterval_item(self, ctx:expressParser.Interval_itemContext):
         pass
 
-    # Exit a parse tree produced by expressParser#inverseDef.
-    def exitInverseDef(self, ctx:expressParser.InverseDefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#inverseRedef.
-    def enterInverseRedef(self, ctx:expressParser.InverseRedefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#inverseRedef.
-    def exitInverseRedef(self, ctx:expressParser.InverseRedefContext):
+    # Exit a parse tree produced by expressParser#interval_item.
+    def exitInterval_item(self, ctx:expressParser.Interval_itemContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#inverseType.
-    def enterInverseType(self, ctx:expressParser.InverseTypeContext):
+    # Enter a parse tree produced by expressParser#interval_low.
+    def enterInterval_low(self, ctx:expressParser.Interval_lowContext):
         pass
 
-    # Exit a parse tree produced by expressParser#inverseType.
-    def exitInverseType(self, ctx:expressParser.InverseTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#labelDef.
-    def enterLabelDef(self, ctx:expressParser.LabelDefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#labelDef.
-    def exitLabelDef(self, ctx:expressParser.LabelDefContext):
+    # Exit a parse tree produced by expressParser#interval_low.
+    def exitInterval_low(self, ctx:expressParser.Interval_lowContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#listType.
-    def enterListType(self, ctx:expressParser.ListTypeContext):
+    # Enter a parse tree produced by expressParser#interval_op.
+    def enterInterval_op(self, ctx:expressParser.Interval_opContext):
         pass
 
-    # Exit a parse tree produced by expressParser#listType.
-    def exitListType(self, ctx:expressParser.ListTypeContext):
+    # Exit a parse tree produced by expressParser#interval_op.
+    def exitInterval_op(self, ctx:expressParser.Interval_opContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#inverse_attr.
+    def enterInverse_attr(self, ctx:expressParser.Inverse_attrContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#inverse_attr.
+    def exitInverse_attr(self, ctx:expressParser.Inverse_attrContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#inverse_clause.
+    def enterInverse_clause(self, ctx:expressParser.Inverse_clauseContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#inverse_clause.
+    def exitInverse_clause(self, ctx:expressParser.Inverse_clauseContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#list_type.
+    def enterList_type(self, ctx:expressParser.List_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#list_type.
+    def exitList_type(self, ctx:expressParser.List_typeContext):
         pass
 
 
@@ -818,102 +926,111 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#localDecl.
-    def enterLocalDecl(self, ctx:expressParser.LocalDeclContext):
+    # Enter a parse tree produced by expressParser#local_decl.
+    def enterLocal_decl(self, ctx:expressParser.Local_declContext):
         pass
 
-    # Exit a parse tree produced by expressParser#localDecl.
-    def exitLocalDecl(self, ctx:expressParser.LocalDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#localRules.
-    def enterLocalRules(self, ctx:expressParser.LocalRulesContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#localRules.
-    def exitLocalRules(self, ctx:expressParser.LocalRulesContext):
+    # Exit a parse tree produced by expressParser#local_decl.
+    def exitLocal_decl(self, ctx:expressParser.Local_declContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#localVar.
-    def enterLocalVar(self, ctx:expressParser.LocalVarContext):
+    # Enter a parse tree produced by expressParser#local_variable.
+    def enterLocal_variable(self, ctx:expressParser.Local_variableContext):
         pass
 
-    # Exit a parse tree produced by expressParser#localVar.
-    def exitLocalVar(self, ctx:expressParser.LocalVarContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#logicalExpr.
-    def enterLogicalExpr(self, ctx:expressParser.LogicalExprContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#logicalExpr.
-    def exitLogicalExpr(self, ctx:expressParser.LogicalExprContext):
+    # Exit a parse tree produced by expressParser#local_variable.
+    def exitLocal_variable(self, ctx:expressParser.Local_variableContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#logicalType.
-    def enterLogicalType(self, ctx:expressParser.LogicalTypeContext):
+    # Enter a parse tree produced by expressParser#logical_expression.
+    def enterLogical_expression(self, ctx:expressParser.Logical_expressionContext):
         pass
 
-    # Exit a parse tree produced by expressParser#logicalType.
-    def exitLogicalType(self, ctx:expressParser.LogicalTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#namedType.
-    def enterNamedType(self, ctx:expressParser.NamedTypeContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#namedType.
-    def exitNamedType(self, ctx:expressParser.NamedTypeContext):
+    # Exit a parse tree produced by expressParser#logical_expression.
+    def exitLogical_expression(self, ctx:expressParser.Logical_expressionContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#nullStmt.
-    def enterNullStmt(self, ctx:expressParser.NullStmtContext):
+    # Enter a parse tree produced by expressParser#logical_literal.
+    def enterLogical_literal(self, ctx:expressParser.Logical_literalContext):
         pass
 
-    # Exit a parse tree produced by expressParser#nullStmt.
-    def exitNullStmt(self, ctx:expressParser.NullStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#numberExpr.
-    def enterNumberExpr(self, ctx:expressParser.NumberExprContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#numberExpr.
-    def exitNumberExpr(self, ctx:expressParser.NumberExprContext):
+    # Exit a parse tree produced by expressParser#logical_literal.
+    def exitLogical_literal(self, ctx:expressParser.Logical_literalContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#numberType.
-    def enterNumberType(self, ctx:expressParser.NumberTypeContext):
+    # Enter a parse tree produced by expressParser#logical_type.
+    def enterLogical_type(self, ctx:expressParser.Logical_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#numberType.
-    def exitNumberType(self, ctx:expressParser.NumberTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#otherAction.
-    def enterOtherAction(self, ctx:expressParser.OtherActionContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#otherAction.
-    def exitOtherAction(self, ctx:expressParser.OtherActionContext):
+    # Exit a parse tree produced by expressParser#logical_type.
+    def exitLogical_type(self, ctx:expressParser.Logical_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#paramDef.
-    def enterParamDef(self, ctx:expressParser.ParamDefContext):
+    # Enter a parse tree produced by expressParser#multiplication_like_op.
+    def enterMultiplication_like_op(self, ctx:expressParser.Multiplication_like_opContext):
         pass
 
-    # Exit a parse tree produced by expressParser#paramDef.
-    def exitParamDef(self, ctx:expressParser.ParamDefContext):
+    # Exit a parse tree produced by expressParser#multiplication_like_op.
+    def exitMultiplication_like_op(self, ctx:expressParser.Multiplication_like_opContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#named_types.
+    def enterNamed_types(self, ctx:expressParser.Named_typesContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#named_types.
+    def exitNamed_types(self, ctx:expressParser.Named_typesContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#named_type_or_rename.
+    def enterNamed_type_or_rename(self, ctx:expressParser.Named_type_or_renameContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#named_type_or_rename.
+    def exitNamed_type_or_rename(self, ctx:expressParser.Named_type_or_renameContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#null_stmt.
+    def enterNull_stmt(self, ctx:expressParser.Null_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#null_stmt.
+    def exitNull_stmt(self, ctx:expressParser.Null_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#number_type.
+    def enterNumber_type(self, ctx:expressParser.Number_typeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#number_type.
+    def exitNumber_type(self, ctx:expressParser.Number_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#numeric_expression.
+    def enterNumeric_expression(self, ctx:expressParser.Numeric_expressionContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#numeric_expression.
+    def exitNumeric_expression(self, ctx:expressParser.Numeric_expressionContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#one_of.
+    def enterOne_of(self, ctx:expressParser.One_ofContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#one_of.
+    def exitOne_of(self, ctx:expressParser.One_ofContext):
         pass
 
 
@@ -926,84 +1043,102 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#paramRef.
-    def enterParamRef(self, ctx:expressParser.ParamRefContext):
+    # Enter a parse tree produced by expressParser#parameter_id.
+    def enterParameter_id(self, ctx:expressParser.Parameter_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#paramRef.
-    def exitParamRef(self, ctx:expressParser.ParamRefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#precisionSpec.
-    def enterPrecisionSpec(self, ctx:expressParser.PrecisionSpecContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#precisionSpec.
-    def exitPrecisionSpec(self, ctx:expressParser.PrecisionSpecContext):
+    # Exit a parse tree produced by expressParser#parameter_id.
+    def exitParameter_id(self, ctx:expressParser.Parameter_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#procCallStmt.
-    def enterProcCallStmt(self, ctx:expressParser.ProcCallStmtContext):
+    # Enter a parse tree produced by expressParser#parameter_type.
+    def enterParameter_type(self, ctx:expressParser.Parameter_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#procCallStmt.
-    def exitProcCallStmt(self, ctx:expressParser.ProcCallStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#procDef.
-    def enterProcDef(self, ctx:expressParser.ProcDefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#procDef.
-    def exitProcDef(self, ctx:expressParser.ProcDefContext):
+    # Exit a parse tree produced by expressParser#parameter_type.
+    def exitParameter_type(self, ctx:expressParser.Parameter_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#procedureDecl.
-    def enterProcedureDecl(self, ctx:expressParser.ProcedureDeclContext):
+    # Enter a parse tree produced by expressParser#population.
+    def enterPopulation(self, ctx:expressParser.PopulationContext):
         pass
 
-    # Exit a parse tree produced by expressParser#procedureDecl.
-    def exitProcedureDecl(self, ctx:expressParser.ProcedureDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#procHead.
-    def enterProcHead(self, ctx:expressParser.ProcHeadContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#procHead.
-    def exitProcHead(self, ctx:expressParser.ProcHeadContext):
+    # Exit a parse tree produced by expressParser#population.
+    def exitPopulation(self, ctx:expressParser.PopulationContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#procRef.
-    def enterProcRef(self, ctx:expressParser.ProcRefContext):
+    # Enter a parse tree produced by expressParser#precision_spec.
+    def enterPrecision_spec(self, ctx:expressParser.Precision_specContext):
         pass
 
-    # Exit a parse tree produced by expressParser#procRef.
-    def exitProcRef(self, ctx:expressParser.ProcRefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#prolog.
-    def enterProlog(self, ctx:expressParser.PrologContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#prolog.
-    def exitProlog(self, ctx:expressParser.PrologContext):
+    # Exit a parse tree produced by expressParser#precision_spec.
+    def exitPrecision_spec(self, ctx:expressParser.Precision_specContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#pseudoType.
-    def enterPseudoType(self, ctx:expressParser.PseudoTypeContext):
+    # Enter a parse tree produced by expressParser#primary.
+    def enterPrimary(self, ctx:expressParser.PrimaryContext):
         pass
 
-    # Exit a parse tree produced by expressParser#pseudoType.
-    def exitPseudoType(self, ctx:expressParser.PseudoTypeContext):
+    # Exit a parse tree produced by expressParser#primary.
+    def exitPrimary(self, ctx:expressParser.PrimaryContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#procedure_call_stmt.
+    def enterProcedure_call_stmt(self, ctx:expressParser.Procedure_call_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#procedure_call_stmt.
+    def exitProcedure_call_stmt(self, ctx:expressParser.Procedure_call_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#procedure_decl.
+    def enterProcedure_decl(self, ctx:expressParser.Procedure_declContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#procedure_decl.
+    def exitProcedure_decl(self, ctx:expressParser.Procedure_declContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#procedure_head.
+    def enterProcedure_head(self, ctx:expressParser.Procedure_headContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#procedure_head.
+    def exitProcedure_head(self, ctx:expressParser.Procedure_headContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#procedure_id.
+    def enterProcedure_id(self, ctx:expressParser.Procedure_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#procedure_id.
+    def exitProcedure_id(self, ctx:expressParser.Procedure_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#qualifiable_factor.
+    def enterQualifiable_factor(self, ctx:expressParser.Qualifiable_factorContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#qualifiable_factor.
+    def exitQualifiable_factor(self, ctx:expressParser.Qualifiable_factorContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#qualified_attribute.
+    def enterQualified_attribute(self, ctx:expressParser.Qualified_attributeContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#qualified_attribute.
+    def exitQualified_attribute(self, ctx:expressParser.Qualified_attributeContext):
         pass
 
 
@@ -1016,93 +1151,93 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#queryAssignment.
-    def enterQueryAssignment(self, ctx:expressParser.QueryAssignmentContext):
+    # Enter a parse tree produced by expressParser#query_expression.
+    def enterQuery_expression(self, ctx:expressParser.Query_expressionContext):
         pass
 
-    # Exit a parse tree produced by expressParser#queryAssignment.
-    def exitQueryAssignment(self, ctx:expressParser.QueryAssignmentContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#queryExpr.
-    def enterQueryExpr(self, ctx:expressParser.QueryExprContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#queryExpr.
-    def exitQueryExpr(self, ctx:expressParser.QueryExprContext):
+    # Exit a parse tree produced by expressParser#query_expression.
+    def exitQuery_expression(self, ctx:expressParser.Query_expressionContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#queryScan.
-    def enterQueryScan(self, ctx:expressParser.QueryScanContext):
+    # Enter a parse tree produced by expressParser#real_type.
+    def enterReal_type(self, ctx:expressParser.Real_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#queryScan.
-    def exitQueryScan(self, ctx:expressParser.QueryScanContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#realType.
-    def enterRealType(self, ctx:expressParser.RealTypeContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#realType.
-    def exitRealType(self, ctx:expressParser.RealTypeContext):
+    # Exit a parse tree produced by expressParser#real_type.
+    def exitReal_type(self, ctx:expressParser.Real_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#referenceClause.
-    def enterReferenceClause(self, ctx:expressParser.ReferenceClauseContext):
+    # Enter a parse tree produced by expressParser#redeclared_attribute.
+    def enterRedeclared_attribute(self, ctx:expressParser.Redeclared_attributeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#referenceClause.
-    def exitReferenceClause(self, ctx:expressParser.ReferenceClauseContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#referencedAttr.
-    def enterReferencedAttr(self, ctx:expressParser.ReferencedAttrContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#referencedAttr.
-    def exitReferencedAttr(self, ctx:expressParser.ReferencedAttrContext):
+    # Exit a parse tree produced by expressParser#redeclared_attribute.
+    def exitRedeclared_attribute(self, ctx:expressParser.Redeclared_attributeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#remark.
-    def enterRemark(self, ctx:expressParser.RemarkContext):
+    # Enter a parse tree produced by expressParser#referenced_attribute.
+    def enterReferenced_attribute(self, ctx:expressParser.Referenced_attributeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#remark.
-    def exitRemark(self, ctx:expressParser.RemarkContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#remarkStuff.
-    def enterRemarkStuff(self, ctx:expressParser.RemarkStuffContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#remarkStuff.
-    def exitRemarkStuff(self, ctx:expressParser.RemarkStuffContext):
+    # Exit a parse tree produced by expressParser#referenced_attribute.
+    def exitReferenced_attribute(self, ctx:expressParser.Referenced_attributeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#repeatControl.
-    def enterRepeatControl(self, ctx:expressParser.RepeatControlContext):
+    # Enter a parse tree produced by expressParser#reference_clause.
+    def enterReference_clause(self, ctx:expressParser.Reference_clauseContext):
         pass
 
-    # Exit a parse tree produced by expressParser#repeatControl.
-    def exitRepeatControl(self, ctx:expressParser.RepeatControlContext):
+    # Exit a parse tree produced by expressParser#reference_clause.
+    def exitReference_clause(self, ctx:expressParser.Reference_clauseContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#repeateStmt.
-    def enterRepeateStmt(self, ctx:expressParser.RepeateStmtContext):
+    # Enter a parse tree produced by expressParser#rel_op.
+    def enterRel_op(self, ctx:expressParser.Rel_opContext):
         pass
 
-    # Exit a parse tree produced by expressParser#repeateStmt.
-    def exitRepeateStmt(self, ctx:expressParser.RepeateStmtContext):
+    # Exit a parse tree produced by expressParser#rel_op.
+    def exitRel_op(self, ctx:expressParser.Rel_opContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#rel_op_extended.
+    def enterRel_op_extended(self, ctx:expressParser.Rel_op_extendedContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#rel_op_extended.
+    def exitRel_op_extended(self, ctx:expressParser.Rel_op_extendedContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#rename_id.
+    def enterRename_id(self, ctx:expressParser.Rename_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#rename_id.
+    def exitRename_id(self, ctx:expressParser.Rename_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#repeat_control.
+    def enterRepeat_control(self, ctx:expressParser.Repeat_controlContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#repeat_control.
+    def exitRepeat_control(self, ctx:expressParser.Repeat_controlContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#repeat_stmt.
+    def enterRepeat_stmt(self, ctx:expressParser.Repeat_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#repeat_stmt.
+    def exitRepeat_stmt(self, ctx:expressParser.Repeat_stmtContext):
         pass
 
 
@@ -1115,75 +1250,102 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#returnStmt.
-    def enterReturnStmt(self, ctx:expressParser.ReturnStmtContext):
+    # Enter a parse tree produced by expressParser#resource_or_rename.
+    def enterResource_or_rename(self, ctx:expressParser.Resource_or_renameContext):
         pass
 
-    # Exit a parse tree produced by expressParser#returnStmt.
-    def exitReturnStmt(self, ctx:expressParser.ReturnStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#ruleDecl.
-    def enterRuleDecl(self, ctx:expressParser.RuleDeclContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#ruleDecl.
-    def exitRuleDecl(self, ctx:expressParser.RuleDeclContext):
+    # Exit a parse tree produced by expressParser#resource_or_rename.
+    def exitResource_or_rename(self, ctx:expressParser.Resource_or_renameContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#ruleDef.
-    def enterRuleDef(self, ctx:expressParser.RuleDefContext):
+    # Enter a parse tree produced by expressParser#resource_ref.
+    def enterResource_ref(self, ctx:expressParser.Resource_refContext):
         pass
 
-    # Exit a parse tree produced by expressParser#ruleDef.
-    def exitRuleDef(self, ctx:expressParser.RuleDefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#ruleHead.
-    def enterRuleHead(self, ctx:expressParser.RuleHeadContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#ruleHead.
-    def exitRuleHead(self, ctx:expressParser.RuleHeadContext):
+    # Exit a parse tree produced by expressParser#resource_ref.
+    def exitResource_ref(self, ctx:expressParser.Resource_refContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#ruleList.
-    def enterRuleList(self, ctx:expressParser.RuleListContext):
+    # Enter a parse tree produced by expressParser#return_stmt.
+    def enterReturn_stmt(self, ctx:expressParser.Return_stmtContext):
         pass
 
-    # Exit a parse tree produced by expressParser#ruleList.
-    def exitRuleList(self, ctx:expressParser.RuleListContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#schemaBody.
-    def enterSchemaBody(self, ctx:expressParser.SchemaBodyContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#schemaBody.
-    def exitSchemaBody(self, ctx:expressParser.SchemaBodyContext):
+    # Exit a parse tree produced by expressParser#return_stmt.
+    def exitReturn_stmt(self, ctx:expressParser.Return_stmtContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#schemaDecl.
-    def enterSchemaDecl(self, ctx:expressParser.SchemaDeclContext):
+    # Enter a parse tree produced by expressParser#rule_decl.
+    def enterRule_decl(self, ctx:expressParser.Rule_declContext):
         pass
 
-    # Exit a parse tree produced by expressParser#schemaDecl.
-    def exitSchemaDecl(self, ctx:expressParser.SchemaDeclContext):
+    # Exit a parse tree produced by expressParser#rule_decl.
+    def exitRule_decl(self, ctx:expressParser.Rule_declContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#schemaRef.
-    def enterSchemaRef(self, ctx:expressParser.SchemaRefContext):
+    # Enter a parse tree produced by expressParser#rule_head.
+    def enterRule_head(self, ctx:expressParser.Rule_headContext):
         pass
 
-    # Exit a parse tree produced by expressParser#schemaRef.
-    def exitSchemaRef(self, ctx:expressParser.SchemaRefContext):
+    # Exit a parse tree produced by expressParser#rule_head.
+    def exitRule_head(self, ctx:expressParser.Rule_headContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#rule_id.
+    def enterRule_id(self, ctx:expressParser.Rule_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#rule_id.
+    def exitRule_id(self, ctx:expressParser.Rule_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#rule_label_id.
+    def enterRule_label_id(self, ctx:expressParser.Rule_label_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#rule_label_id.
+    def exitRule_label_id(self, ctx:expressParser.Rule_label_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#schema_body.
+    def enterSchema_body(self, ctx:expressParser.Schema_bodyContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#schema_body.
+    def exitSchema_body(self, ctx:expressParser.Schema_bodyContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#schema_decl.
+    def enterSchema_decl(self, ctx:expressParser.Schema_declContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#schema_decl.
+    def exitSchema_decl(self, ctx:expressParser.Schema_declContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#schema_id.
+    def enterSchema_id(self, ctx:expressParser.Schema_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#schema_id.
+    def exitSchema_id(self, ctx:expressParser.Schema_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#schema_version_id.
+    def enterSchema_version_id(self, ctx:expressParser.Schema_version_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#schema_version_id.
+    def exitSchema_version_id(self, ctx:expressParser.Schema_version_idContext):
         pass
 
 
@@ -1196,93 +1358,75 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#selectType.
-    def enterSelectType(self, ctx:expressParser.SelectTypeContext):
+    # Enter a parse tree produced by expressParser#select_extension.
+    def enterSelect_extension(self, ctx:expressParser.Select_extensionContext):
         pass
 
-    # Exit a parse tree produced by expressParser#selectType.
-    def exitSelectType(self, ctx:expressParser.SelectTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#selectValues.
-    def enterSelectValues(self, ctx:expressParser.SelectValuesContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#selectValues.
-    def exitSelectValues(self, ctx:expressParser.SelectValuesContext):
+    # Exit a parse tree produced by expressParser#select_extension.
+    def exitSelect_extension(self, ctx:expressParser.Select_extensionContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#setType.
-    def enterSetType(self, ctx:expressParser.SetTypeContext):
+    # Enter a parse tree produced by expressParser#select_list.
+    def enterSelect_list(self, ctx:expressParser.Select_listContext):
         pass
 
-    # Exit a parse tree produced by expressParser#setType.
-    def exitSetType(self, ctx:expressParser.SetTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#simpleExpr.
-    def enterSimpleExpr(self, ctx:expressParser.SimpleExprContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#simpleExpr.
-    def exitSimpleExpr(self, ctx:expressParser.SimpleExprContext):
+    # Exit a parse tree produced by expressParser#select_list.
+    def exitSelect_list(self, ctx:expressParser.Select_listContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#simpleFactor.
-    def enterSimpleFactor(self, ctx:expressParser.SimpleFactorContext):
+    # Enter a parse tree produced by expressParser#select_type.
+    def enterSelect_type(self, ctx:expressParser.Select_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#simpleFactor.
-    def exitSimpleFactor(self, ctx:expressParser.SimpleFactorContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#simpleType.
-    def enterSimpleType(self, ctx:expressParser.SimpleTypeContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#simpleType.
-    def exitSimpleType(self, ctx:expressParser.SimpleTypeContext):
+    # Exit a parse tree produced by expressParser#select_type.
+    def exitSelect_type(self, ctx:expressParser.Select_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#skipStmt.
-    def enterSkipStmt(self, ctx:expressParser.SkipStmtContext):
+    # Enter a parse tree produced by expressParser#set_type.
+    def enterSet_type(self, ctx:expressParser.Set_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#skipStmt.
-    def exitSkipStmt(self, ctx:expressParser.SkipStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#stdConst.
-    def enterStdConst(self, ctx:expressParser.StdConstContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#stdConst.
-    def exitStdConst(self, ctx:expressParser.StdConstContext):
+    # Exit a parse tree produced by expressParser#set_type.
+    def exitSet_type(self, ctx:expressParser.Set_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#stdFunc.
-    def enterStdFunc(self, ctx:expressParser.StdFuncContext):
+    # Enter a parse tree produced by expressParser#simple_expression.
+    def enterSimple_expression(self, ctx:expressParser.Simple_expressionContext):
         pass
 
-    # Exit a parse tree produced by expressParser#stdFunc.
-    def exitStdFunc(self, ctx:expressParser.StdFuncContext):
+    # Exit a parse tree produced by expressParser#simple_expression.
+    def exitSimple_expression(self, ctx:expressParser.Simple_expressionContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#stdProc.
-    def enterStdProc(self, ctx:expressParser.StdProcContext):
+    # Enter a parse tree produced by expressParser#simple_factor.
+    def enterSimple_factor(self, ctx:expressParser.Simple_factorContext):
         pass
 
-    # Exit a parse tree produced by expressParser#stdProc.
-    def exitStdProc(self, ctx:expressParser.StdProcContext):
+    # Exit a parse tree produced by expressParser#simple_factor.
+    def exitSimple_factor(self, ctx:expressParser.Simple_factorContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#simple_types.
+    def enterSimple_types(self, ctx:expressParser.Simple_typesContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#simple_types.
+    def exitSimple_types(self, ctx:expressParser.Simple_typesContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#skip_stmt.
+    def enterSkip_stmt(self, ctx:expressParser.Skip_stmtContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#skip_stmt.
+    def exitSkip_stmt(self, ctx:expressParser.Skip_stmtContext):
         pass
 
 
@@ -1295,84 +1439,138 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#stmts.
-    def enterStmts(self, ctx:expressParser.StmtsContext):
+    # Enter a parse tree produced by expressParser#string_literal.
+    def enterString_literal(self, ctx:expressParser.String_literalContext):
         pass
 
-    # Exit a parse tree produced by expressParser#stmts.
-    def exitStmts(self, ctx:expressParser.StmtsContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#stringType.
-    def enterStringType(self, ctx:expressParser.StringTypeContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#stringType.
-    def exitStringType(self, ctx:expressParser.StringTypeContext):
+    # Exit a parse tree produced by expressParser#string_literal.
+    def exitString_literal(self, ctx:expressParser.String_literalContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#subSuper.
-    def enterSubSuper(self, ctx:expressParser.SubSuperContext):
+    # Enter a parse tree produced by expressParser#string_type.
+    def enterString_type(self, ctx:expressParser.String_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#subSuper.
-    def exitSubSuper(self, ctx:expressParser.SubSuperContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#subscript.
-    def enterSubscript(self, ctx:expressParser.SubscriptContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#subscript.
-    def exitSubscript(self, ctx:expressParser.SubscriptContext):
+    # Exit a parse tree produced by expressParser#string_type.
+    def exitString_type(self, ctx:expressParser.String_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#subtypeDecl.
-    def enterSubtypeDecl(self, ctx:expressParser.SubtypeDeclContext):
+    # Enter a parse tree produced by expressParser#subsuper.
+    def enterSubsuper(self, ctx:expressParser.SubsuperContext):
         pass
 
-    # Exit a parse tree produced by expressParser#subtypeDecl.
-    def exitSubtypeDecl(self, ctx:expressParser.SubtypeDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#supertypeDecl.
-    def enterSupertypeDecl(self, ctx:expressParser.SupertypeDeclContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#supertypeDecl.
-    def exitSupertypeDecl(self, ctx:expressParser.SupertypeDeclContext):
+    # Exit a parse tree produced by expressParser#subsuper.
+    def exitSubsuper(self, ctx:expressParser.SubsuperContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#supertypeExpr.
-    def enterSupertypeExpr(self, ctx:expressParser.SupertypeExprContext):
+    # Enter a parse tree produced by expressParser#subtype_constraint.
+    def enterSubtype_constraint(self, ctx:expressParser.Subtype_constraintContext):
         pass
 
-    # Exit a parse tree produced by expressParser#supertypeExpr.
-    def exitSupertypeExpr(self, ctx:expressParser.SupertypeExprContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#supertypeFactor.
-    def enterSupertypeFactor(self, ctx:expressParser.SupertypeFactorContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#supertypeFactor.
-    def exitSupertypeFactor(self, ctx:expressParser.SupertypeFactorContext):
+    # Exit a parse tree produced by expressParser#subtype_constraint.
+    def exitSubtype_constraint(self, ctx:expressParser.Subtype_constraintContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#tailRemark.
-    def enterTailRemark(self, ctx:expressParser.TailRemarkContext):
+    # Enter a parse tree produced by expressParser#subtype_constraint_body.
+    def enterSubtype_constraint_body(self, ctx:expressParser.Subtype_constraint_bodyContext):
         pass
 
-    # Exit a parse tree produced by expressParser#tailRemark.
-    def exitTailRemark(self, ctx:expressParser.TailRemarkContext):
+    # Exit a parse tree produced by expressParser#subtype_constraint_body.
+    def exitSubtype_constraint_body(self, ctx:expressParser.Subtype_constraint_bodyContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#subtype_constraint_decl.
+    def enterSubtype_constraint_decl(self, ctx:expressParser.Subtype_constraint_declContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#subtype_constraint_decl.
+    def exitSubtype_constraint_decl(self, ctx:expressParser.Subtype_constraint_declContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#subtype_constraint_head.
+    def enterSubtype_constraint_head(self, ctx:expressParser.Subtype_constraint_headContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#subtype_constraint_head.
+    def exitSubtype_constraint_head(self, ctx:expressParser.Subtype_constraint_headContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#subtype_constraint_id.
+    def enterSubtype_constraint_id(self, ctx:expressParser.Subtype_constraint_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#subtype_constraint_id.
+    def exitSubtype_constraint_id(self, ctx:expressParser.Subtype_constraint_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#subtype_declaration.
+    def enterSubtype_declaration(self, ctx:expressParser.Subtype_declarationContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#subtype_declaration.
+    def exitSubtype_declaration(self, ctx:expressParser.Subtype_declarationContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#supertype_constraint.
+    def enterSupertype_constraint(self, ctx:expressParser.Supertype_constraintContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#supertype_constraint.
+    def exitSupertype_constraint(self, ctx:expressParser.Supertype_constraintContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#supertype_expression.
+    def enterSupertype_expression(self, ctx:expressParser.Supertype_expressionContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#supertype_expression.
+    def exitSupertype_expression(self, ctx:expressParser.Supertype_expressionContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#supertype_factor.
+    def enterSupertype_factor(self, ctx:expressParser.Supertype_factorContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#supertype_factor.
+    def exitSupertype_factor(self, ctx:expressParser.Supertype_factorContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#supertype_rule.
+    def enterSupertype_rule(self, ctx:expressParser.Supertype_ruleContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#supertype_rule.
+    def exitSupertype_rule(self, ctx:expressParser.Supertype_ruleContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#supertype_term.
+    def enterSupertype_term(self, ctx:expressParser.Supertype_termContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#supertype_term.
+    def exitSupertype_term(self, ctx:expressParser.Supertype_termContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#syntax.
+    def enterSyntax(self, ctx:expressParser.SyntaxContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#syntax.
+    def exitSyntax(self, ctx:expressParser.SyntaxContext):
         pass
 
 
@@ -1385,156 +1583,129 @@ class expressListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by expressParser#typeBody.
-    def enterTypeBody(self, ctx:expressParser.TypeBodyContext):
+    # Enter a parse tree produced by expressParser#total_over.
+    def enterTotal_over(self, ctx:expressParser.Total_overContext):
         pass
 
-    # Exit a parse tree produced by expressParser#typeBody.
-    def exitTypeBody(self, ctx:expressParser.TypeBodyContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#typeDecl.
-    def enterTypeDecl(self, ctx:expressParser.TypeDeclContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#typeDecl.
-    def exitTypeDecl(self, ctx:expressParser.TypeDeclContext):
+    # Exit a parse tree produced by expressParser#total_over.
+    def exitTotal_over(self, ctx:expressParser.Total_overContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#typeDef.
-    def enterTypeDef(self, ctx:expressParser.TypeDefContext):
+    # Enter a parse tree produced by expressParser#type_decl.
+    def enterType_decl(self, ctx:expressParser.Type_declContext):
         pass
 
-    # Exit a parse tree produced by expressParser#typeDef.
-    def exitTypeDef(self, ctx:expressParser.TypeDefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#typeLabel.
-    def enterTypeLabel(self, ctx:expressParser.TypeLabelContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#typeLabel.
-    def exitTypeLabel(self, ctx:expressParser.TypeLabelContext):
+    # Exit a parse tree produced by expressParser#type_decl.
+    def exitType_decl(self, ctx:expressParser.Type_declContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#typeRef.
-    def enterTypeRef(self, ctx:expressParser.TypeRefContext):
+    # Enter a parse tree produced by expressParser#type_id.
+    def enterType_id(self, ctx:expressParser.Type_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#typeRef.
-    def exitTypeRef(self, ctx:expressParser.TypeRefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#typeSel.
-    def enterTypeSel(self, ctx:expressParser.TypeSelContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#typeSel.
-    def exitTypeSel(self, ctx:expressParser.TypeSelContext):
+    # Exit a parse tree produced by expressParser#type_id.
+    def exitType_id(self, ctx:expressParser.Type_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#unaryOp.
-    def enterUnaryOp(self, ctx:expressParser.UnaryOpContext):
+    # Enter a parse tree produced by expressParser#type_label.
+    def enterType_label(self, ctx:expressParser.Type_labelContext):
         pass
 
-    # Exit a parse tree produced by expressParser#unaryOp.
-    def exitUnaryOp(self, ctx:expressParser.UnaryOpContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#uniqueRule.
-    def enterUniqueRule(self, ctx:expressParser.UniqueRuleContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#uniqueRule.
-    def exitUniqueRule(self, ctx:expressParser.UniqueRuleContext):
+    # Exit a parse tree produced by expressParser#type_label.
+    def exitType_label(self, ctx:expressParser.Type_labelContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#uniqueRules.
-    def enterUniqueRules(self, ctx:expressParser.UniqueRulesContext):
+    # Enter a parse tree produced by expressParser#type_label_id.
+    def enterType_label_id(self, ctx:expressParser.Type_label_idContext):
         pass
 
-    # Exit a parse tree produced by expressParser#uniqueRules.
-    def exitUniqueRules(self, ctx:expressParser.UniqueRulesContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#untilControl.
-    def enterUntilControl(self, ctx:expressParser.UntilControlContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#untilControl.
-    def exitUntilControl(self, ctx:expressParser.UntilControlContext):
+    # Exit a parse tree produced by expressParser#type_label_id.
+    def exitType_label_id(self, ctx:expressParser.Type_label_idContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#useClause.
-    def enterUseClause(self, ctx:expressParser.UseClauseContext):
+    # Enter a parse tree produced by expressParser#unary_op.
+    def enterUnary_op(self, ctx:expressParser.Unary_opContext):
         pass
 
-    # Exit a parse tree produced by expressParser#useClause.
-    def exitUseClause(self, ctx:expressParser.UseClauseContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#useList.
-    def enterUseList(self, ctx:expressParser.UseListContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#useList.
-    def exitUseList(self, ctx:expressParser.UseListContext):
+    # Exit a parse tree produced by expressParser#unary_op.
+    def exitUnary_op(self, ctx:expressParser.Unary_opContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#varDef.
-    def enterVarDef(self, ctx:expressParser.VarDefContext):
+    # Enter a parse tree produced by expressParser#underlying_type.
+    def enterUnderlying_type(self, ctx:expressParser.Underlying_typeContext):
         pass
 
-    # Exit a parse tree produced by expressParser#varDef.
-    def exitVarDef(self, ctx:expressParser.VarDefContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#varParam.
-    def enterVarParam(self, ctx:expressParser.VarParamContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#varParam.
-    def exitVarParam(self, ctx:expressParser.VarParamContext):
+    # Exit a parse tree produced by expressParser#underlying_type.
+    def exitUnderlying_type(self, ctx:expressParser.Underlying_typeContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#varParams.
-    def enterVarParams(self, ctx:expressParser.VarParamsContext):
+    # Enter a parse tree produced by expressParser#unique_clause.
+    def enterUnique_clause(self, ctx:expressParser.Unique_clauseContext):
         pass
 
-    # Exit a parse tree produced by expressParser#varParams.
-    def exitVarParams(self, ctx:expressParser.VarParamsContext):
-        pass
-
-
-    # Enter a parse tree produced by expressParser#varRef.
-    def enterVarRef(self, ctx:expressParser.VarRefContext):
-        pass
-
-    # Exit a parse tree produced by expressParser#varRef.
-    def exitVarRef(self, ctx:expressParser.VarRefContext):
+    # Exit a parse tree produced by expressParser#unique_clause.
+    def exitUnique_clause(self, ctx:expressParser.Unique_clauseContext):
         pass
 
 
-    # Enter a parse tree produced by expressParser#whileControl.
-    def enterWhileControl(self, ctx:expressParser.WhileControlContext):
+    # Enter a parse tree produced by expressParser#unique_rule.
+    def enterUnique_rule(self, ctx:expressParser.Unique_ruleContext):
         pass
 
-    # Exit a parse tree produced by expressParser#whileControl.
-    def exitWhileControl(self, ctx:expressParser.WhileControlContext):
+    # Exit a parse tree produced by expressParser#unique_rule.
+    def exitUnique_rule(self, ctx:expressParser.Unique_ruleContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#until_control.
+    def enterUntil_control(self, ctx:expressParser.Until_controlContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#until_control.
+    def exitUntil_control(self, ctx:expressParser.Until_controlContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#use_clause.
+    def enterUse_clause(self, ctx:expressParser.Use_clauseContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#use_clause.
+    def exitUse_clause(self, ctx:expressParser.Use_clauseContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#variable_id.
+    def enterVariable_id(self, ctx:expressParser.Variable_idContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#variable_id.
+    def exitVariable_id(self, ctx:expressParser.Variable_idContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#where_clause.
+    def enterWhere_clause(self, ctx:expressParser.Where_clauseContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#where_clause.
+    def exitWhere_clause(self, ctx:expressParser.Where_clauseContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#while_control.
+    def enterWhile_control(self, ctx:expressParser.While_controlContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#while_control.
+    def exitWhile_control(self, ctx:expressParser.While_controlContext):
         pass
 
 
@@ -1544,6 +1715,15 @@ class expressListener(ParseTreeListener):
 
     # Exit a parse tree produced by expressParser#width.
     def exitWidth(self, ctx:expressParser.WidthContext):
+        pass
+
+
+    # Enter a parse tree produced by expressParser#width_spec.
+    def enterWidth_spec(self, ctx:expressParser.Width_specContext):
+        pass
+
+    # Exit a parse tree produced by expressParser#width_spec.
+    def exitWidth_spec(self, ctx:expressParser.Width_specContext):
         pass
 
 
