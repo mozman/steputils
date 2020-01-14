@@ -152,6 +152,7 @@ def _to_unicode_str(s, l, t):
 
 binary_literal = Word('%', '01').addParseAction(lambda s, l, t: int(t[0][1:], 2)).setName(
     'BinaryLiteral')  # convert to int
+# TODO: maybe ignoring leading signs [+-] for numbers will fix some errors
 integer_literal = pyparsing_common.signed_integer('IntegerLiteral')  # as int
 real_literal = pyparsing_common.sci_real('RealLiteral')  # as float
 encoded_string_literal = Suppress('"') + OneOrMore(encoded_character).addParseAction(_to_unicode_str).setName(
@@ -162,18 +163,6 @@ simple_string_literal = sglQuotedString('StringLiteral')
 simple_string_literal.addParseAction(lambda s, l, t: ast.StringLiteral(t[0][1:-1]))  # remove quotes
 string_literal = simple_string_literal | encoded_string_literal
 literal = binary_literal | logical_literal | real_literal | integer_literal | string_literal
-
-# replaced by sglQuotedString
-# letter = Char(ascii_letters)
-# not_paren_star_quote_special = Char('!"#$%&+,-./:;<=>?@[\\]^_‘{|}~')  # special char ‘ ???
-# not_paren_star_special = not_paren_star_quote_special | "'"
-# not_paren_star = letter | digit | not_paren_star_special
-# not_lparen_star = not_paren_star | ')'
-# not_rparen_star = not_paren_star | '('
-# not_quote = not_paren_star_quote_special | letter | digit | Char('()*')
-# special = not_paren_star_quote_special | Char("()*’")
-# lparen_then_not_lparen_star = OneOrMore('(') + OneOrMore(not_lparen_star)
-# not_rparen_star_then_rparen = OneOrMore(not_rparen_star) + OneOrMore(')')
 
 schema_version_id = string_literal('SchemaVersionID')
 simple_id = Word(ascii_letters, ascii_letters + '0123456789_').setName('SimpleID')

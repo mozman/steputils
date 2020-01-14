@@ -19,25 +19,24 @@ Loading and Storing Data
 Many file formats of the [STEP] standard should be supported, as plain text file and also as 
 compressed zip file:
 
-1. [STEP] - Standard for the Exchange of Product model data. 
-   My pure Python implementation is very slow for big files (>1 MB), and the reference Python implementation from 
-   the stepcode project is not much faster.
+1. [STEP] - Standard for the Exchange of Product model data - `p21.readfile()` already works and is fast enough. 
 2. [XML] - Extensible Markup Language, fast to read from Python with `xml.etree.ElementTree`
 3. [JSON] - JavaScript Object Notation, no examples available yet
 
-### STEP Requirements & Resources
+### EXPRESS Schema Parser
 
-A parser generator has to be written for EXPRESS definition files, the solution I found online called [STEPcode], 
-is a starting point, but the generated Python code is ugly and does not correspond to PEP8, generated code is 
-included in folder `doc/stepcode`.
-
-Resources to build STEP parser:
+A Python data model generator has to be written for EXPRESS definition files, the solution I found online called 
+[STEPcode], is a starting point, but the generated Python code is ugly and does not correspond to PEP8, generated 
+code is included in folder `doc/stepcode`.
 
 - EXPRESS data specification language, EXPRESS is a standard data modeling language for product data. 
   EXPRESS is formalized in the ISO Standard for the Exchange of Product model STEP (ISO 10303), and standardized 
   as [ISO 10303-11].
 - `iso-10303-11--2004.bnf`: Backus-Naur-Form for EXPRESS
-- `iso-10303-21--2002.bnf`: Backus-Naur-Form for STEP-file - STEP-file loader/serializer is done but very slow  
+- EXPRESS parser implemented by antlr4, works but is very slow. Generating a Python data model from EXPRESS schema
+  is a done once and therefore hasn't to be very fast, but it is a pain in the development and testing phase.
+- The pyparsing implementation does not work but is promising for speed, so I will not abandon this implementation 
+  complete - but for now I go the antlr4 route. 
 
 ### XML Requirements & Resources
 

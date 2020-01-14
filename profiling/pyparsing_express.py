@@ -20,13 +20,13 @@ class LoadResult:
         if self.content is None:
             print(f"{self.filename.name} is not an EXPRESS schema file.")
         else:
+            print(f"File: {self.filename.name}")
             if isinstance(self.content, ParseException):
-                print('ParseException: ' + str(self.content))
+                print('  ParseException: ' + str(self.content))
             size = self.filename.stat().st_size / 1024.
             overall = self.loading_time + self.parsing_time
             print(
-                f"File: {self.filename.name}; "
-                f" Size: {size:.2f} kB; "
+                f"  Size: {size:.2f} kB; "
                 f"IO: {self.loading_time:.2f}s; "
                 f"Parsing: {self.parsing_time:.2f}s; "
                 f"Sum: {overall:.2f}s; "
@@ -59,7 +59,6 @@ def load_schema(fn: Path) -> LoadResult:
         print(e)
     else:
         loaded = time.perf_counter()
-        print(f'parsing {fn.stem} ...')
         try:
             content = syntax.parseString(data)
         except ParseException as e:
