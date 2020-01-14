@@ -33,10 +33,17 @@ code is included in folder `doc/stepcode`.
   EXPRESS is formalized in the ISO Standard for the Exchange of Product model STEP (ISO 10303), and standardized 
   as [ISO 10303-11].
 - `iso-10303-11--2004.bnf`: Backus-Naur-Form for EXPRESS
-- EXPRESS parser implemented by antlr4, works but is very slow. Generating a Python data model from EXPRESS schema
-  is a done once and therefore hasn't to be very fast, but it is a pain in the development and testing phase.
+- EXPRESS parser implemented by antlr4 works but is very slow. Generating a Python data model from EXPRESS schema
+  is a done once and therefore hasn't to be very fast, but it is a pain in the development and testing phase 
+  (Caching AST!).
 - The pyparsing implementation does not work but is promising for speed, so I will not abandon this implementation 
   complete - but for now I go the antlr4 route. 
+
+#### Abstract Syntax Tree for EXPRESS
+
+It is required to create an AST from the parse tree, (EXP|XSD) -> AST -> Python Data Model.
+
+Caching the AST could speed up developing and testing phase for the slow antlr4 parser!  
 
 ### XML Requirements & Resources
 
