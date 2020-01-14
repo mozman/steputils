@@ -1,0 +1,12 @@
+
+Entering Folder <schema>
+File: ap203.exp
+  ParseException: Expected "END_SCHEMA", found '-'  (at char 12027), (line:501, col:15)
+  Size: 208.84 kB; Parsing: 0.24s;
+File: IFC4x2.exp
+  ParseException: Expected "END_SCHEMA", found 'E'  (at char 72625), (line:3398, col:1)
+  Size: 377.34 kB; Parsing: 0.54s;
+IFC4x2.xsd is not an EXPRESS schema file.
+-------------------------------------------------------------------------------
+Folder <schema> Runtime: 0.78 sec.
+Overall Runtime: 0.78 sec.

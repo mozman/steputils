@@ -27,9 +27,7 @@ class LoadResult:
             overall = self.loading_time + self.parsing_time
             print(
                 f"  Size: {size:.2f} kB; "
-                f"IO: {self.loading_time:.2f}s; "
                 f"Parsing: {self.parsing_time:.2f}s; "
-                f"Sum: {overall:.2f}s; "
             )
 
 
