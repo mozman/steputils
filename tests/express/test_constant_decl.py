@@ -2,7 +2,7 @@
 # License: MIT License
 
 import pytest
-from steputils.express.parser import constant_decl, Tokens
+from steputils.express.pyparser import constant_decl, Tokens
 
 
 def test_typedef_real():

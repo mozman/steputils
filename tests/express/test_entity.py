@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Manfred Moitzi
 # License: MIT License
 import pytest
-from steputils.express.parser import entity_decl, supertype_constraint, one_of, supertype_rule, Tokens
+from steputils.express.pyparser import entity_decl, supertype_constraint, one_of, supertype_rule, Tokens
 
 
 def test_simple_entity_decl():

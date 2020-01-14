@@ -1,9 +1,11 @@
+# Copyright (c) 2020 Manfred Moitzi
+# License: MIT License
+
 from pathlib import Path
 import time
-from steputils import p21
+from steputils.express import Parser
 
-# p21 example files not included in public repository, because legal status of files is not clear
-DIR = Path(r'..\data\p21examples').resolve()
+DATAPATH = Path(r'..\data\schema').resolve()
 
 
 class LoadResult:
@@ -15,7 +17,7 @@ class LoadResult:
 
     def print(self):
         if self.content is None:
-            print(f"{self.filename.name} is not as STEP-file.")
+            print(f"{self.filename.name} is not an EXPRESS schema file.")
         else:
             size = self.filename.stat().st_size / 1024.
             overall = self.loading_time + self.parsing_time
@@ -28,34 +30,35 @@ class LoadResult:
             )
 
 
-def scan_p21_files(p: Path):
+def scan_express_schemas(p: Path):
     print(f"\nEntering Folder <{p.stem}>")
     start_time = time.perf_counter()
     for file in p.iterdir():
         if file.is_dir():
-            scan_p21_files(file)
+            scan_express_schemas(file)
         else:
-            result = load_p21(file)
+            result = load_schema(file)
             result.print()
     run_time = time.perf_counter() - start_time
     print('-' * 79)
     print(f"Folder <{p.stem}> Runtime: {run_time:.2f} sec.")
 
 
-def load_p21(fn: Path) -> LoadResult:
-    if fn.suffix.lower() not in ('.p21', '.ifc', '.stp'):
+def load_schema(fn: Path) -> LoadResult:
+    if fn.suffix.lower() != '.exp':
         return LoadResult(fn, None, 0)
     content = None
     start_time = time.perf_counter()
     loaded = time.perf_counter()
     try:
-        data = open(str(fn), mode='rt', encoding=p21.STEP_FILE_ENCODING).read()
-        loaded = time.perf_counter()
-        content = p21.loads(data)
+        data = open(str(fn), mode='rt').read()
     except IOError as e:
         print(e)
-    except p21.ParseError as e:
-        print(e)
+    else:
+        loaded = time.perf_counter()
+        print(f'parsing {fn.stem} ...')
+        parser = Parser(data)
+        content = parser.schema()
     end_time = time.perf_counter()
     loading_time = loaded - start_time
     parsing_time = end_time - loaded
@@ -64,6 +67,6 @@ def load_p21(fn: Path) -> LoadResult:
 
 if __name__ == '__main__':
     start_time = time.perf_counter()
-    scan_p21_files(DIR)
+    scan_express_schemas(DATAPATH)
     run_time = time.perf_counter() - start_time
     print(f"Overall Runtime: {run_time:.2f} sec.")

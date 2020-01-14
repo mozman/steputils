@@ -49,7 +49,7 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     provides=['steputils'],
-    install_requires=['pyparsing'],
+    install_requires=['pyparsing', 'antlr4-python3-runtime'],
     setup_requires=['wheel'],
     tests_require=['pytest'],
     keywords=['IFC4', 'CAD', 'STEP'],

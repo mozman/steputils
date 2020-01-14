@@ -5,7 +5,7 @@ News
 Version 0.1a5
 -------------
 
-- todo
+- EXPRESS parser implemented with antlr4
 
 Version 0.1a2
 -------------

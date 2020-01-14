@@ -2,7 +2,7 @@
 # License: MIT License
 
 import pytest
-from steputils.express.parser import type_decl, where_clause, Tokens
+from steputils.express.pyparser import type_decl, where_clause, Tokens
 
 
 def test_typedef_real():

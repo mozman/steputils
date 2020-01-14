@@ -3,7 +3,7 @@
 
 import pytest
 
-from steputils.express.parser import (
+from steputils.express.pyparser import (
     list_type, bound_spec, array_type, index_qualifier, simple_expression, string_literal,
     aggregate_initializer, real_literal, interval, entity_constructor, primary,
     simple_factor, expression, integer_literal, ast, enumeration_type, underlying_type,

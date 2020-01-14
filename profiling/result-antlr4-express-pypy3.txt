@@ -1,0 +1,9 @@
+Entering Folder <schema>
+parsing ap203 ...
+File: ap203.exp;  Size: 208.84 kB; IO: 0.03s; Parsing: 9.74s; Sum: 9.77s;
+parsing IFC4x2 ...
+File: IFC4x2.exp;  Size: 377.34 kB; IO: 0.03s; Parsing: 7.77s; Sum: 7.80s;
+IFC4x2.xsd is not an EXPRESS schema file.
+-------------------------------------------------------------------------------
+Folder <schema> Runtime: 17.57 sec.
+Overall Runtime: 17.57 sec.
