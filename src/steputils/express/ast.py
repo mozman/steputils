@@ -4,81 +4,102 @@
 from typing import Iterable, Optional
 
 
+class Literal(str):
+    @classmethod
+    def action(cls, toks):
+        return cls(toks[0])
+
+
+class StringLiteral(Literal):
+    @classmethod
+    def action(cls, toks):
+        return cls(toks[0][1:-1])  # remove quotes
+
+    @classmethod
+    def decode(cls, toks):
+        return cls(''.join(chr(int(c, 16)) for c in toks))
+
+
+class LogicalLiteral(Literal):
+    pass
+
+
+class BuiltInConstant(Literal):
+    pass
+
+
+class BuiltInFunction(Literal):
+    pass
+
+
+class BuiltInProcedure(Literal):
+    pass
+
+
+class Type(Literal):
+    pass
+
+
+class SimpleID(Literal):
+    pass
+
+
+def is_literal(item):
+    return isinstance(item, (StringLiteral, LogicalLiteral, int, float))
+
+
 class AST:
-    pass
-
-
-class Value(AST):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return str(self.value)
-
-
-class StringLiteral(Value):
-    pass
-
-
-class LogicalLiteral(Value):
-    pass
-
-
-class BuiltInConstant(Value):
-    pass
-
-
-class BuiltInFunction(Value):
-    pass
-
-
-class BuiltInProcedure(Value):
-    pass
-
-
-class Type(Value):
-    pass
-
-
-class Expression(AST):
-    def __init__(self, op, left, right):
-        self.operand = op
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        return f"{self.left} {self.operand} {self.right}"
-
-
-class DomainRule(AST):
-    def __init__(self, name: Optional[str], rule: Expression):
+    def __init__(self, name: str, children: Iterable):
         self.name = name
-        self.rule = rule
+        self._children = tuple(children)
 
-    def __str__(self):
-        if self.name is not None:
-            return f"{self.name}: {self.rule}"
-        else:
-            return str(self.rule)
+    @property
+    def children(self):
+        return self._children
 
+    @property
+    def value(self):
+        return self.children[0]
 
-class WhereClause(AST):
-    def __init__(self, rules: Iterable[DomainRule]):
-        self.rules = list(rules)
+    def __repr__(self):
+        content = ', '.join(repr(c) for c in self.children)
+        return f'({self.name}, {content})'
 
     def __len__(self):
-        return len(self.rules)
+        return len(self.children)
 
-    def __str__(self):
-        rules = ';'.join(str(r) for r in self.rules)
-        return f"WHERE({rules})"
+    def __iter__(self):
+        return iter(self.children)
+
+    def __getitem__(self, item):
+        return self.children[item]
+
+    @staticmethod
+    def action(toks):
+        return AST(toks[0], toks[1:])
 
 
-class TypeDecl(AST):
-    def __init__(self, type_id: str, underlying_type: Type, where_clause: WhereClause):
-        self.type_id = type_id
-        self.under_lying_type = underlying_type
-        self.where_clause = where_clause
+class Primary(AST):
+    @staticmethod
+    def action(toks):
+        if is_literal(toks[0]):
+            return toks[0]
+        else:
+            return Primary('Primary', toks)
 
-    def __str__(self):
-        return f"TYPE {self.type_id} = {self.under_lying_type} {self.where_clause}"
+
+class BoundSpec(AST):
+    @staticmethod
+    def action(toks):
+        return BoundSpec('BoundSpec', (toks[1], toks[3]))
+
+
+class IndexQualifier(AST):
+    @staticmethod
+    def action(toks):
+        index_1 = toks[1]
+        try:
+            index_2 = toks[4]
+        except IndexError:
+            index_2 = None
+        return IndexQualifier('IndexQualifier', (index_1, index_2))

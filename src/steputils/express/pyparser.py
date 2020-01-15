@@ -132,12 +132,13 @@ WHILE = Keyword('WHILE')
 WITH = Keyword('WITH')
 XOR = Keyword('XOR')
 
-built_in_constant = (CONST_E | PI | SELF | '?').addParseAction(lambda s, l, t: ast.BuiltInConstant(t[0]))
+built_in_constant = (CONST_E | PI | SELF | '?').addParseAction(ast.BuiltInConstant.action)
 built_in_function = (ABS | ACOS | ASIN | ATAN | BLENGTH | COS | EXISTS | EXP | FORMAT | HIBOUND | HIINDEX | LENGTH
                      | LOBOUND | LOINDEX | LOG2 | LOG10 | LOG | NVL | ODD | ROLESOF | SIN | SIZEOF | SQRT | TAN
-                     | TYPEOF | USEDIN | VALUE_IN | VALUE_UNIQUE | VALUE).addParseAction(
-    lambda s, l, t: ast.BuiltInFunction(t[0]))
-built_in_procedure = INSERT | REMOVE.addParseAction(lambda s, l, t: ast.BuiltInProcedure(t[0]))
+                     | TYPEOF | USEDIN | VALUE_IN | VALUE_UNIQUE | VALUE
+                     ).addParseAction(ast.BuiltInFunction.action)
+
+built_in_procedure = INSERT | REMOVE.addParseAction(ast.BuiltInProcedure.action)
 
 bit = Char('01')
 digit = Char('0123456789')
@@ -146,26 +147,21 @@ sign = Char('+-')
 encoded_character = Word(hexnums, exact=8)
 
 
-def _to_unicode_str(s, l, t):
-    return ''.join(chr(int(c, 16)) for c in t)
-
-
-binary_literal = Word('%', '01').addParseAction(lambda s, l, t: int(t[0][1:], 2)).setName(
-    'BinaryLiteral')  # convert to int
+binary_literal = Word('%', '01').addParseAction(lambda toks: int(toks[0][1:], 2))  # convert to int
 # TODO: maybe ignoring leading signs [+-] for numbers will fix some errors
-integer_literal = pyparsing_common.signed_integer('IntegerLiteral')  # as int
-real_literal = pyparsing_common.sci_real('RealLiteral')  # as float
-encoded_string_literal = Suppress('"') + OneOrMore(encoded_character).addParseAction(_to_unicode_str).setName(
-    'EncodedStringLiteral') + Suppress('"')
-logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(lambda s, l, t: ast.LogicalLiteral(t[0])).setName(
-    'LogicalLiteral')
-simple_string_literal = sglQuotedString('StringLiteral')
-simple_string_literal.addParseAction(lambda s, l, t: ast.StringLiteral(t[0][1:-1]))  # remove quotes
+integer_literal = pyparsing_common.signed_integer.copy()  # as int
+real_literal = pyparsing_common.sci_real.copy()  # as float
+encoded_string_literal = Suppress('"') + \
+                         OneOrMore(encoded_character).addParseAction(ast.StringLiteral.decode) + \
+                         Suppress('"')
+
+logical_literal = (FALSE | TRUE | UNKNOWN).addParseAction(ast.LogicalLiteral.action)
+simple_string_literal = sglQuotedString.copy().addParseAction(ast.StringLiteral.action)
 string_literal = simple_string_literal | encoded_string_literal
 literal = binary_literal | logical_literal | real_literal | integer_literal | string_literal
 
-schema_version_id = string_literal('SchemaVersionID')
-simple_id = Word(ascii_letters, ascii_letters + '0123456789_').setName('SimpleID')
+schema_version_id = string_literal
+simple_id = Word(ascii_letters, ascii_letters + '0123456789_').setParseAction(ast.SimpleID.action)
 attribute_id = simple_id
 constant_id = simple_id
 entity_id = simple_id
@@ -214,9 +210,9 @@ qualified_attribute = SELF + group_qualifier + attribute_qualifier
 referenced_attribute = qualified_attribute | attribute_ref
 unique_rule = Optional(rule_label_id + ':') + referenced_attribute + ZeroOrMore(',' + referenced_attribute)
 
-null_stmt = Char(';')
-skip_stmt = SKIP + ';'
-escape_stmt = ESCAPE + ';'
+null_stmt = Char(';')  # pass ?
+skip_stmt = SKIP + ';'  # continue ?
+escape_stmt = ESCAPE + ';'  # break ?
 
 add_like_op = (Char('+-') | OR | XOR).setName('add like operand')
 interval_op = oneOf('< <=').setName('interval operand')
@@ -390,7 +386,7 @@ schema_decl = SCHEMA + schema_id + Optional(schema_version_id) + ';' + schema_bo
 
 # Resolving forward declarations
 simple_factor <<= entity_constructor | query_expression | expr_or_primary | aggregate_initializer | enumeration_reference | interval
-
+simple_factor.addParseAction()
 declaration <<= entity_decl | function_decl | procedure_decl | subtype_constraint_decl | type_decl
 stmt <<= alias_stmt | assignment_stmt | case_stmt | compound_stmt | if_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt | escape_stmt | null_stmt
 

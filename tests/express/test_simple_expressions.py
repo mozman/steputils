@@ -25,7 +25,7 @@ def test_list():
 def test_string_literal():
     r = Tokens(string_literal.parseString("'test'"))
     assert type(r[0]) is ast.StringLiteral
-    assert r[0].value == 'test'
+    assert r[0] == 'test'
 
 
 def test_simple_expression():
@@ -68,7 +68,7 @@ def test_aggregate_init():
     r = Tokens(aggregate_initializer.parseString("['test', 100]"))
     assert r[0] == '['
     assert type(r[1]) is ast.StringLiteral
-    assert r[1].value == 'test'
+    assert r[1] == 'test'
     assert r[2] == ','
     assert r[3] == 100
     assert type(r[3]) is int
