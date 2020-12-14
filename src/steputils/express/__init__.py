@@ -16,4 +16,4 @@ class Parser:
         self.parser = expressParser(tokens(text))
 
     def schema(self):
-        return self.parser.schema_decl()
+        return self.parser.syntax().children[0]  # just return first schema

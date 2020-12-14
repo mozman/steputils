@@ -44,6 +44,10 @@ class SimpleID(Literal):
     pass
 
 
+class Operand(Literal):
+    pass
+
+
 def is_literal(item):
     return isinstance(item, (StringLiteral, LogicalLiteral, int, float))
 

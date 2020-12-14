@@ -220,9 +220,10 @@ multiplication_like_op = ('||' | Char('*/|') | DIV | MOD | AND).setName('multipl
 rel_op = oneOf('< > <= >= <> = :<>: :=:').setName('relation operand')
 rel_op_extended = (rel_op | IN | LIKE).setName('extended relation operand')
 unary_op = (sign | NOT).setName('unary operand')
+exponentiation_op = '**'
 
 simple_factor = Forward()
-factor = simple_factor + Optional('**' + simple_factor)
+factor = simple_factor + Optional(exponentiation_op + simple_factor)
 term = factor + ZeroOrMore(multiplication_like_op + factor)
 simple_expression = term + ZeroOrMore(add_like_op + term)
 numeric_expression = simple_expression
