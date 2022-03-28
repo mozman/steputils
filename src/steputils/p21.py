@@ -33,6 +33,7 @@ FIRST_KEYWORD_CHAR = ascii_uppercase + '_'
 KEYWORD_CHARS = ascii_letters + digits + '_-'  # should accept ISO-10303-21 and lower case letters
 
 STRING_CHARS = ascii_letters + digits + ' _' + SPECIAL + BACKSLASH
+IGNORE_DELIMETERS = "\n\r\f\t"
 FIRST_NUMBER_CHARS = '-+01234567890'
 NUMBER_CHARS = FIRST_NUMBER_CHARS + '.eE'
 FIRST_ENUM_CHARS = ascii_uppercase + '_.'
@@ -553,6 +554,8 @@ class Lexer:
                     return ''.join(s)
             elif current in STRING_CHARS:
                 s.append(b.get())
+            elif current in IGNORE_DELIMETERS:
+                b.skip()
             else:
                 raise ParseError(f'Found invalid character in string "{current}".')
 
