@@ -337,6 +337,24 @@ class StepFile:
             self._rebuild_chain_map()
         return self._linked_data_sections[ref]
 
+    def __delitem__(self, ref: str):
+        """ Deletes entity instance by instance name `ref` from all data sections.
+
+        Args:
+            ref: entity instance name as string e.g. ``'#100'``
+
+        Raises:
+              KeyError: instance `id` not found
+
+        """
+        deleted = False
+        for mapping in self._linked_data_sections.maps:
+            if ref in mapping:
+                del mapping[ref]
+                deleted = True
+        if not deleted:
+            raise KeyError(ref)
+
     def __len__(self) -> int:
         """ Returns count of all stored entity instances. """
         return len(self._linked_data_sections)
