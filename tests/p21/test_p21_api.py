@@ -48,6 +48,13 @@ def test_step_file_getter(stpfile):
     assert stpfile['#1'].ref == '#1'
 
 
+def test_step_file_delete_entity_instance_by_ref(stpfile):
+    assert stpfile['#100'].ref == '#100'
+    del stpfile['#100']
+    with pytest.raises(KeyError):
+        stpfile['#100']
+
+
 def test_len(stpfile):
     assert len(stpfile) == 2
 
