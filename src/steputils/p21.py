@@ -345,7 +345,7 @@ class StepFile:
             ref: entity instance name as string e.g. ``'#100'``
 
         Raises:
-              KeyError: instance `id` not found
+              KeyError: instance `ref` not found
 
         """
         deleted = False

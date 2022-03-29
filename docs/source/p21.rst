@@ -156,6 +156,8 @@ StepFile
 
     .. automethod:: __getitem__(ref: Reference) -> EntityInstance
 
+    .. automethod:: __delitem__(ref: Reference) -> None
+
     .. automethod:: __iter__() -> Iterable[EntityInstance]
 
     .. automethod:: __len__
