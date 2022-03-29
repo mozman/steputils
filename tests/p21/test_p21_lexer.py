@@ -63,9 +63,7 @@ def test_lexer_string_with_enclosed_comments():
 
 
 def test_lexer_string_across_lines():
-    # strings across lines are not allowed
-    with pytest.raises(p21.ParseError):
-        list(p21.Lexer("'\n',"))
+    assert list(p21.Lexer("'multi\nline',")) == ['multiline', ',']
 
 
 def test_lexer_empty_string():
