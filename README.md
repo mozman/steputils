@@ -24,15 +24,15 @@ Quick-Info
 
 - Python package to manage a simple document object model (DOM) for STEP model data
 - the intended audience are developers
-- requires at least Python 3.6
+- requires at least Python 3.7
 - OS independent
-- tested with CPython & PyPy on Windows 10 & Manjaro Linux
+- tested with GitHub actions for windows-latest and linux-latest
 - MIT-License
 
 Installation
 ------------
 
-Install with pip for Python 3.6 and later:
+Install with pip for Python 3.7 and later:
 
     pip install steputils
 

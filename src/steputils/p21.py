@@ -1,6 +1,5 @@
 # Faster handwritten STEP-file lexer and parser
-# Created: 04.01.2020
-# Copyright (c) 2020 Manfred Moitzi
+# Copyright (c) 2020-2021 Manfred Moitzi
 # License: MIT License
 from typing import Iterable, Union, Tuple, List, Dict, Optional, TextIO
 from string import ascii_letters, digits, ascii_uppercase, hexdigits
@@ -19,6 +18,7 @@ __all__ = [
     'parameter_list', 'simple_entity_instance', 'simple_instance', 'complex_entity_instance', 'new_step_file',
     'load', 'loads', 'readfile', 'STEP_FILE_ENCODING',
 ]
+# ISO 10303-21: http://www.steptools.com/stds/step/IS_final_p21e3.html
 
 # ISO 10303-21-2016 allows UTF-8 encoding, prior versions of the standard used used IOS-8859-1 encoding, but
 # lower code points (<127) are the same for both encodings.

@@ -2,6 +2,11 @@
 News
 ====
 
+Version 0.1b0
+-------------
+
+- BUGFIX: [#3](https://github.com/mozman/steputils/pull/3) multiline string support
+
 Version 0.1a5
 -------------
 
