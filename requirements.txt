@@ -1,2 +1,4 @@
 pyparsing
 antlr4-python3-runtime<4.10
+pytest
+wheel

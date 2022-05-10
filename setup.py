@@ -41,7 +41,6 @@ setup(
     download_url='https://pypi.org/project/steputils/',
     project_urls={
         'Documentation': 'https://steputils.readthedocs.io',
-        'Wiki': 'https://github.com/mozman/steputils/wiki',
         'Source': 'http://github.com/mozman/steputils',
         'Bug Tracker': 'https://github.com/mozman/steputils/issues',
     },
@@ -58,7 +57,7 @@ setup(
     platforms="OS Independent",
     license="MIT License",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",

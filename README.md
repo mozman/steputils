@@ -25,6 +25,7 @@ Quick-Info
 - Python package to manage a simple document object model (DOM) for STEP model data
 - the intended audience are developers
 - requires at least Python 3.7
+- requires `antlr4-python3-runtime<4.10` !!!
 - OS independent
 - tested with GitHub actions for windows-latest and linux-latest
 - MIT-License
