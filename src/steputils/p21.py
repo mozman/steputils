@@ -665,7 +665,7 @@ class Parser:
     def pop(self):
         try:
             return self.tokens.pop()
-        except IndexError():
+        except IndexError:
             raise ParseError('Unexpected end of file.')
 
     def _keyword(self):
