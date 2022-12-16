@@ -1,5 +1,4 @@
-# Created: 28.12.2019
-# Copyright (c) 2019 Manfred Moitzi
+# Copyright (c) 2019-2022 Manfred Moitzi
 # License: MIT License
 import pytest
 from io import StringIO
@@ -67,7 +66,7 @@ def test_header(stpfile):
     result = fp.getvalue().split('\n')
     assert result[0] == "HEADER;"
     assert result[1] == "FILE_DESCRIPTION(('notes1','notes2'),'2;1');"
-    assert result[2] == f"FILE_NAME('test.stp','{timestamp}','',(''),(''),'','');"
+    assert result[2] == f"FILE_NAME('test.stp','{timestamp}',(''),(''),'','','');"
     assert result[3] == "FILE_SCHEMA(('IFC2X3'));"
     assert result[4] == "ENDSEC;"
 

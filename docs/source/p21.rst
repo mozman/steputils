@@ -44,7 +44,7 @@ The intended usage is to import the :mod:`p21` module and create new objects by 
 
    # Set required header entities:
    stepfile.header.set_file_description(('Example STEP file', 'v1.0'))
-   stepfile.header.set_file_name(name=FNAME, organization=('me', 'myself'), autorization='me')
+   stepfile.header.set_file_name(name=FNAME, organization=('me', 'myself'), authorization='me')
    # A file schema has to be defined explicit, list all used file schemas.
    stepfile.header.set_file_schema(('NONE',))
 
